@@ -4,6 +4,7 @@ using Hospital.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240823121234_AddMedictaion")]
+    partial class AddMedictaion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,25 +25,21 @@ namespace Hospital.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Hospital.Models.ActiveIngredient", b =>
+            modelBuilder.Entity("Hospital.Models.ActiveIngredients", b =>
                 {
-                    b.Property<int>("IngredientId")
+                    b.Property<int>("ActiveIngredientID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IngredientId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ActiveIngredientID"));
 
-                    b.Property<string>("IngredientName")
+                    b.Property<string>("ActiveIngredientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Strength")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("ActiveIngredientID");
 
-                    b.HasKey("IngredientId");
-
-                    b.ToTable("ActiveIngredient");
+                    b.ToTable("ActiveIngredients");
                 });
 
             modelBuilder.Entity("Hospital.Models.AdminLogin", b =>
@@ -51,23 +50,6 @@ namespace Hospital.Migrations
                     b.HasKey("EmailAddress");
 
                     b.ToTable("AdminLogin");
-                });
-
-            modelBuilder.Entity("Hospital.Models.DosageForm", b =>
-                {
-                    b.Property<int>("DosageFormID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DosageFormID"));
-
-                    b.Property<string>("DosageFormName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DosageFormID");
-
-                    b.ToTable("DosageForm");
                 });
 
             modelBuilder.Entity("Hospital.Models.Medication", b =>
@@ -140,7 +122,7 @@ namespace Hospital.Migrations
 
                     b.HasKey("NurseID");
 
-                    b.ToTable("Nurses");
+                    b.ToTable("Nurse");
                 });
 
             modelBuilder.Entity("Hospital.Models.Pharmacist", b =>
@@ -173,7 +155,7 @@ namespace Hospital.Migrations
 
                     b.HasKey("PharmacistId");
 
-                    b.ToTable("Pharmacists");
+                    b.ToTable("Pharmacist");
                 });
 
             modelBuilder.Entity("Hospital.Models.Surgeon", b =>
@@ -206,7 +188,7 @@ namespace Hospital.Migrations
 
                     b.HasKey("SurgeonId");
 
-                    b.ToTable("Surgeons");
+                    b.ToTable("Surgeon");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

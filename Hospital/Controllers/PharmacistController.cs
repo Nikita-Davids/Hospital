@@ -30,26 +30,26 @@ namespace Hospital.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        // GET: ActiveIngredients/AddIngredient
-        public IActionResult AddIngredient()
-        {
-            return View();
-        }
+        //// GET: ActiveIngredients/AddIngredient
+        //public IActionResult AddIngredient()
+        //{
+        //    return View();
+        //}
 
-        // POST: ActiveIngredients/AddIngredient
-        // POST: ActiveIngredients/AddIngredient
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddIngredient([Bind("ActiveIngredientName")] ActiveIngredients activeIngredients)
-        {
-            if (ModelState.IsValid)
-            {
-                dbContext.Add(activeIngredients);
-                await dbContext.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(activeIngredients);
-        }
+        //// POST: ActiveIngredients/AddIngredient
+        //// POST: ActiveIngredients/AddIngredient
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> AddIngredient([Bind("ActiveIngredientName")] ActiveIngredient activeIngredients)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        dbContext.Add(activeIngredients);
+        //        await dbContext.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(activeIngredients);
+        //}
     }
 }
 

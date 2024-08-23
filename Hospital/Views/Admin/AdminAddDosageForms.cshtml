@@ -1,0 +1,70 @@
+﻿@model Hospital.Models.DosageForm
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+    }
+</style>
+
+<h1>Admin Add Dosage Forms</h1>
+
+<hr />
+
+<div class="box">
+    <form asp-action="AdminAddDosageForms">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="DosageFormName" class="control-label">Enter Dosage Form:</label>
+            <input asp-for="DosageFormName" class="form-control" />
+            <span asp-validation-for="DosageFormName" class="text-danger"></span>
+        </div>
+        <br />
+        <!-- Button aligned to the right -->
+        <div class="form-group text-right">
+            <button type="submit" class="button">Add</button>
+        </div>
+    </form>
+    <br />
+</div>

@@ -6,12 +6,23 @@ namespace Hospital.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
+        public ApplicationDbContext()
+        {
+        }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
-        public DbSet<ActiveIngredients> ActiveIngredients { get; set; }
-        public DbSet<ActiveIngredients> AdminLogin { get; set; }
-        public DbSet<Medications> Medications  { get; set; }
+        public DbSet<ActiveIngredient> ActiveIngredient { get; set; }
+        public DbSet<AdminLogin> AdminLogin { get; set; }
+        public DbSet<Medication> Medication { get; set; }
+        public DbSet<Nurse> Nurses { get; set; }
+
+        public DbSet<Pharmacist> Pharmacists { get; set; }
+
+        public DbSet<Surgeon> Surgeons { get; set; }
+        public DbSet<DosageForm> DosageForm { get; set; }
+
     }
 }

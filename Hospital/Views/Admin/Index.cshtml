@@ -1,0 +1,221 @@
+﻿@model Hospital.ViewModels.HealthcareStaffViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h1>Healthcare Staff</h1>
+<div class="button-container">
+    <div class="button-container">
+        <a class="btn-link" asp-action="RegisterHealthCareProfessionals" asp-controller="Admin">Register Health Care Professional</a>
+    </div>
+    
+</div>
+
+<style>
+    .button-container {
+        display: flex;
+        justify-content: flex-start; /* Aligns the button to the left */
+    }
+
+    .register-btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+        .register-btn:hover {
+            background-color: #0056b3;
+        }
+
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    h3 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        float: left;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 60%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .register-btn {
+        background-color: #08075F;
+        color: white;
+        padding: 8px 12px; /* Adjust padding for a smaller button */
+        font-size: 14px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+        .register-btn:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+
+    button {
+        padding: 9px 50px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+</style>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" id="successPopup">
+        <strong>@TempData["SuccessMessage"]</strong>
+    </div>
+
+    <script>
+        // Automatically hide the success message after 3 seconds
+        setTimeout(function () {
+            document.getElementById('successPopup').style.display = 'none';
+        }, 3000);
+    </script>
+}
+
+<h3>Nurses</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Contact Number</th>
+            <th>Email Address</th>
+            <th>Health Council Registration Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var nurse in Model.Nurses)
+        {
+            <tr>
+                <td>@nurse.Name</td>
+                <td>@nurse.Surname</td>
+                <td>@nurse.ContactNumber</td>
+                <td>@nurse.EmailAddress</td>
+                <td>@nurse.HealthCouncilRegistrationNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+
+<h3>Pharmacists</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Contact Number</th>
+            <th>Email Address</th>
+            <th>Health Council Registration Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pharmacist in Model.Pharmacists)
+        {
+            <tr>
+                <td>@pharmacist.Name</td>
+                <td>@pharmacist.Surname</td>
+                <td>@pharmacist.ContactNumber</td>
+                <td>@pharmacist.EmailAddress</td>
+                <td>@pharmacist.HealthCouncilRegistrationNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+
+<h3>Surgeons</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Contact Number</th>
+            <th>Email Address</th>
+            <th>Health Council Registration Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var surgeon in Model.Surgeons)
+        {
+            <tr>
+                <td>@surgeon.Name</td>
+                <td>@surgeon.Surname</td>
+                <td>@surgeon.ContactNumber</td>
+                <td>@surgeon.EmailAddress</td>
+                <td>@surgeon.HealthCouncilRegistrationNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>

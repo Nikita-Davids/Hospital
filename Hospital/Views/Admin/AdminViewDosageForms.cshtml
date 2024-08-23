@@ -1,0 +1,90 @@
+﻿@model IEnumerable<Hospital.Models.DosageForm>
+
+@{
+    ViewData["Title"] = "AdminViewDosageForms";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Adjust the column widths */
+    .col-name {
+        width: 85%; /* Allocate most of the space to the name column */
+    }
+
+    .col-action {
+        width: 15%; /* Allocate a smaller width for the action column */
+        text-align: center;
+    }
+</style>
+
+<h1>Admin View Dosage Forms</h1>
+
+<p>
+    <a class="btn-link" asp-action="AdminAddDosageForms">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.DosageFormName)
+            </th>
+            <th class="col-action">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.DosageFormName)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditDosageForms" asp-route-id="@item.DosageFormID">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

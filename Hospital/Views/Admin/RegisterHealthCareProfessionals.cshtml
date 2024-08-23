@@ -1,0 +1,104 @@
+﻿@model Hospital.ViewModels.RegisterHealthCareProfessionalViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h2 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control, select.form-control {
+        width: 100%;
+    }
+</style>
+
+<h2>Register Healthcare Professional</h2>
+
+<hr />
+
+<div class="box">
+    <form asp-action="RegisterHealthCareProfessionals" method="post">
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Surname"></label>
+            <input asp-for="Surname" class="form-control" />
+            <span asp-validation-for="Surname" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ContactNumber"></label>
+            <input asp-for="ContactNumber" class="form-control" />
+            <span asp-validation-for="ContactNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="EmailAddress"></label>
+            <input asp-for="EmailAddress" class="form-control" />
+            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="HealthCouncilRegistrationNumber"></label>
+            <input asp-for="HealthCouncilRegistrationNumber" class="form-control" />
+            <span asp-validation-for="HealthCouncilRegistrationNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Role"></label>
+            <select asp-for="Role" class="form-control">
+                <option value="">Select Role</option>
+                <option value="Nurse">Nurse</option>
+                <option value="Surgeon">Surgeon</option>
+                <option value="Pharmacist">Pharmacist</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+
+        <!-- Button aligned to the right -->
+        <div class="form-group text-right">
+            <button type="submit" class="button">Register</button>
+        </div>
+        <br />
+        <br />
+    </form>
+</div>

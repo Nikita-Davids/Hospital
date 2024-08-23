@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Hospital.Models.ActiveIngredient>
+
+@{
+    ViewData["Title"] = "AdminViewActiveIngredients";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Adjust the column widths */
+    .col-name {
+        width: 85%; /* Allocate most of the space to the name column */
+    }
+
+    .col-action {
+        width: 15%; /* Allocate a smaller width for the action column */
+        text-align: center;
+    }
+</style>
+
+<h1>Admin View ActiveIngredients</h1>
+
+<p>
+    <a class="btn-link" asp-action="AdminAddActiveIngredients">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IngredientName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Strength)
+            </th>
+            <th>
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IngredientName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Strength)
+                </td>
+                <td>
+                    <a class="btn-link" asp-action="AdminEditActiveIngredients" asp-route-id="@item.IngredientId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

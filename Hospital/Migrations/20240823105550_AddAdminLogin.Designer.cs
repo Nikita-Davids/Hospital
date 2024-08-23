@@ -4,6 +4,7 @@ using Hospital.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240823105550_AddAdminLogin")]
+    partial class AddAdminLogin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,25 +25,21 @@ namespace Hospital.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Hospital.Models.ActiveIngredient", b =>
+            modelBuilder.Entity("Hospital.Models.ActiveIngredients", b =>
                 {
-                    b.Property<int>("IngredientId")
+                    b.Property<int>("ActiveIngredientID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IngredientId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ActiveIngredientID"));
 
-                    b.Property<string>("IngredientName")
+                    b.Property<string>("ActiveIngredientName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Strength")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("ActiveIngredientID");
 
-                    b.HasKey("IngredientId");
-
-                    b.ToTable("ActiveIngredient");
+                    b.ToTable("ActiveIngredients");
                 });
 
             modelBuilder.Entity("Hospital.Models.AdminLogin", b =>
@@ -53,39 +52,15 @@ namespace Hospital.Migrations
                     b.ToTable("AdminLogin");
                 });
 
-            modelBuilder.Entity("Hospital.Models.DosageForm", b =>
+            modelBuilder.Entity("Hospital.Models.Medications", b =>
                 {
-                    b.Property<int>("DosageFormID")
+                    b.Property<int>("MedicationID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DosageFormID"));
-
-                    b.Property<string>("DosageFormName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DosageFormID");
-
-                    b.ToTable("DosageForm");
-                });
-
-            modelBuilder.Entity("Hospital.Models.Medication", b =>
-                {
-                    b.Property<int>("MedicationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MedicationId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MedicationID"));
 
                     b.Property<string>("DosageForm")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IsDeleted")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MedicationActiveIngredients")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -100,113 +75,9 @@ namespace Hospital.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MedicationId");
+                    b.HasKey("MedicationID");
 
-                    b.ToTable("Medication");
-                });
-
-            modelBuilder.Entity("Hospital.Models.Nurse", b =>
-                {
-                    b.Property<int>("NurseID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NurseID"));
-
-                    b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("HealthCouncilRegistrationNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("NurseID");
-
-                    b.ToTable("Nurses");
-                });
-
-            modelBuilder.Entity("Hospital.Models.Pharmacist", b =>
-                {
-                    b.Property<int>("PharmacistId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PharmacistId"));
-
-                    b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HealthCouncilRegistrationNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PharmacistId");
-
-                    b.ToTable("Pharmacists");
-                });
-
-            modelBuilder.Entity("Hospital.Models.Surgeon", b =>
-                {
-                    b.Property<int>("SurgeonId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SurgeonId"));
-
-                    b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HealthCouncilRegistrationNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("SurgeonId");
-
-                    b.ToTable("Surgeons");
+                    b.ToTable("Medications");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

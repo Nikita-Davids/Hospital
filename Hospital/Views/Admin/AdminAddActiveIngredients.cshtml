@@ -1,0 +1,108 @@
+﻿@model Hospital.Models.ActiveIngredient
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .btn-primary {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        .btn-primary:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group select {
+            width: auto;
+            margin-left: 10px;
+        }
+</style>
+
+<h1>Admin Add Active Ingredients</h1>
+
+<hr />
+
+<div class="box">
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="AdminAddActiveIngredients" method="post" onsubmit="return prepareStrength()">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="IngredientName" class="control-label">Ingredient Name:</label>
+                    <input asp-for="IngredientName" class="form-control" />
+                    <span asp-validation-for="IngredientName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Strength:</label>
+                    <div class="input-group">
+                        <input id="strengthInput" type="text" class="form-control" placeholder="Amount" />
+                        <select id="unitSelect" class="form-control">
+                            <option value="mg">Milligrams (mg)</option>
+                            <option value="g">Grams (g)</option>
+                        </select>
+                    </div>
+                    <input type="hidden" asp-for="Strength" id="strengthField" />
+                    <span asp-validation-for="Strength" class="text-danger"></span>
+                </div>
+                <br />
+                <div class="form-group">
+                    <input type="submit" value="Add" class="btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function prepareStrength() {
+        // Get the value from the text input and dropdown
+        var amount = document.getElementById('strengthInput').value;
+        var unit = document.getElementById('unitSelect').value;
+
+        // Check if amount is valid
+        if (!amount || isNaN(amount)) {
+            alert('Please enter a valid amount.');
+            return false; // Prevent form submission
+        }
+
+        // Concatenate the amount and unit
+        document.getElementById('strengthField').value = amount + ' ' + unit;
+
+        return true; // Allow form submission
+    }
+</script>
