@@ -50,7 +50,7 @@ namespace Hospital.Controllers
         public async Task<IActionResult> RegisterHealthCareProfessionals(RegisterHealthCareProfessionalViewModel model)
         {
             // Create a new instance of the NORTHSIDEHOSPITALContext to interact with the database.
-            
+
 
             // Check if the model state is valid (i.e., all required fields are filled out correctly).
             if (ModelState.IsValid)
@@ -146,8 +146,143 @@ namespace Hospital.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult AdminAddActiveIngredients()
+        {
+            var model = new ActiveIngredient();
+            return View(model);
+        }
 
-       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminAddActiveIngredients(ActiveIngredient model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Ensure that Strength is in the format "Amount Unit"
+                string strength = model.Strength;
+
+                // Check if an active ingredient with the same name and strength already exists
+                var existingActiveIngredient = _context.ActiveIngredient
+                    .FirstOrDefault(ai => ai.IngredientName.Trim().ToLower() == model.IngredientName.Trim().ToLower() &&
+                                          ai.Strength.Trim().ToLower() == strength.Trim().ToLower());
+
+                if (existingActiveIngredient == null)
+                {
+                    // Create a new ActiveIngredient entity
+                    var activeIngredient = new ActiveIngredient
+                    {
+                        IngredientName = model.IngredientName,
+                        Strength = strength
+                    };
+
+                    // Add the ActiveIngredient entity to the context
+                    _context.ActiveIngredient.Add(activeIngredient);
+                    _context.SaveChanges(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("AdminViewActiveIngredients");
+                }
+                else
+                {
+                    // If the active ingredient with the same name and strength already exists, return an error message
+                    ModelState.AddModelError("", "An active ingredient with the same name and strength already exists.");
+                }
+            }
+
+            // Return the view with the model in case of an error
+            return View(model);
+        }
+
+        // GET: ActiveIngredients/Edit/5
+        public async Task<IActionResult> AdminEditActiveIngredients(int id)
+        {
+            // Retrieve the active ingredient record from the database using the provided ID
+            var activeIngredient = await _context.ActiveIngredient.FindAsync(id);
+
+            // Check if the active ingredient exists. If not, return a 404 Not Found response
+            if (activeIngredient == null)
+            {
+                return NotFound();
+            }
+
+            // Set unit options in ViewBag as a SelectList
+            ViewBag.Units = new SelectList(new[]
+            {
+            new { Value = "mg", Text = "Milligrams (mg)" },
+            new { Value = "g", Text = "Grams (g)" }
+        }, "Value", "Text");
+
+            // Return the view with the active ingredient data to be edited
+            return View(activeIngredient);
+        }
+
+        // POST: ActiveIngredients/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminEditActiveIngredients(int id, [Bind("IngredientId,IngredientName,Strength")] ActiveIngredient activeIngredient)
+        {
+            // Check if the ID in the URL matches the ID of the active ingredient being edited
+            if (id != activeIngredient.IngredientId)
+            {
+                return NotFound();
+            }
+
+            // Check if the new ingredient name and strength combination already exists in the database, excluding the current entry
+            if (_context.ActiveIngredient.Any(ai => ai.IngredientName.Trim().ToLower() == activeIngredient.IngredientName.Trim().ToLower() &&
+                                                    ai.Strength.Trim().ToLower() == activeIngredient.Strength.Trim().ToLower() &&
+                                                    ai.IngredientId != id))
+            {
+                // Add a model error if the name and strength combination already exists and return the view with the error
+                ModelState.AddModelError("IngredientName", "An active ingredient with the same name and strength already exists.");
+                return View(activeIngredient);
+            }
+
+            // If the model state is valid, update the active ingredient in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update the active ingredient record in the database
+                    _context.Update(activeIngredient);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Handle concurrency issues if the record has been modified by another user
+                    if (!ActiveIngredientExists(activeIngredient.IngredientId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the Index action if the update was successful
+                return RedirectToAction(nameof(AdminViewActiveIngredients));
+            }
+
+            // Return the view with validation errors if the model state is not valid
+            return View(activeIngredient);
+        }
+
+        // Method to check if an active ingredient with the same ID exists
+        private bool ActiveIngredientExists(int id)
+        {
+            // Check if there is any active ingredient in the database with the specified ID
+            return _context.ActiveIngredient.Any(e => e.IngredientId == id);
+        }
+
+        // Action method for displaying the list of added active ingredients
+        public IActionResult AdminViewActiveIngredients()
+        {
+            // Retrieve all active ingredients records from the database and store them in a list
+            var ingredients = _context.ActiveIngredient.ToList();
+
+            // Pass the list of active ingredients to the view for display
+            return View(ingredients);
+        }
 
         [HttpGet]
         public IActionResult AdminAddDosageForms()
@@ -156,11 +291,15 @@ namespace Hospital.Controllers
             return View(model);
         }
 
+
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AdminAddDosageForms(DosageForm model)
         {
-           
+
 
             if (ModelState.IsValid)
             {
@@ -191,10 +330,13 @@ namespace Hospital.Controllers
             return View(model);
         }
 
+
+
+
         // GET: DosageForms/Edit/5
         public async Task<IActionResult> AdminEditDosageForms(int id)
         {
-           
+
             // Retrieve the dosage form record from the database using the provided ID
             var dosageForm = await _context.DosageForm.FindAsync(id);
 
@@ -213,7 +355,7 @@ namespace Hospital.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdminEditDosageForms(int id, [Bind("DosageFormID,DosageFormName")] DosageForm dosageForm)
         {
-           
+
             // Create a new instance of the context to interact with the database
             if (id != dosageForm.DosageFormID)
             {
@@ -261,7 +403,7 @@ namespace Hospital.Controllers
         // Helper method to check if a dosage form exists in the database
         private bool DosageFormExists(int id)
         {
-           
+
             return _context.DosageForm.Any(e => e.DosageFormID == id);
         }
 
@@ -269,7 +411,7 @@ namespace Hospital.Controllers
         public IActionResult AdminViewDosageForms()
         {
             // Initialize the database context to access the Dosage Forms table
-           
+
 
             // Retrieve all dosage forms records from the database and store them in a list
             List<DosageForm> temp = _context.DosageForm.ToList();
@@ -322,12 +464,127 @@ namespace Hospital.Controllers
                 }
 
                 // Redirect to the success page after successful addition
-                return RedirectToAction("AdminViewDayHospital", "Admin");
+                return RedirectToAction("AdminViewHospital", "Admin");
             }
 
             // Return the view with the model in case of an error
             return View(model);
         }
+
+
+
+        [HttpGet]
+        public IActionResult AdminAddChronicCondition()
+        {
+            var model = new ChronicCondition();
+            return View(model);
+        }
+        public IActionResult AdminAddChronicCondition(ChronicCondition model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check for existing ChronicCondition
+                var existingCondition = _context.ChronicCondition
+                    .FirstOrDefault(c => c.Icd10Code == model.Icd10Code || c.Diagnosis == model.Diagnosis);
+
+                if (existingCondition == null)
+                {
+                    // Creating the chronic condition entity
+                    var chronicCondition = new ChronicCondition
+                    {
+                        ChronicConditionId = model.ChronicConditionId,
+                        Icd10Code = model.Icd10Code,
+                        Diagnosis = model.Diagnosis
+                    };
+
+                    // Adding the ChronicCondition entity to the context
+                    _context.ChronicCondition.Add(chronicCondition);
+                    _context.SaveChanges(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("ViewChronicConditions", "Admin");
+                }
+                else
+                {
+                    // If the chronic condition with the same ICD-10 code or diagnosis already exists, return an error message
+                    ViewBag.ErrorMessage = "Chronic condition with the same ICD-10 code or diagnosis already exists.";
+                    return View(model);
+                }
+            }
+
+            // If the model state is not valid, return the view with the current model to display validation errors
+            return View(model);
+        }
+
+        public IActionResult ViewChronicConditions()
+        {
+            return View(_context.ChronicCondition);
+        }
+
+
+
+
+        [HttpGet]
+        public IActionResult AdminAddTheatres()
+        {
+            var model = new OperatingTheatre();
+            return View(model);
+        }
+
+        // POST: /OperatingTheatre/AdminAddOperatingTheatre
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+     
+
+        public IActionResult AdminAddTheatres(OperatingTheatre model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Check for existing OperatingTheatre
+                    var existingTheatre = _context.OperatingTheatre
+                        .FirstOrDefault(t => t.OperatingTheatreName == model.OperatingTheatreName);
+
+                    if (existingTheatre == null)
+                    {
+                        // Adding the OperatingTheatre entity to the context
+                        _context.OperatingTheatre.Add(model);
+                        _context.SaveChanges(); // Save changes
+
+                        // Redirect to the list view after successful addition
+                        return RedirectToAction("ViewOperatingTheatres");
+                    }
+                    else
+                    {
+                        // If the operating theatre with the same name already exists, return an error message
+                        ViewBag.ErrorMessage = "Operating theatre with the same name already exists.";
+                        return View(model);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log exception and display error message
+                    // You can use a logging framework or just use Console.WriteLine for debugging
+                    Console.WriteLine($"Error: {ex.Message}");
+                    ViewBag.ErrorMessage = "An error occurred while adding the operating theatre.";
+                    return View(model);
+                }
+            }
+
+            // Return the view with the model if validation fails
+            return View(model);
+        }
+
+        public IActionResult ViewOperatingTheatres()
+        {
+            return View(_context.OperatingTheatre);
+        }
+
     }
 }
+
+
+
+
 

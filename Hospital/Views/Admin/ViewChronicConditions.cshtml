@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Hospital.Models.DosageForm>
+﻿@model IEnumerable<Hospital.Models.ChronicCondition>
 
 @{
-    ViewData["Title"] = "AdminViewDosageForms";
+    ViewData["Title"] = "ViewChronicConditions";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -47,42 +47,50 @@
         }
 
     /* Adjust the column widths */
-    .col-name {
-        width: 85%; /* Allocate most of the space to the name column */
+    .col-code {
+        width: 30%; /* Allocate space for ICD-10 Code */
+    }
+
+    .col-diagnosis {
+        width: 50%; /* Allocate space for Diagnosis */
     }
 
     .col-action {
-        width: 15%; /* Allocate a smaller width for the action column */
+        width: 20%; /* Allocate space for Action */
         text-align: center;
     }
 </style>
 
-<h1>Admin View Dosage Forms</h1>
+<h1>View Chronic Conditions</h1>
 
 <p>
-    <a class="btn-link" asp-action="AdminAddDosageForms">Create New</a>
+    <a class="btn-link" asp-action="AdminAddChronicCondition">Add Chronic Condition</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
-            <th class="col-name">
-                @Html.DisplayNameFor(model => model.DosageFormName)
+            <th class="col-code">
+                @Html.DisplayNameFor(model => model.First().Icd10Code)
             </th>
-            <th class="col-action">
-                Action
+            <th class="col-diagnosis">
+                @Html.DisplayNameFor(model => model.First().Diagnosis)
             </th>
+            <th class="col-action"></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td class="col-name">
-                    @Html.DisplayFor(modelItem => item.DosageFormName)
+                <td class="col-code">
+                    @Html.DisplayFor(modelItem => item.Icd10Code)
+                </td>
+                <td class="col-diagnosis">
+                    @Html.DisplayFor(modelItem => item.Diagnosis)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="AdminEditDosageForms" asp-route-id="@item.DosageFormID">Edit</a>
+                    <a class="btn-link" asp-action="Edit" asp-route-id="@item.ChronicConditionId">Edit</a>
                 </td>
             </tr>
         }

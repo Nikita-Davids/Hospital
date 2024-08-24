@@ -25,6 +25,9 @@ namespace Hospital.Data
         public DbSet<DosageForm> DosageForm { get; set; }
         public DbSet<Patients> Patients { get; set; }
         public DbSet<DayHospital> DayHospital { get; set; }
+        public DbSet<ChronicCondition> ChronicCondition { get; set; }
+
+        public DbSet<OperatingTheatre> OperatingTheatre { get; set; }
 
 
 

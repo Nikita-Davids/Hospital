@@ -1,4 +1,4 @@
-﻿@model Hospital.Models.ActiveIngredient
+﻿@model Hospital.Models.ChronicCondition
 
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
@@ -68,31 +68,24 @@
         }
 </style>
 
-<h1>Admin Add Active Ingredients</h1>
+<h1>Admin Add Chronic Condition</h1>
 
-<hr />
+
 
 <div class="box">
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="AdminAddActiveIngredients" method="post" onsubmit="return prepareStrength()">
+            <form asp-action="AdminAddChronicCondition">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="IngredientName" class="control-label">Ingredient Name:</label>
-                    <input asp-for="IngredientName" class="form-control" />
-                    <span asp-validation-for="IngredientName" class="text-danger"></span>
+                    <label asp-for="Icd10Code" class="control-label">ICD-10 Code:</label>
+                    <input asp-for="Icd10Code" class="form-control" />
+                    <span asp-validation-for="Icd10Code" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label class="control-label">Strength:</label>
-                    <div class="input-group">
-                        <input id="strengthInput" type="text" class="form-control" placeholder="Amount" />
-                        <select id="unitSelect" class="form-control">
-                            <option value="mg">Milligrams (mg)</option>
-                            <option value="g">Grams (g)</option>
-                        </select>
-                    </div>
-                    <input type="hidden" asp-for="Strength" id="strengthField" />
-                    <span asp-validation-for="Strength" class="text-danger"></span>
+                    <label asp-for="Diagnosis" class="control-label">Diagnosis:</label>
+                    <input asp-for="Diagnosis" class="form-control" />
+                    <span asp-validation-for="Diagnosis" class="text-danger"></span>
                 </div>
                 <br />
                 <div class="form-group">
@@ -102,25 +95,7 @@
         </div>
     </div>
 </div>
+
 <div class="button-container">
-    <a class="btn-link" asp-action="AdminViewActiveIngredientHospital">View All Active Ingredients</a>
+    <a class="btn-link" asp-action="ViewChronicConditions">View All Chronic Conditions</a>
 </div>
-
-<script>
-    function prepareStrength() {
-        // Get the value from the text input and dropdown
-        var amount = document.getElementById('strengthInput').value;
-        var unit = document.getElementById('unitSelect').value;
-
-        // Check if amount is valid
-        if (!amount || isNaN(amount)) {
-            alert('Please enter a valid amount.');
-            return false; // Prevent form submission
-        }
-
-        // Concatenate the amount and unit
-        document.getElementById('strengthField').value = amount + ' ' + unit;
-
-        return true; // Allow form submission
-    }
-</script>

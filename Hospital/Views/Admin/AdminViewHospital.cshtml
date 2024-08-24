@@ -1,83 +1,114 @@
 ﻿@model IEnumerable<Hospital.Models.DayHospital>
 
 @{
-    ViewData["Title"] = "AdminViewHospital";
+    ViewData["Title"] = "Admin View Hospitals";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>AdminViewHospital</h1>
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 20%; /* Allocate equal width to all name columns */
+    }
+
+    .col-action {
+        width: 20%; /* Allocate equal width to the action column */
+        text-align: center;
+    }
+</style>
+
+<h1>Admin View Hospitals</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn-link" asp-action="AdminAddHospital">Add Hospital</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.HospitalName)
+            <th class="col-name">
+                Hospital Name
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
+            <th class="col-name">
+                Address
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
+            <th class="col-name">
+                City
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Province)
+            <th class="col-name">
+                Province
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostalCode)
+            <th class="col-name">
+                Postal Code
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ContactNumber)
+            <th class="col-action">
+                Action
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EmailAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PracticeManager)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PurchaseManagerEmail)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.HospitalName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Province)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostalCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ContactNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EmailAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PracticeManager)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PurchaseManagerEmail)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.HospitalId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.HospitalId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.HospitalId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.HospitalName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.City)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.Province)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PostalCode)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditHospital" asp-route-id="@item.HospitalId">Edit</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

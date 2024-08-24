@@ -1,0 +1,87 @@
+﻿@model Hospital.Models.OperatingTheatre
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "AdminAddTheatres";
+}
+
+<h1>Add Operating Theatre</h1>
+
+<div class="form-container">
+    <form asp-action="AdminAddTheatres">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="OperatingTheatreName" class="control-label"></label>
+            <input asp-for="OperatingTheatreName" class="form-control" />
+            <span asp-validation-for="OperatingTheatreName" class="text-danger"></span>
+        </div>
+        <div class="form-group button-container">
+            <input type="submit" value="Add" class="button" />
+        </div>
+    </form>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="ViewOperatingTheatres">View All Added Theatres</a>
+</div>
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .form-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .button-container {
+        text-align: right;
+    }
+
+    .button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+    }
+</style>

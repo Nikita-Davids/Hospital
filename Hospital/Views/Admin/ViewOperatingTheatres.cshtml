@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Hospital.Models.DosageForm>
+﻿@model IEnumerable<Hospital.Models.OperatingTheatre>
 
 @{
-    ViewData["Title"] = "AdminViewDosageForms";
+    ViewData["Title"] = "ViewOperatingTheatres";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -48,29 +48,29 @@
 
     /* Adjust the column widths */
     .col-name {
-        width: 85%; /* Allocate most of the space to the name column */
+        width: 80%; /* Allocate most of the space to the name column */
     }
 
     .col-action {
-        width: 15%; /* Allocate a smaller width for the action column */
+        width: 20%; /* Allocate a smaller width for the action column */
         text-align: center;
     }
 </style>
 
-<h1>Admin View Dosage Forms</h1>
+<h1>View Operating Theatres</h1>
 
 <p>
-    <a class="btn-link" asp-action="AdminAddDosageForms">Create New</a>
+    <a class="btn-link" asp-action="AdminAddTheatres">Add Operating Theatre</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
             <th class="col-name">
-                @Html.DisplayNameFor(model => model.DosageFormName)
+                @Html.DisplayNameFor(model => model.First().OperatingTheatreName)
             </th>
             <th class="col-action">
-                Action
+                Actions
             </th>
         </tr>
     </thead>
@@ -79,10 +79,11 @@
         {
             <tr>
                 <td class="col-name">
-                    @Html.DisplayFor(modelItem => item.DosageFormName)
+                    @Html.DisplayFor(modelItem => item.OperatingTheatreName)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="AdminEditDosageForms" asp-route-id="@item.DosageFormID">Edit</a>
+                    <a class="btn-link" asp-action="Edit" asp-route-id="@item.OperatingTheatreId">Edit</a> |
+                  
                 </td>
             </tr>
         }

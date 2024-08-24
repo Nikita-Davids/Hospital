@@ -58,9 +58,11 @@
             <input type="submit" value="Add" class="button" />
         </div>
     </form>
+   
 </div>
-
-
+<div class="button-container">
+    <a class="btn-link" asp-action="AdminViewHospital">View All Added Hospitals</a>
+</div>
 
 <style>
     h1 {
@@ -69,6 +71,20 @@
         font-weight: bold;
         text-decoration: underline;
     }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
 
     .form-container {
         border: 1px solid #ccc; /* Light gray border */

@@ -4,6 +4,7 @@ using Hospital.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240824172820_CM")]
+    partial class CM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -209,22 +212,6 @@ namespace Hospital.Migrations
                     b.HasKey("NurseID");
 
                     b.ToTable("Nurses");
-                });
-
-            modelBuilder.Entity("Hospital.Models.OperatingTheatre", b =>
-                {
-                    b.Property<int>("OperatingTheatreId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OperatingTheatreId"));
-
-                    b.Property<string>("OperatingTheatreName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("OperatingTheatreId");
-
-                    b.ToTable("OperatingTheatre");
                 });
 
             modelBuilder.Entity("Hospital.Models.Pharmacist", b =>

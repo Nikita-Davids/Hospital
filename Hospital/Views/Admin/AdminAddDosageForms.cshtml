@@ -45,6 +45,20 @@
     input.form-control {
         width: 100%;
     }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
 </style>
 
 <h1>Admin Add Dosage Forms</h1>
@@ -67,4 +81,7 @@
         </div>
     </form>
     <br />
+</div>
+<div class="button-container">
+    <a class="btn-link" asp-action="AdminViewDosageForms">View All Added Hospitals</a>
 </div>
