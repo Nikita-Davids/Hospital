@@ -407,6 +407,77 @@ namespace Hospital.Controllers
             return _context.DosageForm.Any(e => e.DosageFormID == id);
         }
 
+        // GET: Hospitals/Edit/5
+        public async Task<IActionResult> EditDayHospital(int id)
+        {
+            // Retrieve the hospital record from the database using the provided ID
+            var hospital = await _context.DayHospital.FindAsync(id);
+
+            // Check if the hospital exists. If not, return a 404 Not Found response.
+            if (hospital == null)
+            {
+                return NotFound();
+            }
+
+            // Return the view with the hospital data to be edited
+            return View(hospital);
+        }
+
+        // POST: Hospitals/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditDayHospital(int id, [Bind("HospitalId,HospitalName,Address,City,Province,PostalCode,ContactNumber,EmailAddress,PracticeManager,PurchaseManagerEmail")] DayHospital hospital)
+        {
+            // Check if the ID in the URL matches the ID of the hospital being edited
+            if (id != hospital.HospitalId)
+            {
+                return NotFound();
+            }
+
+            // Check if the new hospital name already exists in the database, excluding the current entry
+            if (_context.DayHospital.Any(h => h.HospitalName == hospital.HospitalName && h.HospitalId != id))
+            {
+                // Add a model error if the name already exists and return the view with the error
+                ModelState.AddModelError("HospitalName", "The hospital name already exists.");
+                return View(hospital);
+            }
+
+            // If the model state is valid, update the hospital in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update the hospital record in the database
+                    _context.Update(hospital);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Handle concurrency issues if the record has been modified by another user
+                    if (!HospitalExists(hospital.HospitalId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the Index action if the update was successful
+                return RedirectToAction(nameof(AdminViewHospital));
+            }
+
+            // Return the view with validation errors if the model state is not valid
+            return View(hospital);
+        }
+
+        // Helper method to check if a hospital exists in the database
+        private bool HospitalExists(int id)
+        {
+            return _context.DayHospital.Any(e => e.HospitalId == id);
+        }
+
+
         // Action method for displaying the list of added dosage forms
         public IActionResult AdminViewDosageForms()
         {
@@ -516,7 +587,80 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-        public IActionResult ViewChronicConditions()
+
+
+        // GET: ChronicConditions/Edit/5
+        public async Task<IActionResult> EditAdminChronicMedication(int id)
+        {
+            // Retrieve the chronic condition record from the database using the provided ID
+            var chronicCondition = await _context.ChronicCondition.FindAsync(id);
+
+            // Check if the chronic condition exists. If not, return a 404 Not Found response.
+            if (chronicCondition == null)
+            {
+                return NotFound();
+            }
+
+            // Return the view with the chronic condition data to be edited
+            return View(chronicCondition);
+        }
+
+        // POST: ChronicConditions/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAdminChronicMedication(int id, [Bind("ChronicConditionId,Icd10Code,Diagnosis")] ChronicCondition chronicCondition)
+        {
+            // Check if the ID in the URL matches the ID of the chronic condition being edited
+            if (id != chronicCondition.ChronicConditionId)
+            {
+                return NotFound();
+            }
+
+            // Check if the new ICD-10 code already exists in the database, excluding the current entry
+            if (_context.ChronicCondition.Any(c => c.Icd10Code == chronicCondition.Icd10Code && c.ChronicConditionId != id))
+            {
+                // Add a model error if the ICD-10 code already exists and return the view with the error
+                ModelState.AddModelError("Icd10Code", "The ICD-10 code already exists.");
+                return View(chronicCondition);
+            }
+
+            // If the model state is valid, update the chronic condition in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update the chronic condition record in the database
+                    _context.Update(chronicCondition);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Handle concurrency issues if the record has been modified by another user
+                    if (!ChronicConditionExists(chronicCondition.ChronicConditionId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the Index action if the update was successful
+                return RedirectToAction(nameof(ViewChronicConditions));
+            }
+
+            // Return the view with validation errors if the model state is not valid
+            return View(chronicCondition);
+        }
+
+        // Helper method to check if a chronic condition exists in the database
+        private bool ChronicConditionExists(int id)
+        {
+            return _context.ChronicCondition.Any(e => e.ChronicConditionId == id);
+        }
+    
+
+public IActionResult ViewChronicConditions()
         {
             return View(_context.ChronicCondition);
         }
@@ -580,6 +724,78 @@ namespace Hospital.Controllers
         {
             return View(_context.OperatingTheatre);
         }
+
+
+        // GET: OperatingTheatres/Edit/5
+        public async Task<IActionResult> EditAdminTheatres(int id)
+        {
+            // Retrieve the operating theatre record from the database using the provided ID
+            var operatingTheatre = await _context.OperatingTheatre.FindAsync(id);
+
+            // Check if the operating theatre exists. If not, return a 404 Not Found response.
+            if (operatingTheatre == null)
+            {
+                return NotFound();
+            }
+
+            // Return the view with the operating theatre data to be edited
+            return View(operatingTheatre);
+        }
+
+        // POST: OperatingTheatres/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAdminTheatres(int id, [Bind("OperatingTheatreId,OperatingTheatreName")] OperatingTheatre operatingTheatre)
+        {
+            // Check if the ID in the URL matches the ID of the operating theatre being edited
+            if (id != operatingTheatre.OperatingTheatreId)
+            {
+                return NotFound();
+            }
+
+            // Check if the new operating theatre name already exists in the database, excluding the current entry
+            if (_context.OperatingTheatre.Any(o => o.OperatingTheatreName == operatingTheatre.OperatingTheatreName && o.OperatingTheatreId != id))
+            {
+                // Add a model error if the name already exists and return the view with the error
+                ModelState.AddModelError("OperatingTheatreName", "The operating theatre name already exists.");
+                return View(operatingTheatre);
+            }
+
+            // If the model state is valid, update the operating theatre in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update the operating theatre record in the database
+                    _context.Update(operatingTheatre);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Handle concurrency issues if the record has been modified by another user
+                    if (!OperatingTheatreExists(operatingTheatre.OperatingTheatreId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the Index action if the update was successful
+                return RedirectToAction(nameof(ViewOperatingTheatres));
+            }
+
+            // Return the view with validation errors if the model state is not valid
+            return View(operatingTheatre);
+        }
+
+        // Helper method to check if an operating theatre exists in the database
+        private bool OperatingTheatreExists(int id)
+        {
+            return _context.OperatingTheatre.Any(e => e.OperatingTheatreId == id);
+        }
+
 
     }
 }

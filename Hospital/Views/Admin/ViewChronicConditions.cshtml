@@ -76,7 +76,8 @@
             <th class="col-diagnosis">
                 @Html.DisplayNameFor(model => model.First().Diagnosis)
             </th>
-            <th class="col-action"></th>
+            <th>Action</th>
+            
         </tr>
     </thead>
     <tbody>
@@ -90,7 +91,7 @@
                     @Html.DisplayFor(modelItem => item.Diagnosis)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="Edit" asp-route-id="@item.ChronicConditionId">Edit</a>
+                    <a class="btn-link" asp-action="EditAdminChronicMedication" asp-route-id="@item.ChronicConditionId">Edit</a>
                 </td>
             </tr>
         }

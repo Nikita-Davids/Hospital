@@ -29,6 +29,14 @@ namespace Hospital.Data
 
         public DbSet<OperatingTheatre> OperatingTheatre { get; set; }
 
+        public DbSet<Province> Province { get; set; }
+
+        public DbSet<Suburb> Suburb { get; set; }
+        public DbSet<Town> Town { get; set; }
+
+
+
+
 
 
 

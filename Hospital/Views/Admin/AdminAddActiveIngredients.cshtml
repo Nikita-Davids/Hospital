@@ -60,12 +60,15 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
-        /* float: right; */ /* Remove this line */
     }
 
         .btn-link:hover {
             background-color: #FFDE59;
         }
+
+    .button-container {
+        text-align: right; /* Aligns button container to the right */
+    }
 </style>
 
 <h1>Admin Add Active Ingredients</h1>
@@ -102,6 +105,7 @@
         </div>
     </div>
 </div>
+
 <div class="button-container">
     <a class="btn-link" asp-action="AdminViewActiveIngredientHospital">View All Active Ingredients</a>
 </div>
