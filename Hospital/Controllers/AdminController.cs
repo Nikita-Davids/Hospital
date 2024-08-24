@@ -11,6 +11,11 @@ namespace Hospital.Controllers
     public class AdminController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
+
+        public IActionResult AdminViewHospital()
+        {
+            return View(_context.DayHospital);
+        }
         public async Task<IActionResult> Index()
         {
             // Create a new instance of the NorthsideContext to interact with the database.
@@ -45,7 +50,7 @@ namespace Hospital.Controllers
         public async Task<IActionResult> RegisterHealthCareProfessionals(RegisterHealthCareProfessionalViewModel model)
         {
             // Create a new instance of the NORTHSIDEHOSPITALContext to interact with the database.
-            ApplicationDbContext POE = new ApplicationDbContext();
+            
 
             // Check if the model state is valid (i.e., all required fields are filled out correctly).
             if (ModelState.IsValid)
@@ -55,13 +60,13 @@ namespace Hospital.Controllers
                 var registrationNumber = model.HealthCouncilRegistrationNumber.Trim().ToLower();
 
                 // Check for duplicate email and registration number
-                bool emailExists = await POE.Nurses.AnyAsync(n => n.EmailAddress.Trim().ToLower() == email) ||
-                                   await POE.Surgeons.AnyAsync(s => s.EmailAddress.Trim().ToLower() == email) ||
-                                   await POE.Pharmacists.AnyAsync(p => p.EmailAddress.Trim().ToLower() == email);
+                bool emailExists = await _context.Nurses.AnyAsync(n => n.EmailAddress.Trim().ToLower() == email) ||
+                                   await _context.Surgeons.AnyAsync(s => s.EmailAddress.Trim().ToLower() == email) ||
+                                   await _context.Pharmacists.AnyAsync(p => p.EmailAddress.Trim().ToLower() == email);
 
-                bool registrationNumberExists = await POE.Nurses.AnyAsync(n => n.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber) ||
-                                                await POE.Surgeons.AnyAsync(s => s.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber) ||
-                                                await POE.Pharmacists.AnyAsync(p => p.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber);
+                bool registrationNumberExists = await _context.Nurses.AnyAsync(n => n.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber) ||
+                                                await _context.Surgeons.AnyAsync(s => s.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber) ||
+                                                await _context.Pharmacists.AnyAsync(p => p.HealthCouncilRegistrationNumber.Trim().ToLower() == registrationNumber);
 
                 if (emailExists)
                 {
@@ -93,7 +98,7 @@ namespace Hospital.Controllers
                             HealthCouncilRegistrationNumber = model.HealthCouncilRegistrationNumber
                         };
                         // Add the Nurse object to the Nurses DbSet.
-                        POE.Nurses.Add(nurse);
+                        _context.Nurses.Add(nurse);
                         break;
 
                     case "Surgeon":
@@ -107,7 +112,7 @@ namespace Hospital.Controllers
                             HealthCouncilRegistrationNumber = model.HealthCouncilRegistrationNumber
                         };
                         // Add the Surgeon object to the Surgeons DbSet.
-                        POE.Surgeons.Add(surgeon);
+                        _context.Surgeons.Add(surgeon);
                         break;
 
                     case "Pharmacist":
@@ -121,7 +126,7 @@ namespace Hospital.Controllers
                             HealthCouncilRegistrationNumber = model.HealthCouncilRegistrationNumber
                         };
                         // Add the Pharmacist object to the Pharmacists DbSet.
-                        POE.Pharmacists.Add(pharmacist);
+                        _context.Pharmacists.Add(pharmacist);
                         break;
 
                     default:
@@ -131,7 +136,7 @@ namespace Hospital.Controllers
                 }
 
                 // Save changes to the database asynchronously.
-                await POE.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 // Redirect to the Index action method upon successful registration.
                 return RedirectToAction("Index");
@@ -142,162 +147,7 @@ namespace Hospital.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult AdminAddActiveIngredients()
-        {
-            var model = new ActiveIngredient();
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AdminAddActiveIngredients(ActiveIngredient model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Ensure that Strength is in the format "Amount Unit"
-                string strength = model.Strength;
-
-                using (var context = new ApplicationDbContext())
-                {
-                    // Check if an active ingredient with the same name and strength already exists
-                    var existingActiveIngredient = context.ActiveIngredient
-                        .FirstOrDefault(ai => ai.IngredientName.Trim().ToLower() == model.IngredientName.Trim().ToLower() &&
-                                              ai.Strength.Trim().ToLower() == strength.Trim().ToLower());
-
-                    if (existingActiveIngredient == null)
-                    {
-                        // Create a new ActiveIngredient entity
-                        var activeIngredient = new ActiveIngredient
-                        {
-                            IngredientName = model.IngredientName,
-                            Strength = strength
-                        };
-
-                        // Add the ActiveIngredient entity to the context
-                        context.ActiveIngredient.Add(activeIngredient);
-                        context.SaveChanges(); // Save changes
-
-                        // Redirect to the success page after successful addition
-                        return RedirectToAction("AdminViewActiveIngredients");
-                    }
-                    else
-                    {
-                        // If the active ingredient with the same name and strength already exists, return an error message
-                        ModelState.AddModelError("", "An active ingredient with the same name and strength already exists.");
-                    }
-                }
-            }
-
-            // Return the view with the model in case of an error
-            return View(model);
-        }
-
-        // GET: ActiveIngredients/Edit/5
-        public async Task<IActionResult> AdminEditActiveIngredients(int id)
-        {
-            using (var context = new ApplicationDbContext())
-            {
-                // Retrieve the active ingredient record from the database using the provided ID
-                var activeIngredient = await context.ActiveIngredient.FindAsync(id);
-
-                // Check if the active ingredient exists. If not, return a 404 Not Found response
-                if (activeIngredient == null)
-                {
-                    return NotFound();
-                }
-
-                // Set unit options in ViewBag as a SelectList
-                ViewBag.Units = new SelectList(new[]
-                {
-            new { Value = "mg", Text = "Milligrams (mg)" },
-            new { Value = "g", Text = "Grams (g)" }
-        }, "Value", "Text");
-
-                // Return the view with the active ingredient data to be edited
-                return View(activeIngredient);
-            }
-        }
-
-
-        // POST: ActiveIngredients/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AdminEditActiveIngredients(int id, [Bind("IngredientId,IngredientName,Strength")] ActiveIngredient activeIngredient)
-        {
-            using (var context = new ApplicationDbContext())
-            {
-                // Check if the ID in the URL matches the ID of the active ingredient being edited
-                if (id != activeIngredient.IngredientId)
-                {
-                    return NotFound();
-                }
-
-                // Check if the new ingredient name and strength combination already exists in the database, excluding the current entry
-                if (context.ActiveIngredient.Any(ai => ai.IngredientName.Trim().ToLower() == activeIngredient.IngredientName.Trim().ToLower() &&
-                                                        ai.Strength.Trim().ToLower() == activeIngredient.Strength.Trim().ToLower() &&
-                                                        ai.IngredientId != id))
-                {
-                    // Add a model error if the name and strength combination already exists and return the view with the error
-                    ModelState.AddModelError("IngredientName", "An active ingredient with the same name and strength already exists.");
-                    return View(activeIngredient);
-                }
-
-                // If the model state is valid, update the active ingredient in the database
-                if (ModelState.IsValid)
-                {
-                    try
-                    {
-                        // Update the active ingredient record in the database
-                        context.Update(activeIngredient);
-                        await context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        // Handle concurrency issues if the record has been modified by another user
-                        if (!ActiveIngredientExists(activeIngredient.IngredientId))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    // Redirect to the Index action if the update was successful
-                    return RedirectToAction(nameof(AdminViewActiveIngredients));
-                }
-
-                // Return the view with validation errors if the model state is not valid
-                return View(activeIngredient);
-            }
-        }
-
-
-        //Method to check if an active ingredient with the same strength exist
-        private bool ActiveIngredientExists(int id)
-        {
-            // Create a new instance of the database context
-            using (var context = new ApplicationDbContext())
-            {
-                // Check if there is any active ingredient in the database with the specified ID
-                return context.ActiveIngredient.Any(e => e.IngredientId == id);
-            }
-        }
-
-
-        // Action method for displaying the list of added active ingredients
-        public IActionResult AdminViewActiveIngredients()
-        {
-            // Initialize the database context to access the Active Ingredients table
-            ApplicationDbContext POE = new ApplicationDbContext();
-
-            // Retrieve all active ingredients records from the database and store them in a list
-            List<ActiveIngredient> temp = POE.ActiveIngredient.ToList();
-
-            // Pass the list of active ingredients to the view for display
-            return View(temp);
-        }
+       
 
         [HttpGet]
         public IActionResult AdminAddDosageForms()
@@ -310,7 +160,7 @@ namespace Hospital.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AdminAddDosageForms(DosageForm model)
         {
-            ApplicationDbContext POE = new ApplicationDbContext();
+           
 
             if (ModelState.IsValid)
             {
@@ -318,14 +168,14 @@ namespace Hospital.Controllers
                 var dosageFormName = model.DosageFormName.Trim().ToLower();
 
                 // Check if a dosage form with the same name already exists
-                var existingDosageForm = POE.DosageForm
+                var existingDosageForm = _context.DosageForm
                     .FirstOrDefault(df => df.DosageFormName.Trim().ToLower() == dosageFormName);
 
                 if (existingDosageForm == null)
                 {
                     // Adding the dosage form entity to the context
-                    POE.DosageForm.Add(model);
-                    POE.SaveChanges(); // Save changes
+                    _context.DosageForm.Add(model);
+                    _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
                     return RedirectToAction("AdminViewDosageForms");
@@ -344,9 +194,9 @@ namespace Hospital.Controllers
         // GET: DosageForms/Edit/5
         public async Task<IActionResult> AdminEditDosageForms(int id)
         {
-            ApplicationDbContext POE = new ApplicationDbContext();
+           
             // Retrieve the dosage form record from the database using the provided ID
-            var dosageForm = await POE.DosageForm.FindAsync(id);
+            var dosageForm = await _context.DosageForm.FindAsync(id);
 
             // Check if the dosage form exists. If not, return a 404 Not Found response.
             if (dosageForm == null)
@@ -363,7 +213,7 @@ namespace Hospital.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdminEditDosageForms(int id, [Bind("DosageFormID,DosageFormName")] DosageForm dosageForm)
         {
-            ApplicationDbContext POE = new ApplicationDbContext();
+           
             // Create a new instance of the context to interact with the database
             if (id != dosageForm.DosageFormID)
             {
@@ -372,7 +222,7 @@ namespace Hospital.Controllers
             }
 
             // Check if the new dosage form name already exists in the database, excluding the current entry
-            if (POE.DosageForm.Any(df => df.DosageFormName == dosageForm.DosageFormName && df.DosageFormID != id))
+            if (_context.DosageForm.Any(df => df.DosageFormName == dosageForm.DosageFormName && df.DosageFormID != id))
             {
                 // Add a model error if the name already exists and return the view with the error
                 ModelState.AddModelError("DosageFormName", "The dosage form name already exists.");
@@ -385,8 +235,8 @@ namespace Hospital.Controllers
                 try
                 {
                     // Update the dosage form record in the database
-                    POE.Update(dosageForm);
-                    await POE.SaveChangesAsync();
+                    _context.Update(dosageForm);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -411,21 +261,73 @@ namespace Hospital.Controllers
         // Helper method to check if a dosage form exists in the database
         private bool DosageFormExists(int id)
         {
-            ApplicationDbContext POE = new ApplicationDbContext();
-            return POE.DosageForm.Any(e => e.DosageFormID == id);
+           
+            return _context.DosageForm.Any(e => e.DosageFormID == id);
         }
 
         // Action method for displaying the list of added dosage forms
         public IActionResult AdminViewDosageForms()
         {
             // Initialize the database context to access the Dosage Forms table
-            ApplicationDbContext POE = new ApplicationDbContext();
+           
 
             // Retrieve all dosage forms records from the database and store them in a list
-            List<DosageForm> temp = POE.DosageForm.ToList();
+            List<DosageForm> temp = _context.DosageForm.ToList();
 
             // Pass the list of medications to the view for display
             return View(temp);
         }
+        [HttpGet]
+        public IActionResult AdminAddHospital()
+        {
+            var model = new DayHospital();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AdminAddHospital(DayHospital model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a hospital with the same name or email already exists
+                var existingHospital = _context.DayHospital
+                    .FirstOrDefault(h => h.HospitalName == model.HospitalName || h.EmailAddress == model.EmailAddress);
+
+                if (existingHospital == null)
+                {
+                    // Creating the hospital entity
+                    var dayhospital = new DayHospital
+                    {
+                        // No need to set HospitalId, it will be auto-generated
+                        HospitalName = model.HospitalName,
+                        Address = model.Address,
+                        City = model.City,
+                        Province = model.Province,
+                        PostalCode = model.PostalCode,
+                        ContactNumber = model.ContactNumber,
+                        EmailAddress = model.EmailAddress,
+                        PracticeManager = model.PracticeManager,
+                        PurchaseManagerEmail = model.PurchaseManagerEmail
+                    };
+
+                    // Adding the hospital entity to the context
+                    _context.DayHospital.Add(dayhospital);
+                    _context.SaveChanges(); // Save changes
+                }
+                else
+                {
+                    // If a hospital with the same name or email already exists, return an error message
+                    ViewBag.ErrorMessage = "Hospital with the same name or email address already exists.";
+                    return View(model);
+                }
+
+                // Redirect to the success page after successful addition
+                return RedirectToAction("AdminViewDayHospital", "Admin");
+            }
+
+            // Return the view with the model in case of an error
+            return View(model);
+        }
     }
 }
+

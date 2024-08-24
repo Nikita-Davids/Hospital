@@ -20,7 +20,7 @@
             <!-- Navigation bar with links to other pages -->
             <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
                 <a asp-controller="Admin" asp-action="Index">Registration</a>
-                <a asp-controller="Admin" asp-action="AdminHospitalRegister">Hospital Registration</a>
+                <a asp-controller="Admin" asp-action="AdminAddHospital">Hospital Registration</a>
                 <a asp-controller="Admin" asp-action="AdminAddActiveIngredients">Add Active Ingredient</a>
                 <a asp-controller="Admin" asp-action="AdminDosageForms">Add Dosage Form</a>
                 <a asp-controller="Admin" asp-action="AdminLogin">Logout</a>

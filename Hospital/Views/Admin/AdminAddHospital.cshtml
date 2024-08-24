@@ -1,0 +1,110 @@
+﻿@model Hospital.Models.DayHospital
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>Register Hospital</h1>
+
+<div class="form-container">
+    <form asp-action="AdminAddHospital">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="HospitalName" class="control-label"></label>
+            <input asp-for="HospitalName" class="form-control" />
+            <span asp-validation-for="HospitalName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Address" class="control-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="City" class="control-label"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Province" class="control-label"></label>
+            <input asp-for="Province" class="form-control" />
+            <span asp-validation-for="Province" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PostalCode" class="control-label"></label>
+            <input asp-for="PostalCode" class="form-control" />
+            <span asp-validation-for="PostalCode" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ContactNumber" class="control-label"></label>
+            <input asp-for="ContactNumber" class="form-control" />
+            <span asp-validation-for="ContactNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="EmailAddress" class="control-label"></label>
+            <input asp-for="EmailAddress" class="form-control" />
+            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PracticeManager" class="control-label"></label>
+            <input asp-for="PracticeManager" class="form-control" />
+            <span asp-validation-for="PracticeManager" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PurchaseManagerEmail" class="control-label"></label>
+            <input asp-for="PurchaseManagerEmail" class="form-control" />
+            <span asp-validation-for="PurchaseManagerEmail" class="text-danger"></span>
+        </div>
+        <div class="form-group button-container">
+            <input type="submit" value="Add" class="button" />
+        </div>
+    </form>
+</div>
+
+
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .form-container {
+        border: 1px solid #ccc; /* Light gray border */
+        padding: 20px; /* Add padding inside the border */
+        border-radius: 8px; /* Rounded corners */
+        background-color: #f9f9f9; /* Light background color */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: shadow for a subtle 3D effect */
+        max-width: 600px; /* Maximum width of the form container */
+        margin: 20px auto; /* Center container horizontally */
+    }
+
+    .button-container {
+        text-align: right; /* Align button to the right */
+    }
+
+    .button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+    }
+</style>

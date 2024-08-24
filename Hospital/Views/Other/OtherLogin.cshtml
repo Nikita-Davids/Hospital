@@ -1,113 +1,94 @@
 ﻿@model Hospital.ViewModels.LoginViewModel
 
 @{
-    ViewBag.Title = "Login";
-    ViewBag.HideNavFooter = true; // This hides the navigation and footer
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.HideNavBar = true; // This hides the navigation bar
 }
 
 <style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f0f0f0; /* Light background for contrast */
-    }
-
-    .container {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    /* Include your custom CSS here */
+    h2 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
     }
 
     .box {
         border: 1px solid #ccc;
         padding: 20px;
-        width: 400px; /* Fixed width for better centering */
-        max-width: 100%; /* Ensures responsiveness */
+        margin: 40px auto;
+        width: 50%;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        background-color: #f9f9f9; /* Added background color for better contrast */
-        border-radius: 8px; /* Adds rounded corners */
+        background-color: #f9f9f9;
     }
+
+    button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
 
     .form-group {
-        margin-bottom: 20px; /* Added margin-bottom for spacing between form groups */
+        margin-bottom: 20px;
     }
 
-    .form-control {
-        width: 100%; /* Ensured that input fields take full width of the container */
+    input.form-control, select.form-control {
+        width: 100%;
     }
 
     .alert-danger {
-        margin-bottom: 20px; /* Added margin for spacing */
+        margin-bottom: 20px;
     }
-
-    h2 {
-        margin-bottom: 20px; /* Added margin for spacing */
-        text-align: center; /* Center-aligns the heading */
-    }
-
-    label {
-        display: block; /* Ensures labels take full width available */
-        margin-bottom: 5px; /* Adds spacing between label and input */
-    }
-
-    button.btn-primary {
-        background-color: #08075F;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-        button.btn-primary:hover {
-            background-color: #FFDE59;
-        }
 </style>
 
+<div class="box">
+    <h2>Login</h2>
 
-<div class="container">
-    <div class="box">
-        <h2>Login</h2>
-
-        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-        {
-            <div class="alert alert-danger">
-                @ViewBag.ErrorMessage
-            </div>
-        }
-
-        <form asp-action="OtherLogin" method="post">
-            <div class="form-group">
-                <label asp-for="EmailAddress"></label>
-                <input asp-for="EmailAddress" class="form-control" />
-                <span asp-validation-for="EmailAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" type="password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Role"></label>
-                <select asp-for="Role" class="form-control">
-                    <option value="Nurse">Nurse</option>
-                    <option value="Surgeon">Surgeon</option>
-                    <option value="Pharmacist">Pharmacist</option>
-                    <option value="Admin">Admin</option>
-                </select>
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
     }
-}
+
+    <form asp-action="OtherLogin" method="post">
+        <div class="form-group">
+            <label asp-for="EmailAddress"></label>
+            <input asp-for="EmailAddress" class="form-control" />
+            <span asp-validation-for="EmailAddress" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Role"></label>
+            <select asp-for="Role" class="form-control">
+                <option value="Nurse">Nurse</option>
+                <option value="Surgeon">Surgeon</option>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+
+        <div class="form-group text-right">
+            <button type="submit" class="button">Login</button>
+        </div>
+<br />
+</form>
+<br />
+</div>

@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Hospital.Models.DosageForm>
+﻿@model IEnumerable<Hospital.Models.DayHospital>
 
 @{
-    ViewData["Title"] = "AdminViewDosageForms";
+    ViewData["Title"] = "Admin View Hospitals";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -48,26 +48,38 @@
 
     /* Adjust the column widths */
     .col-name {
-        width: 85%; /* Allocate most of the space to the name column */
+        width: 50%; /* Adjust as needed */
     }
 
     .col-action {
-        width: 15%; /* Allocate a smaller width for the action column */
+        width: 50%; /* Adjust as needed */
         text-align: center;
     }
 </style>
 
-<h1>Admin View Dosage Forms</h1>
+<h1>Admin View Hospitals</h1>
 
 <p>
-    <a class="btn-link" asp-action="AdminAddDosageForms">Create New</a>
+    <a class="btn-link" asp-action="AdminAddHospital">Create New</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
             <th class="col-name">
-                @Html.DisplayNameFor(model => model.DosageFormName)
+                Hospital Name
+            </th>
+            <th class="col-name">
+                Address
+            </th>
+            <th class="col-name">
+                City
+            </th>
+            <th class="col-name">
+                Province
+            </th>
+            <th class="col-name">
+                Postal Code
             </th>
             <th class="col-action">
                 Action
@@ -79,10 +91,22 @@
         {
             <tr>
                 <td class="col-name">
-                    @Html.DisplayFor(modelItem => item.DosageFormName)
+                    @Html.DisplayFor(modelItem => item.HospitalName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.City)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.Province)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PostalCode)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="AdminEditDosageForms" asp-route-id="@item.DosageFormID">Edit</a>
+                    <a class="btn-link" asp-action="AdminEditHospital" asp-route-id="@item.HospitalID">Edit</a>
                 </td>
             </tr>
         }
