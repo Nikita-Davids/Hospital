@@ -13,5 +13,5 @@ public partial class Town
 
     public virtual Province? Province { get; set; }
 
-    //public virtual ICollection<Suburb> Suburbs { get; set; } = new List<Suburb>();
+    public virtual ICollection<Suburb> Suburbs { get; set; } = new List<Suburb>();
 }

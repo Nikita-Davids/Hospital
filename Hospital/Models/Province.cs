@@ -12,7 +12,7 @@ public partial class Province
 
     public string? ProvinceName { get; set; }
 
-   // public virtual ICollection<Town> Towns { get; set; } = new List<Town>();
+   // public virtual ICollection<Town> Town { get; set; } = new List<Town>();
 
 }
 
