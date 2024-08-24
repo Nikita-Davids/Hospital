@@ -1,0 +1,117 @@
+﻿@model Hospital.Models.Suburb
+
+@{
+    ViewData["Title"] = "AdminAddSuburb";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    button {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        float:left;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .button-container {
+        text-align: right; /* Aligns button container to the right */
+        margin-top: 20px; /* Add some margin if needed */
+    }
+</style>
+
+<h1>Add Suburb</h1>
+
+
+
+<div class="box">
+    <form asp-action="AdminAddSuburb" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="SuburbName" class="control-label">Enter Suburb Name:</label>
+            <input asp-for="SuburbName" class="form-control" />
+            <span asp-validation-for="SuburbName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="SuburbPostalCode" class="control-label">Enter Postal Code:</label>
+            <input asp-for="SuburbPostalCode" class="form-control" />
+            <span asp-validation-for="SuburbPostalCode" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="TownId" class="control-label">Select Town:</label>
+            <select asp-for="TownId" class="form-control" asp-items="ViewBag.TownId"></select>
+            <span asp-validation-for="TownId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Create Suburb</button>
+        </div>
+
+        <br />
+        <br />
+    </form>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="Index">Back to List</a>
+</div>
+
+

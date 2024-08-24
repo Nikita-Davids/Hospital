@@ -658,9 +658,9 @@ namespace Hospital.Controllers
         {
             return _context.ChronicCondition.Any(e => e.ChronicConditionId == id);
         }
-    
 
-public IActionResult ViewChronicConditions()
+
+        public IActionResult ViewChronicConditions()
         {
             return View(_context.ChronicCondition);
         }
@@ -678,7 +678,7 @@ public IActionResult ViewChronicConditions()
         // POST: /OperatingTheatre/AdminAddOperatingTheatre
         [HttpPost]
         [ValidateAntiForgeryToken]
-     
+
 
         public IActionResult AdminAddTheatres(OperatingTheatre model)
         {
@@ -796,9 +796,265 @@ public IActionResult ViewChronicConditions()
             return _context.OperatingTheatre.Any(e => e.OperatingTheatreId == id);
         }
 
+        [HttpGet]
+        public IActionResult AdminAddProvinces()
+        {
+            return View(); // This view should be a form for adding a single Province, so no need to pass a model here.
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminAddProvinces(Province model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingProvince = _context.Province
+                        .FirstOrDefault(t => t.ProvinceName == model.ProvinceName);
+
+                    if (existingProvince == null)
+                    {
+                        _context.Province.Add(model); // Add the new Province
+                        _context.SaveChanges(); // Save changes to the database
+                        return RedirectToAction("AdminViewProvinces"); // Redirect to view provinces
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Province with the same name already exists.";
+                        return View(model); // Return view with error message
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}"); // Log error
+                    ViewBag.ErrorMessage = "An error occurred while adding the Province.";
+                    return View(model); // Return view with error message
+                }
+            }
+
+            return View(model); // Return view if model state is not valid
+        }
+
+        public IActionResult AdminViewProvinces()
+        {
+            var provinces = _context.Province.ToList(); // Retrieve list of Provinces
+            return View(provinces); // Pass list to the view
+        }
+        // GET: /Province/Edit/5
+        [HttpGet]
+        public IActionResult AdminEditProvinces(int id)
+        {
+            var province = _context.Province.Find(id);
+            if (province == null)
+            {
+                return NotFound(); // Return 404 if the province does not exist
+            }
+            return View(province); // Pass the province object to the view
+        }
+
+        // POST: /Province/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminEditProvinces(int id, Province model)
+        {
+            if (id != model.ProvinceId) // Ensure the ID matches
+            {
+                return BadRequest(); // Return 400 if there's a mismatch
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingProvince = _context.Province.Find(id);
+                    if (existingProvince == null)
+                    {
+                        return NotFound(); // Return 404 if the province does not exist
+                    }
+
+                    existingProvince.ProvinceName = model.ProvinceName; // Update fields as needed
+                    _context.Update(existingProvince); // Update the province in the context
+                    _context.SaveChanges(); // Save changes to the database
+
+                    return RedirectToAction("AdminViewProvinces"); // Redirect to view provinces
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}"); // Log the error
+                    ViewBag.ErrorMessage = "An error occurred while updating the Province.";
+                }
+            }
+
+            return View(model); // Return view with validation errors if the model state is not valid
+        }
+        [HttpGet]
+        public IActionResult AdminAddTown()
+        {
+            // Assuming you have a method to get the list of provinces
+            var provinces = _context.Province.ToList();
+            ViewBag.ProvinceId = new SelectList(provinces, "ProvinceId", "ProvinceName");
+
+            return View();
+        }
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminAddTown(Town model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingTown = _context.Town
+                        .FirstOrDefault(t => t.TownName == model.TownName);
+
+                    if (existingTown == null)
+                    {
+                        _context.Town.Add(model); // Add the new Town
+                        _context.SaveChanges(); // Save changes to the database
+                        return RedirectToAction("AdminViewTown"); // Redirect to view towns
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Town with the same name already exists.";
+                        return View(model); // Return view with error message
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error and show user-friendly message
+                    // Example: _logger.LogError(ex, "Error while adding town");
+
+                    ViewBag.ErrorMessage = "An error occurred while adding the Town.";
+                    return View(model); // Return view with error message
+                }
+            }
+
+            return View(model); // Return view if model state is not valid
+        }
+
+        public IActionResult AdminViewTown()
+        {
+            var towns = _context.Town.Include(t => t.Province).ToList();
+            return View(towns);
+        }
+
+
+        [HttpGet]
+        public IActionResult EditViewTown(int id)
+        {
+            // Fetch the town and its related province from the database
+            var town = _context.Town
+                .Include(t => t.Province) // Ensure to include related entities if needed
+                .FirstOrDefault(t => t.TownId == id);
+
+            if (town == null)
+            {
+                // If town is not found, return a not found result
+                return NotFound();
+            }
+
+            // Populate the dropdown list for provinces
+            ViewBag.ProvinceId = new SelectList(_context.Province, "ProvinceId", "ProvinceName", town.ProvinceId);
+
+            return View(town);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditViewTown(Town model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingTown = _context.Town
+                        .FirstOrDefault(t => t.TownId == model.TownId);
+
+                    if (existingTown == null)
+                    {
+                        // If the town to edit doesn't exist, return a not found result
+                        return NotFound();
+                    }
+
+                    // Update the town details
+                    existingTown.TownName = model.TownName;
+                    existingTown.ProvinceId = model.ProvinceId;
+
+                    _context.Town.Update(existingTown);
+                    await _context.SaveChangesAsync(); // Save changes to the database
+                    return RedirectToAction(nameof(AdminViewTown)); // Redirect to view towns
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (uncomment when logging is configured)
+                    // _logger.LogError(ex, "Error while editing town");
+
+                    // Set a user-friendly error message and return to the view
+                    ViewBag.ProvinceId = new SelectList(await _context.Province.ToListAsync(), "ProvinceId", "ProvinceName", model.ProvinceId);
+                    ViewBag.ErrorMessage = "An error occurred while editing the Town.";
+                    return View(model);
+                }
+            }
+
+            // If the model state is not valid, return the view with the current model
+            ViewBag.ProvinceId = new SelectList(await _context.Province.ToListAsync(), "ProvinceId", "ProvinceName", model.ProvinceId);
+            return View(model);
+        }
+
+
+        // GET: Admin/AddSuburb
+        public IActionResult AdminAddSuburb()
+        {
+            // Populate ViewBag with Town data for the dropdown
+            ViewBag.TownId = new SelectList(_context.Town, "TownId", "TownName");
+
+            return View();
+        }
+
+        // POST: Admin/AddSuburb
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminAddSuburb(Suburb suburb)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Suburb.Add(suburb);
+                _context.SaveChanges();
+                return RedirectToAction("Index"); // Redirect to a list or index page
+            }
+
+            // If model state is not valid, repopulate the dropdown and return the view
+            ViewBag.TownId = new SelectList(_context.Town, "TownId", "TownName", suburb.TownId);
+            return View(suburb);
+        }
+
+        public IActionResult AdminViewSuburb()
+        {
+            var suburbs = _context.Suburb
+                                  .Include(s => s.Town) // Include related Town entity if it exists
+                                  .ToList();
+            return View(suburbs);
+        }
+
+
 
     }
 }
+
+
+
+
+
+
+    
+
 
 
 

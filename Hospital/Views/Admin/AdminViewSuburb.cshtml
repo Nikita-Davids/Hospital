@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Hospital.Models.Suburb>
+
+@{
+    ViewData["Title"] = "Admin View Suburbs";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 30%; /* Adjust as needed */
+    }
+
+    .col-action {
+        width: 20%; /* Adjust as needed */
+        text-align: center;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn-link" asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-name">
+                Suburb Name
+            </th>
+            <th class="col-name">
+                Postal Code
+            </th>
+            <th class="col-name">
+                Town
+            </th>
+            <th class="col-action">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.SuburbName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.SuburbPostalCode)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.Town.TownName)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="Edit" asp-route-id="@item.SuburbId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

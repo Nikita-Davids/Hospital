@@ -33,6 +33,21 @@ namespace Hospital.Data
 
         public DbSet<Suburb> Suburb { get; set; }
         public DbSet<Town> Town { get; set; }
+        public DbSet<Bed> Bed { get; set; }
+        public DbSet<DischargedPatient> DischargedPatients { get; set; }
+        public DbSet<PatientAllergy> PatientAllergies { get; set; }
+        public DbSet<PatientCurrentMedication> PatientCurrentMedication { get; set; }
+        public DbSet<PatientMedicalCondition> PatientMedicalCondition { get; set; }
+        public DbSet<PatientsAdministration> PatientsAdministration { get; set; }
+        public DbSet<PatientVital> PatientVital { get; set; }
+
+        public DbSet<PatientWardAssignment> PatientWardAssignment { get; set; }
+
+        public DbSet<TreatmentCode> TreatmentCode { get; set; }
+
+        public DbSet<VitalRange> VitalRange { get; set; }
+        public DbSet<Ward> Ward { get; set; }
+
 
 
 
