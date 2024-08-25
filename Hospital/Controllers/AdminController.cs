@@ -1042,11 +1042,151 @@ namespace Hospital.Controllers
                                   .ToList();
             return View(suburbs);
         }
+        [HttpGet]
+        public IActionResult AdminEditSuburb(int id)
+        {
+            // Fetch the suburb and its related town from the database
+            var suburb = _context.Suburb
+                .Include(s => s.Town) // Include related entities if needed
+                .FirstOrDefault(s => s.SuburbId == id);
+
+            if (suburb == null)
+            {
+                // If suburb is not found, return a not found result
+                return NotFound();
+            }
+
+            // Populate the dropdown list for towns
+            ViewBag.TownId = new SelectList(_context.Town, "TownId", "TownName", suburb.TownId);
+
+            return View(suburb);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminEditSuburb(Suburb model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingSuburb = _context.Suburb
+                        .FirstOrDefault(s => s.SuburbId == model.SuburbId);
+
+                    if (existingSuburb == null)
+                    {
+                        // If the suburb to edit doesn't exist, return a not found result
+                        return NotFound();
+                    }
+
+                    // Update the suburb details
+                    existingSuburb.SuburbName = model.SuburbName;
+                    existingSuburb.SuburbPostalCode = model.SuburbPostalCode;
+                    existingSuburb.TownId = model.TownId;
+
+                    _context.Suburb.Update(existingSuburb);
+                    await _context.SaveChangesAsync(); // Save changes to the database
+                    return RedirectToAction(nameof(AdminViewSuburb)); // Redirect to view suburbs
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (uncomment when logging is configured)
+                    // _logger.LogError(ex, "Error while editing suburb");
+
+                    // Set a user-friendly error message and return to the view
+                    ViewBag.TownId = new SelectList(await _context.Town.ToListAsync(), "TownId", "TownName", model.TownId);
+                    ViewBag.ErrorMessage = "An error occurred while editing the Suburb.";
+                    return View(model);
+                }
+            }
+
+            // If model state is not valid, re-populate dropdown and return the view
+            ViewBag.TownId = new SelectList(await _context.Town.ToListAsync(), "TownId", "TownName", model.TownId);
+            return View(model);
+        }
 
 
 
+        // GET: TreatmentCode/Add
+        public IActionResult AdminAddTreatmentCode()
+        {
+            return View();
+        }
+
+        // POST: TreatmentCode/Add
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminAddTreatmentCode(TreatmentCode model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("AdminViewTreatmentCode", "Admin");
+            }
+            return View(model);
+        }
+
+        // GET: TreatmentCode/Edit/5
+        public async Task<IActionResult> AdminEditTreatmentCode(int id)
+        {
+            var treatmentCode = await _context.TreatmentCode.FindAsync(id);
+            if (treatmentCode == null)
+            {
+                return NotFound();
+            }
+            return View(treatmentCode);
+        }
+
+        // POST: TreatmentCode/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminEditTreatmentCode(int id, TreatmentCode model)
+        {
+            if (id != model.TreatmentCodeId) // Adjust based on your actual primary key
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TreatmentCodeExists(model.TreatmentCodeId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("AdminViewTreatmentCode", "Admin");
+            }
+            return View(model);
+        }
+
+        // GET: TreatmentCode/View/5
+        public IActionResult AdminViewTreatmentCode()
+        {
+            // Fetch all TreatmentCode entries
+            var treatmentCodes = _context.TreatmentCode.ToList();
+            return View(treatmentCodes);
+        }
+        private bool TreatmentCodeExists(int id)
+        {
+            return _context.TreatmentCode.Any(e => e.TreatmentCodeId == id); // Adjust based on your actual primary key
+        }
     }
+
+
+
 }
+
 
 
 

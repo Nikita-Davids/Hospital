@@ -1,0 +1,86 @@
+﻿@model IEnumerable<Hospital.Models.TreatmentCode>
+
+@{
+    ViewData["Title"] = "AdminViewTreatmentCode";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn-link" asp-action="AdminAddTreatmentCode">Create New Treatment Code</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Icd10Code)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().TreatmentCodeDescription)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Icd10Code)</td>
+                <td>@Html.DisplayFor(modelItem => item.TreatmentCodeDescription)</td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditTreatmentCode" asp-route-id="@item.TreatmentCodeId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 20%; /* Allocate equal width to all name columns */
+    }
+
+    .col-action {
+        width: 20%; /* Allocate equal width to the action column */
+        text-align: center;
+    }
+</style>

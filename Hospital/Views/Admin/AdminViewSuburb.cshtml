@@ -72,9 +72,7 @@
             <th class="col-name">
                 Postal Code
             </th>
-            <th class="col-name">
-                Town
-            </th>
+          
             <th class="col-action">
                 Action
             </th>
@@ -90,11 +88,9 @@
                 <td class="col-name">
                     @Html.DisplayFor(modelItem => item.SuburbPostalCode)
                 </td>
-                <td class="col-name">
-                    @Html.DisplayFor(modelItem => item.Town.TownName)
-                </td>
+              
                 <td class="col-action">
-                    <a class="btn-link" asp-action="Edit" asp-route-id="@item.SuburbId">Edit</a>
+                    <a class="btn-link" asp-action="AdminEditSuburb" asp-route-id="@item.SuburbId">Edit</a>
                 </td>
             </tr>
         }
