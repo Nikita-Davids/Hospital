@@ -1277,7 +1277,52 @@ namespace Hospital.Controllers
             var ward = _context.Ward.ToList();
             return View(ward);
         }
+        public async Task<IActionResult> AdminEditWard(int id)
+        {
+            var ward = await _context.Ward.FindAsync(id);
+            if (ward == null)
+            {
+                return NotFound();
+            }
+            return View(ward);
+        }
 
+        // POST: TreatmentCode/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminEditWard(int id, Ward model)
+        {
+            if (id != model.WardId) // Adjust based on your actual primary key
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!WardExists(model.WardId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("AdminViewWard", "Admin");
+            }
+            return View(model);
+        }
+        private bool WardExists(int id)
+        {
+            return _context.Ward.Any(e => e.WardId == id); 
+        }
     }
 
 

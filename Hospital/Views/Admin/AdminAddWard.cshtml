@@ -2,35 +2,103 @@
 
 @{
     ViewData["Title"] = "AdminAddWard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>AdminAddWard</h1>
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
 
-<h4>Ward</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="AdminAddWard">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="WardName" class="control-label"></label>
-                <input asp-for="WardName" class="form-control" />
-                <span asp-validation-for="WardName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NumberOfBeds" class="control-label"></label>
-                <input asp-for="NumberOfBeds" class="form-control" />
-                <span asp-validation-for="NumberOfBeds" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+    h4 {
+        color: #08075F;
+        font-weight: bold;
+    }
+
+    .form-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .button-container {
+        text-align: right;
+    }
+
+    .button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        float: left;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            border: none;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+        border-radius: 5px;
+    }
+
+    .text-danger {
+        color: red;
+    }
+</style>
+
+<h1>Add Ward</h1>
+
+<div class="form-container">
+    <form asp-action="AdminAddWard">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="WardName" class="control-label"></label>
+            <input asp-for="WardName" class="form-control" />
+            <span asp-validation-for="WardName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NumberOfBeds" class="control-label"></label>
+            <input asp-for="NumberOfBeds" class="form-control" />
+            <span asp-validation-for="NumberOfBeds" class="text-danger"></span>
+        </div>
+        <div class="button-container">
+            <input type="submit" value="Create" class="button" />
+        </div>
+    </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="button-container">
+    <a asp-action="AdminViewWard" class="btn-link">Back to List</a>
 </div>
-
-

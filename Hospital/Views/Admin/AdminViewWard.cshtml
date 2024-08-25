@@ -2,39 +2,95 @@
 
 @{
     ViewData["Title"] = "AdminViewWard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>AdminViewWard</h1>
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Adjust the column widths */
+    .col-name {
+        width: 75%; /* Allocate most of the space to the name column */
+    }
+
+    .col-action {
+        width: 25%; /* Allocate a smaller width for the action column */
+        text-align: center;
+    }
+</style>
+
+<h1>Admin View Ward</h1>
 
 <p>
-    <a asp-action="AdminAddWard">Create New</a>
+    <a class="btn-link" asp-action="AdminAddWard">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
+            <th class="col-name">
                 @Html.DisplayNameFor(model => model.WardName)
             </th>
-            <th>
+            <th class="col-name">
                 @Html.DisplayNameFor(model => model.NumberOfBeds)
             </th>
-            <th></th>
+            <th class="col-action">
+                Action
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.WardName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NumberOfBeds)
-            </td>
-            <td>
-                <a asp-action="AdminEditWard" asp-route-id="@item.WardId">Edit</a> |
-                <a asp-action="AdminViewWard" asp-route-id="@item.WardId">Details</a> |
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WardName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfBeds)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditWard" asp-route-id="@item.WardId">Edit</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
