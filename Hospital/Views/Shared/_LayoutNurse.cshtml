@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Hospital</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AppliedProjects.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <!-- Centered logo above the navigation bar -->
+        <div class="logo-container">
+            <!--( Canva,2023)-->
+            <img src="~/images/NorthsideLogo.png" alt="Logo" class="logo">
+        </div>
+
+        <div class="text-center">
+            <!-- Navigation bar with links to other pages -->
+            <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
+                <a asp-controller="Nurse" asp-action="NurseAddPatients">Patients</a>
+                <a asp-controller="Nurse" asp-action="NurseDischargePatients">DischargePatients</a>
+                <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
+                <a asp-controller="Admin" asp-action="AdminLogin">Logout</a>
+            </nav>
+        </div>
+
+        @*  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")">
+        <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        </div>
+        </nav> *@
+        <style>
+            /*(W3Schools,2023)*/
+            /* Hiding navbar */
+            /* Custom styles for hiding the navbar */
+            .navbar-hidden {
+                display: none;
+            }
+
+            body {
+                margin: 0;
+                font-family: Arial, Helvetica, sans-serif;
+                font-weight: bold;
+            }
+            /*(W3Schools,2023)*/
+            /* Style the navigation menu */
+            .topnav {
+                width: 100%;
+                background-color: #FFDE59;
+                overflow: auto;
+            }
+                /*(W3Schools,2023)*/
+                /* Navigation links */
+                .topnav a {
+                    float: left;
+                    padding: 10px;
+                    color: #08075F;
+                    text-decoration: none;
+                    font-size: 17px;
+                    width: 16.666%; /* Four equal-width links. If you have two links, use 50%, and 33.33% for three links, etc.. */
+                    text-align: center; /* If you want the text to be centered */
+                }
+
+                    /* Add a background color on mouse-over */
+                    .topnav a:hover {
+                        background-color: #08075F;
+                        padding: 10px;
+                        color: white; /* Change the text color to white on hover */
+                    }
+
+
+                    /* Style the current/active link */
+                    .topnav a.active {
+                        background-color: white;
+                    }
+            /*(W3Schools,2023)*/
+            /* Adjust the size of the icon using FontAwesome classes */
+            .dropbtn .fa-user {
+                font-size: 24px; /* Adjust the size as needed */
+                cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+            }
+            /*(W3Schools,2023)*/
+            /* Center the logo */
+            .logo-container {
+                text-align: center;
+                margin-top: 20px; /* Adjust the margin as needed for vertical positioning */
+            }
+
+            .logo {
+                width: 500px; /* Adjust the width and height as needed for your logo */
+                height: 300px;
+            }
+
+            h1 {
+                text-align: center;
+                color: #08075F;
+            }
+
+            .item {
+                display: flex;
+                justify-content: flex-start; /* Move the image to the left of the paragraph */
+            }
+            /*(W3Schools,2023)*/
+            .description {
+                flex: 2;
+                padding: 0 10px; /* Adjust the padding as needed */
+            }
+            /* Center the Facebook and Email logos */
+            .center {
+                display: flex;
+                justify-content: center;
+            }
+
+            .column {
+                text-align: center;
+            }
+
+                /* Reduce spacing around icons */
+                .column img {
+                    width: 5%;
+                    margin: 0; /* Remove any margin */
+                }
+
+            footer {
+                background-color: #FFDE59;
+                color: #08075F;
+                padding: 5px;
+                text-align: center;
+            }
+            /* Styles for the clear box */
+            .clear-box {
+                width: 80%; /* Adjust the width as needed */
+                height: 150px; /* Adjust the height as needed */
+                border: 2px solid #08075F; /* Adjust the border color and width */
+                margin: 20px auto; /* Center horizontally with some margin */
+                background-color: transparent; /* Transparent background */
+                display: flex;
+                justify-content: flex-end; /* Move content to the right */
+                align-items: center; /* Center content vertically */
+                padding-right: 20px; /* Add some padding to the right */
+            }
+
+                .clear-box button {
+                    padding: 10px 60px;
+                    font-size: 16px;
+                    background-color: #08075F;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                    font-weight: bold;
+                    transition: background-color 0.3s ease;
+                    margin-left: auto; /* Move the button to the right */
+                }
+
+                    .clear-box button:hover {
+                        background-color: #FFDE59;
+                        color: #08075F;
+                    }
+
+            .form-container {
+                width: 600px;
+                background-color: #08075F;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 0 40px rgba(8,7,16,0.16);
+                border-radius: 0px;
+                padding: 50px 35px;
+            }
+
+                .form-container button {
+                    padding: 10px 60px;
+                    font-size: 16px;
+                    background-color: #FFDE59;
+                    color: #08075F;
+                    border: none;
+                    cursor: pointer;
+                    font-weight: bold;
+                    transition: background-color 0.3s ease;
+                    margin-left: auto; /* Move the button to the right */
+                }
+        </style>
+
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+</body>
+</html>
+<footer>
+    <p style="text-align: center">2024, Northside. All rights reserved.</p>
+</footer>

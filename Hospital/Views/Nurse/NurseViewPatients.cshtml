@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Hospital.Patients>
+
+@{
+    ViewData["Title"] = "NurseViewPatients";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 20%; /* Adjust as needed */
+    }
+
+    .col-action {
+        width: 10%; /* Adjust as needed */
+        text-align: center;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn-link" asp-action="NurseAddPatients">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientName)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientSurname)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientContactNumber)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientEmailAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientDateOfBirth)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientGender)
+            </th>
+            <th class="col-action"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientSurname)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientContactNumber)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientDateOfBirth)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientGender)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="NurseEditPatients" asp-route-id="@item.PatientIDNumber">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
