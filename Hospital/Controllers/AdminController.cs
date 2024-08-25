@@ -1184,10 +1184,16 @@ namespace Hospital.Controllers
 
         public IActionResult AdminAddBed()
         {
+            // Fetch the list of wards from the database
+            var wards = _context.Ward.ToList();
+
+            // Create a SelectList and assign it to ViewBag.WardId
+            ViewBag.WardId = new SelectList(wards, "WardId", "WardName");
+
             return View();
         }
 
-        // POST: TreatmentCode/Add
+        // POST: AdminAddBed
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdminAddBed(Bed model)
@@ -1198,8 +1204,11 @@ namespace Hospital.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("AdminViewBed", "Admin");
             }
+            // Repopulate the dropdown in case of validation failure
+            ViewBag.WardId = new SelectList(_context.Ward, "WardId", "WardName", model.WardId);
             return View(model);
         }
+
         public IActionResult AdminViewBed()
         {
             // Fetch all TreatmentCode entries
@@ -1209,6 +1218,12 @@ namespace Hospital.Controllers
         // GET: TreatmentCode/Edit/5
         public async Task<IActionResult> AdminEditBed(int id)
         {
+            // Fetch the list of wards from the database
+            var wards = _context.Ward.ToList();
+
+            // Create a SelectList and assign it to ViewBag.WardId
+            ViewBag.WardId = new SelectList(wards, "WardId", "WardName");
+
             var bed = await _context.Bed.FindAsync(id);
             if (bed == null)
             {

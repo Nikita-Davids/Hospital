@@ -1,0 +1,263 @@
+﻿@model Hospital.ViewModels.SurgeonPrescriptionViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+
+<style>
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 60%; /* Adjusted width to 80% for better appearance */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9; /* Added background color for better contrast */
+    }
+
+    .form-group {
+        margin-bottom: 20px; /* Added margin-bottom for spacing between form groups */
+    }
+
+    .form-control {
+        width: 100%; /* Ensured that input fields take full width of the container */
+    }
+
+    button {
+        padding: 9px 50px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right; /* Move the button to the right */
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+</style>
+
+<h1>Surgeon Prescription</h1>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="AddSurgeonPrescription" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="PatientIDNumber" class="control-label"></label>
+                <select asp-for="PatientIDNumber" class="form-control" asp-items="ViewBag.Patients" id="patient-id-select">
+                    <option value="">Select Patient</option>
+                </select>
+                <span asp-validation-for="PatientIDNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PatientName" class="control-label"></label>
+                <input asp-for="PatientName" class="form-control" readonly />
+                <span asp-validation-for="PatientName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PatientSurname" class="control-label"></label>
+                <input asp-for="PatientSurname" class="form-control" readonly />
+                <span asp-validation-for="PatientSurname" class="text-danger"></span>
+            </div>
+
+            <div id="medication-container">
+                @for (var i = 0; i < Model.Medications.Count; i++)
+                {
+                    <div class="medication-group">
+                        <div class="form-group">
+                            <label asp-for="Medications[@i].MedicationName" class="control-label">Medication Name:</label>
+                            <select asp-for="Medications[@i].MedicationName" class="form-control medication-select" asp-items="ViewBag.Medications">
+                                <option value="">Select Medication</option>
+                            </select>
+                            <span asp-validation-for="Medications[@i].MedicationName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Medications[@i].PrescriptionDosageForm" class="control-label">Dosage Form:</label>
+                            <select asp-for="Medications[@i].PrescriptionDosageForm" class="form-control dosage-form-select">
+                                <option value="">Select Dosage Form</option>
+                            </select>
+                            <span asp-validation-for="Medications[@i].PrescriptionDosageForm" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Medications[@i].Quantity" class="control-label">Quantity:</label>
+                            <input asp-for="Medications[@i].Quantity" class="form-control" />
+                            <span asp-validation-for="Medications[@i].Quantity" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Medications[@i].Instructions" class="control-label">Instructions:</label>
+                            <input asp-for="Medications[@i].Instructions" class="form-control" />
+                            <span asp-validation-for="Medications[@i].Instructions" class="text-danger"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-danger remove-medication">Remove</button>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <button type="button" class="btn btn-primary add-medication">Add Medication</button>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PrescriptionDate" class="control-label">Prescription Date:</label>
+                <input asp-for="PrescriptionDate" class="form-control" type="datetime-local" />
+                <span asp-validation-for="PrescriptionDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SurgeonID" class="control-label">Surgeon:</label>
+                <select asp-for="SurgeonID" class="form-control" asp-items="ViewBag.Surgeons">
+                    <option value="">Select Surgeon</option>
+                </select>
+                <span asp-validation-for="SurgeonID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Urgent" class="control-label">Urgency:</label>
+                <select asp-for="Urgent" class="form-control">
+                    <option value="Urgent">Urgent</option>
+                    <option value="Not Urgent">Not Urgent</option>
+                </select>
+                <span asp-validation-for="Urgent" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Dispense" class="control-label">Dispense:</label>
+                <input asp-for="Dispense" class="form-control" readonly />
+                <span asp-validation-for="Dispense" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Handle patient ID change to fetch and display patient details
+            $('#patient-id-select').change(function () {
+                var patientIDNumber = $(this).val();
+                if (patientIDNumber) {
+                    $.getJSON('/Surgeon/GetPatientDetails', { patientIDNumber: patientIDNumber }, function (data) {
+                        $('#PatientName').val(data.patientName);
+                        $('#PatientSurname').val(data.patientSurname);
+                    });
+                } else {
+                    $('#PatientName').val('');
+                    $('#PatientSurname').val('');
+                }
+            });
+
+            // Handle medication selection change to update dosage forms
+            $('#medication-container').on('change', '.medication-select', function () {
+                var medicationName = $(this).val();
+                var dosageFormSelect = $(this).closest('.medication-group').find('.dosage-form-select');
+                if (medicationName) {
+                    $.getJSON('/Surgeon/GetDosageForms', { medicationName: medicationName }, function (data) {
+                        dosageFormSelect.empty();
+                        $.each(data, function (index, value) {
+                            dosageFormSelect.append($('<option>').text(value).attr('value', value));
+                        });
+                    });
+                } else {
+                    dosageFormSelect.empty();
+                    dosageFormSelect.append('<option value="">Select Dosage Form</option>');
+                }
+            });
+
+            // Add new medication group
+            $('.add-medication').click(function () {
+                var newIndex = $('#medication-container .medication-group').length;
+                var newGroup = `
+                                            <div class="medication-group">
+                                                <div class="form-group">
+                                                    <label for="Medications_${newIndex}__MedicationName" class="control-label">Medication Name:</label>
+                                                    <select name="Medications[${newIndex}].MedicationName" class="form-control medication-select">
+                                                        <option value="">Select Medication</option>
+        @foreach (var medication in ViewBag.Medications)
+        {
+                                                                        <option value="@medication.Value">@medication.Text</option>
+        }
+                                                    </select>
+                                                    <span class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="Medications_${newIndex}__PrescriptionDosageForm" class="control-label">Dosage Form:</label>
+                                                    <select name="Medications[${newIndex}].PrescriptionDosageForm" class="form-control dosage-form-select">
+                                                        <option value="">Select Dosage Form</option>
+                                                    </select>
+                                                    <span class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="Medications_${newIndex}__Quantity" class="control-label">Quantity:</label>
+                                                    <input name="Medications[${newIndex}].Quantity" class="form-control" />
+                                                    <span class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="Medications_${newIndex}__Instructions" class="control-label">Instructions:</label>
+                                                    <input name="Medications[${newIndex}].Instructions" class="form-control" />
+                                                    <span class="text-danger"></span>
+                                                </div>
+
+                                                <button type="button" class="btn btn-danger remove-medication">Remove</button>
+                                            </div>
+                                        `;
+                $('#medication-container').append(newGroup);
+            });
+
+            // Remove medication group
+            $('#medication-container').on('click', '.remove-medication', function () {
+                $(this).closest('.medication-group').remove();
+            });
+
+            // Custom validation to ensure at least one medication is added and all fields are filled
+            $('form').submit(function (event) {
+                var isValid = true;
+
+                // Check if at least one medication group exists
+                if ($('#medication-container .medication-group').length === 0) {
+                    alert('Please add at least one medication.');
+                    isValid = false;
+                } else {
+                    // Validate each medication group
+                    $('#medication-container .medication-group').each(function () {
+                        var medicationName = $(this).find('.medication-select').val();
+                        var dosageForm = $(this).find('.dosage-form-select').val();
+                        var quantity = $(this).find('input[name$=".Quantity"]').val();
+                        var instructions = $(this).find('input[name$=".Instructions"]').val();
+
+                        if (!medicationName || !dosageForm || !quantity) {
+                            alert('Please fill out all required fields in each medication entry.');
+                            isValid = false;
+                            return false; // Exit each loop
+                        }
+                    });
+                }
+
+                if (!isValid) {
+                    event.preventDefault(); // Prevent form submission if validation fails
+                }
+            });
+        });
+    </script>
+    }
+

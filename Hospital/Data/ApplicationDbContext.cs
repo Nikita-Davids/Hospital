@@ -47,6 +47,7 @@ namespace Hospital.Data
 
         public DbSet<VitalRange> VitalRange { get; set; }
         public DbSet<Ward> Ward { get; set; }
+        public DbSet<SurgeonPrescription> SurgeonPrescription { get; set; }
 
 
 

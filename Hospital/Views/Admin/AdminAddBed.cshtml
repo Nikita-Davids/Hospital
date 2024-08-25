@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Hospital.Models.Bed>
+﻿@model Hospital.Models.Bed
 
 @{
-    ViewData["Title"] = "AdminViewBed";
+    ViewData["Title"] = "AdminAddBed";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -13,6 +13,40 @@
         text-decoration: underline;
     }
 
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    button, .btn-primary {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        float: right;
+    }
+
+        button:hover, .btn-primary:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control, select.form-control {
+        width: 100%;
+    }
+
     .btn-link {
         background-color: #08075F;
         color: white;
@@ -21,81 +55,56 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
+        display: inline-block;
+        margin-top: 10px;
     }
 
         .btn-link:hover {
             background-color: #FFDE59;
         }
 
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .table th {
-            background-color: #f2f2f2;
-        }
-
-        .table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-    /* Adjust the column widths */
-    .col-bed-number {
-        width: 40%; /* Adjust width as needed */
-    }
-
-    .col-is-occupied {
-        width: 40%; /* Adjust width as needed */
-    }
-
-    .col-action {
-        width: 20%; /* Allocate space for action column */
-        text-align: center;
+    .button-container {
+        text-align: right;
+        margin-top: 20px;
     }
 </style>
 
-<h1>Admin View Bed</h1>
+<h1>Add Bed</h1>
 
-<p>
-    <a class="btn-link" asp-action="Create">Create New</a>
-</p>
+<hr />
 
-<table class="table">
-    <thead>
-        <tr>
-            <th class="col-bed-number">
-                @Html.DisplayNameFor(model => model.BedNumber)
-            </th>
-            <th class="col-is-occupied">
-                @Html.DisplayNameFor(model => model.IsOccupied)
-            </th>
-            <th class="col-action">
-                Action
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td class="col-bed-number">
-                    @Html.DisplayFor(modelItem => item.BedNumber)
-                </td>
-                <td class="col-is-occupied">
-                    @Html.DisplayFor(modelItem => item.IsOccupied)
-                </td>
-                <td class="col-action">
-                    <a class="btn-link" asp-action="AdminEditBed" asp-route-id="@item.BedId">Edit</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="box">
+    <form asp-action="AdminAddBed">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="WardId" class="control-label">Ward:</label>
+            <select asp-for="WardId" class="form-control" asp-items="ViewBag.WardId"></select>
+            <span asp-validation-for="WardId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="BedNumber" class="control-label">Bed Number:</label>
+            <input asp-for="BedNumber" class="form-control" />
+            <span asp-validation-for="BedNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="IsOccupied" class="control-label">Is Occupied:</label>
+            <select asp-for="IsOccupied" class="form-control">
+                <option value="">Select...</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+            </select>
+            <span asp-validation-for="IsOccupied" class="text-danger"></span>
+        </div>
+
+        <div class="button-container">
+            <button type="submit">Create</button>
+        </div>
+    </form>
+</div>
+
+<div class="button-container">
+    <a asp-action="Index" class="btn-link">Back to List</a>
+</div>

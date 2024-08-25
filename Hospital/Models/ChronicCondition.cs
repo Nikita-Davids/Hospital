@@ -8,6 +8,10 @@ namespace Hospital.Models
         [Key]
         public int ChronicConditionId { get; set; }
 
+        public int TreatmentCodeId { get; set; }
+        [Required]
+        [Display(Name = "ICD10 Code")]
+
         public string? Icd10Code { get; set; }
 
         public string? Diagnosis { get; set; }
