@@ -8,13 +8,13 @@ namespace Hospital.Models
 {
     public partial class Medication
     {
-        //public Medication()
-        //{
-        //    OrderStocks = new HashSet<OrderStock>();
-        //    Restocks = new HashSet<Restock>();
-        //    Stocks = new HashSet<Stock>();
-        //    SurgeonPrescriptions = new HashSet<SurgeonPrescription>();
-        //}
+        public Medication()
+        {
+            OrderStocks = new HashSet<OrderStock>();
+            Restocks = new HashSet<Restock>();
+            Stocks = new HashSet<Stock>();
+            SurgeonPrescriptions = new HashSet<SurgeonPrescription>();
+        }
         [Key]
         public int MedicationId { get; set; }
 
@@ -44,9 +44,9 @@ namespace Hospital.Models
         public string MedicationActiveIngredients { get; set; }
         public string IsDeleted { get; set; }
 
-        //public virtual ICollection<OrderStock> OrderStocks { get; set; }
-        //public virtual ICollection<Restock> Restocks { get; set; }
-        //public virtual ICollection<Stock> Stocks { get; set; }
-        //public virtual ICollection<SurgeonPrescription> SurgeonPrescriptions { get; set; }
+        public virtual ICollection<OrderStock> OrderStocks { get; set; }
+        public virtual ICollection<Restock> Restocks { get; set; }
+        public virtual ICollection<Stock> Stocks { get; set; }
+        public virtual ICollection<SurgeonPrescription> SurgeonPrescriptions { get; set; }
     }
 }

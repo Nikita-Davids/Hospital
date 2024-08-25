@@ -49,6 +49,11 @@ namespace Hospital.Data
         public DbSet<Ward> Ward { get; set; }
         public DbSet<SurgeonPrescription> SurgeonPrescription { get; set; }
 
+        public DbSet<Restock> Restock { get; set; }
+        public DbSet<OrderStock> OrderStock { get; set; }
+        public DbSet<Stock> Stock { get; set; }
+
+
 
 
 

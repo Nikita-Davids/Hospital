@@ -280,6 +280,30 @@ namespace Hospital.Migrations
                     b.ToTable("OperatingTheatre");
                 });
 
+            modelBuilder.Entity("Hospital.Models.OrderStock", b =>
+                {
+                    b.Property<int>("OrderStockId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderStockId"));
+
+                    b.Property<int>("MedicationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderStockDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("QuantityOrdered")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderStockId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.ToTable("OrderStock");
+                });
+
             modelBuilder.Entity("Hospital.Models.PatientAllergy", b =>
                 {
                     b.Property<int>("AllergyId")
@@ -499,6 +523,59 @@ namespace Hospital.Migrations
                     b.HasKey("ProvinceId");
 
                     b.ToTable("Province");
+                });
+
+            modelBuilder.Entity("Hospital.Models.Restock", b =>
+                {
+                    b.Property<int>("RestockId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RestockId"));
+
+                    b.Property<string>("DosageForm")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MedicationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MedicationName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("QuantityReceived")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RestockDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("RestockId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.ToTable("Restock");
+                });
+
+            modelBuilder.Entity("Hospital.Models.Stock", b =>
+                {
+                    b.Property<int>("StockId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockId"));
+
+                    b.Property<int>("MedicationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockOnHand")
+                        .HasColumnType("int");
+
+                    b.HasKey("StockId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.ToTable("Stock");
                 });
 
             modelBuilder.Entity("Hospital.Models.Suburb", b =>
@@ -980,6 +1057,17 @@ namespace Hospital.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Hospital.Models.OrderStock", b =>
+                {
+                    b.HasOne("Hospital.Models.Medication", "Medication")
+                        .WithMany()
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Medication");
+                });
+
             modelBuilder.Entity("Hospital.Models.PatientAllergy", b =>
                 {
                     b.HasOne("Hospital.Patients", "Patient")
@@ -1052,6 +1140,26 @@ namespace Hospital.Migrations
                         .IsRequired();
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Hospital.Models.Restock", b =>
+                {
+                    b.HasOne("Hospital.Models.Medication", "Medication")
+                        .WithMany()
+                        .HasForeignKey("MedicationId");
+
+                    b.Navigation("Medication");
+                });
+
+            modelBuilder.Entity("Hospital.Models.Stock", b =>
+                {
+                    b.HasOne("Hospital.Models.Medication", "Medication")
+                        .WithMany()
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Medication");
                 });
 
             modelBuilder.Entity("Hospital.Models.Suburb", b =>
