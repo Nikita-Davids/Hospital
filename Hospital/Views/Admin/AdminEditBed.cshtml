@@ -1,0 +1,106 @@
+﻿@model Hospital.Models.Bed
+
+@{
+    ViewData["Title"] = "AdminEditBed";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    h4 {
+        color: #08075F;
+        font-weight: bold;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        float: left;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            border: none;
+        }
+
+    .form-border {
+        border: 2px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .form-control {
+        border-radius: 5px;
+    }
+
+    .btn-primary {
+        background-color: #08075F;
+        border: none;
+        color: white;
+        float: right;
+    }
+
+        .btn-primary:hover {
+            background-color: #FFDE59;
+        }
+
+    .text-danger {
+        color: red;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Bed</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3 form-border">
+        <form asp-action="AdminEditBed">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="BedId" />
+            <div class="form-group">
+                <label asp-for="WardId" class="control-label">Ward:</label>
+                <select asp-for="WardId" class="form-control" asp-items="ViewBag.WardId"></select>
+                <span asp-validation-for="WardId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BedNumber" class="control-label">Bed Number:</label>
+                <input asp-for="BedNumber" class="form-control" />
+                <span asp-validation-for="BedNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsOccupied" class="control-label">Is Occupied:</label>
+                <select asp-for="IsOccupied" class="form-control">
+                    <option value="">Select...</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+                <span asp-validation-for="IsOccupied" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a class="btn-link" asp-action="Index">Back to List</a>
+</div>
+
+

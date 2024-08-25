@@ -1181,6 +1181,103 @@ namespace Hospital.Controllers
         {
             return _context.TreatmentCode.Any(e => e.TreatmentCodeId == id); // Adjust based on your actual primary key
         }
+
+        public IActionResult AdminAddBed()
+        {
+            return View();
+        }
+
+        // POST: TreatmentCode/Add
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminAddBed(Bed model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("AdminViewBed", "Admin");
+            }
+            return View(model);
+        }
+        public IActionResult AdminViewBed()
+        {
+            // Fetch all TreatmentCode entries
+            var bed = _context.Bed.ToList();
+            return View(bed);
+        }
+        // GET: TreatmentCode/Edit/5
+        public async Task<IActionResult> AdminEditBed(int id)
+        {
+            var bed = await _context.Bed.FindAsync(id);
+            if (bed == null)
+            {
+                return NotFound();
+            }
+            return View(bed);
+        }
+
+        // POST: TreatmentCode/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminEditBed(int id, Bed model)
+        {
+            if (id != model.BedId) // Adjust based on your actual primary key
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BedExists(model.BedId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("AdminViewBed", "Admin");
+            }
+            return View(model);
+        }
+        private bool BedExists(int id)
+        {
+            return _context.Bed.Any(e => e.BedId == id); // Adjust based on your actual primary key
+        }
+        public IActionResult AdminAddWard()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminAddWard(Ward model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("AdminViewWard", "Admin");
+            }
+            return View(model);
+        }
+        public IActionResult AdminViewWard()
+        {
+            // Fetch all Ward entries
+            var ward = _context.Ward.ToList();
+            return View(ward);
+        }
+
     }
 
 

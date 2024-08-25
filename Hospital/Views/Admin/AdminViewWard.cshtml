@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Hospital.Models.Ward>
+
+@{
+    ViewData["Title"] = "AdminViewWard";
+}
+
+<h1>AdminViewWard</h1>
+
+<p>
+    <a asp-action="AdminAddWard">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.WardName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfBeds)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.WardName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfBeds)
+            </td>
+            <td>
+                <a asp-action="AdminEditWard" asp-route-id="@item.WardId">Edit</a> |
+                <a asp-action="AdminViewWard" asp-route-id="@item.WardId">Details</a> |
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

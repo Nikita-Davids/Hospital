@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Hospital.Models.Bed>
+
+@{
+    ViewData["Title"] = "AdminViewBed";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Adjust the column widths */
+    .col-bed-number {
+        width: 40%; /* Adjust width as needed */
+    }
+
+    .col-is-occupied {
+        width: 40%; /* Adjust width as needed */
+    }
+
+    .col-action {
+        width: 20%; /* Allocate space for action column */
+        text-align: center;
+    }
+</style>
+
+<h1>Admin View Bed</h1>
+
+<p>
+    <a class="btn-link" asp-action="AdminAddBed">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-bed-number">
+                @Html.DisplayNameFor(model => model.BedNumber)
+            </th>
+            <th class="col-is-occupied">
+                @Html.DisplayNameFor(model => model.IsOccupied)
+            </th>
+            <th class="col-action">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-bed-number">
+                    @Html.DisplayFor(modelItem => item.BedNumber)
+                </td>
+                <td class="col-is-occupied">
+                    @Html.DisplayFor(modelItem => item.IsOccupied)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditBed" asp-route-id="@item.BedId">Edit</a> |
+                    <a class="btn-link" asp-action="AdminViewBed" asp-route-id="@item.BedId">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
