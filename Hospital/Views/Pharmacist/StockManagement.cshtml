@@ -1,0 +1,315 @@
+﻿@model Hospital.ViewModels.StockOrderListViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+<style>
+    /* General styling for the heading */
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    /* Table styling */
+    table.table {
+        border: 2px solid #ddd; /* Light grey border color */
+        width: 100%;
+        border-collapse: collapse; /* Ensures borders between cells are shared */
+    }
+
+        table.table th, table.table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+    /* Styling for low stock rows */
+    .stock-red {
+        background-color: #FFCCCC; /* Light red background for low stock */
+        border: 2px solid red !important;
+    }
+
+    /* Box styling */
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 50%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    /* Button styling */
+    button {
+        padding: 10px 20px;
+        font-size: 15px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    /* Error styling */
+    .error {
+        border: 2px solid red;
+    }
+
+    /* Search container styling */
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    #searchBox {
+        width: 450px; /* Adjust this value to make the search bar wider */
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+
+    .search-buttons {
+        display: flex;
+        gap: 10px; /* Space between search and refresh buttons */
+    }
+
+    /* Form and button container styling */
+    .button-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end; /* Aligns button to the right */
+    }
+
+        .button-container button {
+            margin-left: 10px; /* Space between buttons if needed */
+        }
+
+    .button:disabled {
+        background-color: #ccc; /* Gray color for disabled state */
+        color: #666; /* Darker gray text color */
+        cursor: not-allowed; /* Change cursor to indicate disabled state */
+        opacity: 0.6; /* Make the button appear dull */
+    }
+
+    .table th, .table td {
+        border: 1px solid #ddd; /* Light grey border */
+        padding: 8px;
+    }
+
+    .table th {
+        background-color: #f2f2f2; /* Light grey background for header */
+        text-align: left;
+    }
+
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9; /* Alternating row colors */
+    }
+</style>
+
+<h1>Stock Management</h1>
+
+<div id="alert-container"></div>
+<br />
+
+<div class="search-container">
+    <input type="text" id="searchBox" placeholder="Search by Medication Name" oninput="filterTable()">
+    <div class="search-buttons">
+        <button type="button" onclick="resetSearch()">Refresh</button>
+    </div>
+</div>
+
+<br />
+
+<form asp-action="StockManagement" asp-controller="Pharmacist" method="post" id="stockOrderForm">
+    <table class="table" id="stockTable">
+        <thead>
+            <tr>
+                <th>Medication Name</th>
+                <th>Dosage Form</th>
+                <th>Stock on hand</th>
+                <th>Re-order level</th>
+                <th>Select</th>
+                <th>Quantity to order</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                var stockClass = Model.Items[i].StockOnHand <= Model.Items[i].ReOrderLevel ? "stock-red" : "";
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => Model.Items[i].MedicationName)</td>
+                    <td>@Html.DisplayFor(modelItem => Model.Items[i].DosageForm)</td>
+                    <td class="@stockClass">@Html.DisplayFor(modelItem => Model.Items[i].StockOnHand)</td>
+                    <td>@Html.DisplayFor(modelItem => Model.Items[i].ReOrderLevel)</td>
+                    <td>
+                        <input type="checkbox" asp-for="Items[i].IsSelected" class="order-checkbox" onclick="toggleQuantity(this)" />
+                    </td>
+                    <td>
+                        <select asp-for="Items[i].QuantityToOrder" class="form-control quantity-select" onchange="validateQuantity(this)" disabled>
+                            <option value="0">0 units</option>
+                            <option value="10">10 units</option>
+                            <option value="20">20 units</option>
+                            <option value="50">50 units</option>
+                            <option value="100">100 units</option>
+                        </select>
+                        <span class="quantity-error" style="color: red; display: none;">Please select a quantity greater than 0 units.</span>
+                    </td>
+                    <td>
+                        <input type="datetime-local" id="dateTimePicker_@i" class="form-control order-date-time-picker"
+                               style="display:none;"
+                               value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" onchange="updateHiddenDateTime(this, @i)" />
+                        <input type="hidden" id="hiddenOrderStockDate_@i" name="Items[@i].OrderStockDate" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff")" />
+                    </td>
+                    <input type="hidden" asp-for="Items[i].MedicationId" />
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="button-container">
+        <button type="submit" class="button" id="orderButton" disabled>Order Stock</button>
+    </div>
+</form>
+
+<br />
+<br />
+
+<script>
+    function toggleQuantity(checkbox) {
+        var row = checkbox.closest('tr');
+        var select = row.querySelector('.quantity-select');
+        var dateTimePicker = row.querySelector('.order-date-time-picker');
+        select.disabled = !checkbox.checked;
+        dateTimePicker.style.display = checkbox.checked ? 'block' : 'none';
+
+        // Reset quantity to 0 units if checkbox is unchecked
+        if (!checkbox.checked) {
+            select.value = "0";
+            validateQuantity(select); // Ensure validation message is updated
+        }
+
+        // Enable/disable the Order Stock button based on checkbox selection
+        updateOrderButtonState();
+    }
+
+    function updateOrderButtonState() {
+        var anyChecked = Array.from(document.querySelectorAll('.order-checkbox')).some(c => c.checked);
+        var orderButton = document.getElementById('orderButton');
+        orderButton.disabled = !anyChecked; // Disable button if no checkboxes are selected
+    }
+
+    function updateHiddenDateTime(dateTimePicker, index) {
+        var hiddenDateTimeInput = document.getElementById('hiddenOrderStockDate_' + index);
+        var dateTime = new Date(dateTimePicker.value);
+        var formattedDateTime = dateTime.toISOString().split('.')[0];
+        var milliseconds = dateTime.getMilliseconds();
+        formattedDateTime += '.' + milliseconds.toString().padStart(3, '0');
+        hiddenDateTimeInput.value = formattedDateTime;
+    }
+
+    function validateQuantity(selectElement) {
+        var row = selectElement.closest('tr');
+        var errorMessage = row.querySelector('.quantity-error');
+        var selectedValue = selectElement.value;
+
+        if (selectedValue === "0" && selectElement.disabled === false) {
+            selectElement.classList.add('error');
+            errorMessage.style.display = 'block';
+        } else {
+            selectElement.classList.remove('error');
+            errorMessage.style.display = 'none';
+        }
+    }
+
+    function validateQuantities() {
+        var hasErrors = false;
+        var errorMessages = [];
+
+        document.querySelectorAll('.order-checkbox:checked').forEach(function (checkbox) {
+            var row = checkbox.closest('tr');
+            var select = row.querySelector('.quantity-select');
+            var errorMessage = row.querySelector('.quantity-error');
+            var selectedValue = select.value;
+
+            if (selectedValue === "0") {
+                select.classList.add('error');
+                errorMessage.style.display = 'block';
+                hasErrors = true;
+                // Collect error message
+                errorMessages.push('Please select a quantity greater than 0 units.');
+                // Scroll to the problematic select element
+                select.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                select.focus();
+            } else {
+                select.classList.remove('error');
+                errorMessage.style.display = 'none';
+            }
+        });
+
+        return { hasErrors, errorMessages: errorMessages[0] }; // Only take the first error message for display
+    }
+
+    function filterTable() {
+        var input = document.getElementById('searchBox').value.toLowerCase();
+        var table = document.getElementById('stockTable');
+        var rows = table.getElementsByTagName('tr');
+
+        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header
+            var cells = rows[i].getElementsByTagName('td');
+            var medicationName = cells[0].textContent.toLowerCase();
+
+            if (medicationName.indexOf(input) > -1) {
+                rows[i].style.display = ''; // Show row
+            } else {
+                rows[i].style.display = 'none'; // Hide row
+            }
+        }
+    }
+
+    function resetSearch() {
+        document.getElementById('searchBox').value = '';
+        filterTable(); // Reset the table to show all rows
+    }
+
+    document.getElementById('stockOrderForm').onsubmit = async function (event) {
+        event.preventDefault();
+        const validation = validateQuantities();
+        if (validation.hasErrors) {
+            // Display a single alert with one aggregated error message
+            alert(validation.errorMessages);
+            return; // Prevent form submission if validation fails
+        }
+
+        const formData = new FormData(this);
+        const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        if (!result.success) {
+            if (confirm(result.message + '\nClick OK to go to the ViewOrderedStock page.')) {
+                window.location.href = '@Url.Action("ViewOrderedStock", "Pharmacist")';
+            }
+        } else {
+            alert(result.message);
+            window.location.href = '@Url.Action("ViewOrderedStock", "Pharmacist")';
+        }
+    };
+
+    // Initialize button state on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        updateOrderButtonState(); // Ensure the button state is correct on initial load
+    });
+</script>
+

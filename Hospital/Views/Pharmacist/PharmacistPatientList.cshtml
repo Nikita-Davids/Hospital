@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Hospital.Patients>
+
+@{
+    ViewData["Title"] = "PharmacistPatientList";
+}
+
+<h1>PharmacistPatientList</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientSurname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientContactNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientEmailAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientDateOfBirth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientGender)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientSurname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientContactNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientDateOfBirth)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientGender)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.PatientIDNumber">Edit</a> |
+                   
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

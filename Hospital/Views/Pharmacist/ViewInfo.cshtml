@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+
+    h1 {
+        text-align: center;
+        color: #08075F;
+        
+        text-decoration: underline;
+    }
+    .btn {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+        /* Add hover effect */
+        .btn:hover {
+            background-color: #FFDE59;
+        }
+
+    .btn-spacing {
+        margin-right: 30px; /* Adjust the spacing between buttons */
+    }
+
+    /* Specific spacing for the "View Medication Dispensed" button */
+    .btn-last {
+        margin-left: 30px; /* Add spacing before the last button */
+    }
+</style>
+
+<body>
+    
+    <h1><u><b>View Information</b></u></h1>
+    <br>
+    <!-- Buttons in a centered container -->
+    <div class="item" style="text-align: center;">
+        <a asp-action="ViewRestock" class="btn btn-spacing">View Restock of Medication</a>
+        <a asp-action="ViewAddMedication" class="btn btn-spacing">View Added Medication</a>
+        <a asp-action="ViewOrderedStock" class="btn btn-spacing">View Ordered Stock</a>
+        <a asp-action="ViewDispensedMedication" class="btn btn-last">View Medication Dispensed</a>
+    </div>
+    <br />
+    <br />
+</body>
+</html>

@@ -1,0 +1,294 @@
+﻿@model Hospital.ViewModels.PrescribedScriptViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+    /* Styling for the main container */
+    .container-box {
+        padding: 20px;
+        margin: 20px auto;
+        border: 2px solid #ddd; /* Light grey border */
+        border-radius: 10px; /* Rounded corners */
+        background-color: #f7f7f7; /* Slightly lighter grey background */
+        max-width: 800px; /* Optional: set a max-width for the container */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+    }
+
+    /* Table styling */
+    table.table {
+        border: 2px solid #ddd; /* Light grey border color */
+        width: 100%;
+        border-collapse: collapse; /* Ensures borders between cells are shared */
+        font-size: 14px; /* Adjust font size as needed */
+    }
+
+        table.table th, table.table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+    .table th, .table td {
+        border: 1px solid #ddd; /* Light grey border */
+        padding: 8px;
+    }
+
+    .table th {
+        background-color: #f2f2f2; /* Light grey background for header */
+        text-align: left;
+    }
+
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9; /* Alternating row colors */
+    }
+
+    .table tr:hover {
+        background-color: #f1f1f1; /* Light grey background on hover */
+    }
+
+    /* Styling for the details section */
+    .details-container {
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd; /* Light grey border */
+        border-radius: 8px; /* Rounded corners */
+        background-color: #f9f9f9; /* Light grey background */
+    }
+
+        .details-container p {
+            margin: 8px 0; /* Space between paragraphs */
+        }
+
+        .details-container strong {
+            color: #333; /* Dark grey text for labels */
+        }
+
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+        margin-bottom: 20px;
+    }
+
+    h6 {
+        text-align: left;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    /* Button styling */
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+        .button-container button {
+            background-color: #08075F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .button-container button:hover {
+                background-color: #FFDE59;
+            }
+
+        .button-container .btn-warning {
+            background-color: #FFC107;
+        }
+
+            .button-container .btn-warning:hover {
+                background-color: #FFCA2C;
+            }
+
+        .button-container .btn-danger {
+            background-color: #DC3545;
+        }
+
+            .button-container .btn-danger:hover {
+                background-color: #E04C58;
+            }
+
+        .button-container .btn-primary {
+            background-color: #007BFF;
+        }
+
+            .button-container .btn-primary:hover {
+                background-color: #008CFF;
+            }
+
+        .button-container .btn-success {
+            background-color: #28A745;
+        }
+
+            .button-container .btn-success:hover {
+                background-color: #35B558;
+            }
+</style>
+
+<div class="container-box">
+    <h2>Prescribed Script</h2>
+
+    <div class="details-container">
+        <p><strong>Patient ID:</strong> @Model.PatientIDNumber</p>
+        <p><strong>Patient Name:</strong> @Model.PatientName @Model.PatientSurname</p>
+        <p><strong>Surgeon Name:</strong> @Model.SurgeonName @Model.SurgeonSurname</p>
+        <p><strong>Prescription Date:</strong> @Model.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
+        <p><strong>ID:</strong> @Model.PrescriptionId</p>
+        <p><strong>S ID:</strong> @Model.SurgeonId</p>
+    </div>
+
+    <h6>Medication to dispense:</h6>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Medication Name</th>
+                <th>Dosage Form</th>
+                <th>Instructions</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Medications != null && Model.Medications.Any())
+            {
+                @foreach (var medication in Model.Medications)
+                {
+                    <tr>
+                        <td>@medication.MedicationName</td>
+                        <td>@medication.PrescriptionDosageForm</td>
+                        <td>@medication.Instructions</td>
+                        <td>@medication.Quantity</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">No medications found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="button-container">
+        <button onclick="location.href='@Url.Action("ViewPatientDetails", "Pharmacist", new { id = Model.PatientIDNumber })'" class="btn btn-warning">View Patient Details</button>
+        <button onclick="confirmDispense()" class="btn btn-success">Dispense</button>
+        <button onclick="showRejectModal()" class="btn btn-danger">Reject</button>
+        <button onclick="location.href='@Url.Action("Index", "Pharmacist")'" class="btn btn-primary">Back</button>
+    </div>
+</div>
+
+<!-- Modal for rejection -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeRejectModal()">&times;</span>
+        <h2>Reject Prescription</h2>
+        <form id="rejectForm" method="post" action="@Url.Action("Reject", "Pharmacist")">
+            <input type="hidden" id="PrescriptionId" name="PrescriptionId" value="@Model.PrescriptionId" />
+            <input type="hidden" id="SurgeonId" name="SurgeonId" value="@Model.SurgeonId" />
+            <p><strong>Surgeon Name:</strong> <span id="SurgeonName"></span></p>
+            <p><strong>Surgeon Surname:</strong> <span id="SurgeonSurname"></span></p>
+            <div class="form-group">
+                <label for="rejectionReason">Rejection Reason:</label>
+                <textarea id="rejectionReason" name="RejectionReason" required rows="4" style="width: 100%;"></textarea>
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn btn-danger">Submit</button>
+                <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    function confirmDispense() {
+        if (confirm("Are you sure you want to dispense this script?")) {
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PatientIDNumber })')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message); // Success message
+                        location.href = '@Url.Action("Index", "Pharmacist")'; // Redirect to the index page or another page
+                    } else {
+                        alert(data.message); // Error message
+                    }
+                })
+                .catch(error => {
+                    alert('An unexpected error occurred.');
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+    function showRejectModal() {
+        // Populate modal with surgeon details
+        document.getElementById('SurgeonName').textContent = '@Model.SurgeonName';
+        document.getElementById('SurgeonSurname').textContent = '@Model.SurgeonSurname';
+        document.getElementById('rejectModal').style.display = 'block';
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+    }
+
+    // Submit the rejection form via AJAX
+    document.getElementById('rejectForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Gather form data
+        var formData = new FormData(this);
+
+        // Send an AJAX request to the Reject action
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message); // Show success message
+                    window.location.href = data.redirectUrl; // Redirect to ViewRejectedMedication
+                } else {
+                    alert(data.message); // Show error message
+                }
+            })
+            .catch(error => {
+                alert('An unexpected error occurred.');
+                console.error('Error:', error);
+            });
+    });
+
+    function confirmDispense() {
+        if (confirm("Are you sure you want to dispense this script?")) {
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PatientIDNumber })')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message); // Success message
+                        location.href = '@Url.Action("Index", "Pharmacist")'; // Redirect to the index page or another page
+                    } else {
+                        alert(data.message); // Error message
+                    }
+                })
+                .catch(error => {
+                    alert('An unexpected error occurred.');
+                    console.error('Error:', error);
+                });
+        }
+    }
+</script>

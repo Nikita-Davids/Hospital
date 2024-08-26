@@ -1,0 +1,85 @@
+﻿@model Hospital.Models.Restock
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 15px;
+    }
+        /* Add hover effect */
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .form-border {
+        border: 2px solid #ccc;
+        padding: 20px;
+        border-radius: 0px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+</style>
+
+<h1>Update Restocked Medication</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="form-border">
+            <form asp-action="EditRestock">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="RestockId" />
+                <div class="form-group">
+                    <label asp-for="MedicationName" class="control-label">Medication Name:</label>
+                    <input asp-for="MedicationName" class="form-control" />
+                    <span asp-validation-for="MedicationName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DosageForm" class="control-label">Dosage Form:</label>
+                    <select asp-for="DosageForm" class="form-control">
+                        <option value="">Select Dosage Form</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Liquid">Liquid</option>
+                        <option value="Syrups">Syrups</option>
+                        <option value="Injectables">Injectables</option>
+                    </select>
+                    <span asp-validation-for="DosageForm" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="QuantityReceived" class="control-label">Quantity Received:</label>
+                    <input asp-for="QuantityReceived" class="form-control" placeholder="In units" />
+                    <span asp-validation-for="QuantityReceived" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn-link" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="form-group text-center">
+    <a class="btn-link" asp-controller="Pharmacist" asp-action="ViewRestock">Back to View</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

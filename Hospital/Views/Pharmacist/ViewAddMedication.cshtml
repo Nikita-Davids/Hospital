@@ -1,0 +1,161 @@
+﻿@model IEnumerable<Hospital.Models.Medication>
+
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+        margin: 0; /* Remove default margins */
+    }
+
+    .button {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+        }
+
+    .disabled-button {
+        background-color: grey;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .deleted-row {
+        background-color: lightgrey !important; /* Ensure this applies even if other styles are present */
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .form-control {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .btn-search {
+        background-color: #08075F;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+        .btn-search:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        /* Remove alternating row colors to avoid confusion */
+        .table tr:nth-child(even) {
+            background-color: #fff;
+        }
+
+    .btn-back {
+        background-color: red; /* Red color for the back button */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-right: 20px; /* Space between button and header */
+    }
+
+        .btn-back:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center the header */
+        margin-bottom: 20px;
+    }
+
+        .header-container > a {
+            position: absolute;
+            left: 20px; /* Adjust this value as needed */
+        }
+</style>
+
+<!-- Container for the back button and header -->
+<div class="header-container">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+    <h1>View Medications</h1>
+</div>
+
+<p>
+    <a class="button" asp-action="AddMedication">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.MedicationName)</th>
+            <th>@Html.DisplayNameFor(model => model.DosageForm)</th>
+            <th>@Html.DisplayNameFor(model => model.Schedule)</th>
+            <th>@Html.DisplayNameFor(model => model.ReOrderLevel)</th>
+            <th>@Html.DisplayNameFor(model => model.MedicationActiveIngredients)</th>
+            <th>Action</th> <!-- Keep this for action buttons -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var isDeleted = item.IsDeleted.Equals("Deleted", StringComparison.OrdinalIgnoreCase);
+            <tr class="@(isDeleted ? "deleted-row" : "")">
+                <td>@Html.DisplayFor(modelItem => item.MedicationName)</td>
+                <td>@Html.DisplayFor(modelItem => item.DosageForm)</td>
+                <td>@Html.DisplayFor(modelItem => item.Schedule)</td>
+                <td>@Html.DisplayFor(modelItem => item.ReOrderLevel)</td>
+                <td>@Html.DisplayFor(modelItem => item.MedicationActiveIngredients)</td>
+                <td>
+                    <a class="button @(isDeleted ? "disabled-button" : "")" asp-action="EditMedication" asp-route-id="@item.MedicationId">Edit</a> |
+                    <a class="button @(isDeleted ? "disabled-button" : "")" asp-action="DeleteMedication" asp-route-id="@item.MedicationId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
