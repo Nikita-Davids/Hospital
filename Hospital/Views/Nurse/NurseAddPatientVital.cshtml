@@ -6,6 +6,9 @@
 }
 
 <h1>Nurse Add Patient Vital</h1>
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatientVital">View Patient Vital</a>
+</div>
 
 <div class="form-container">
     <form asp-action="NurseAddPatientVital">
@@ -56,7 +59,7 @@
         </div>
         <div class="form-group">
             <label asp-for="VitalTime" class="control-label"></label>
-            <input asp-for="VitalTime" class="form-control" type="datetime-local" />
+            <input asp-for="VitalTime" class="form-control" type="time" />
             <span asp-validation-for="VitalTime" class="text-danger"></span>
         </div>
         <div class="form-group button-container">
@@ -64,11 +67,6 @@
         </div>
     </form>
 </div>
-
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseViewPatients">Back to List</a>
-</div>
-
 
 <style>
     h1 {

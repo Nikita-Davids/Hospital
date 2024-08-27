@@ -6,7 +6,9 @@
 }
 
 <h1>Nurse Discharge Patients</h1>
-
+<div class="button-container">
+    <a asp-action="NurseViewDischarges" class="btn-link">View Patient Discharges</a>
+</div>
 <div class="form-container">
     <form asp-action="NurseDischargePatients" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -29,12 +31,6 @@
         </div>
     </form>
 </div>
-
-<div class="button-container">
-    <a asp-action="NurseViewDischarges" class="btn-link">View Patient Discharges</a>
-</div>
-
-
 
 <style>
     h1 {

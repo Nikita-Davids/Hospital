@@ -9,10 +9,7 @@ namespace Hospital.Controllers
     public class NurseController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
-        public IActionResult Index()
-        {
-            return View();
-        }
+
         public IActionResult NurseDischargePatients()
         {
             // Fetch the list of patients and create a concatenated display name
@@ -27,8 +24,6 @@ namespace Hospital.Controllers
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View();
         }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseDischargePatients(DischargedPatient model)
@@ -41,13 +36,16 @@ namespace Hospital.Controllers
             }
             return View(model);
         }
-
         public IActionResult NurseViewDischarges()
         {
             // Fetch all DischargedPatient entries
             var dischargedPatients = _context.DischargedPatients.ToList();
             return View(dischargedPatients);
         }
+       
+
+
+
         // GET: Nurse/AddPatient
         public IActionResult NurseAddPatients()
         {
@@ -124,6 +122,7 @@ namespace Hospital.Controllers
         }
 
 
+
         // GET: Nurse/AddPatientVital
         public IActionResult NurseAddPatientVital()
         {
@@ -132,21 +131,93 @@ namespace Hospital.Controllers
             return View();
         }
 
-        // POST: Nurse/AddPatientVital
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseAddPatientVital(PatientVital model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(model);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("NurseViewPatientVitals"); // Redirect to a list view or another appropriate action
+                try
+                {
+                    _context.Add(model);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("NurseViewPatientVitals");
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
+                }
             }
 
-            // Repopulate the dropdown list if the model state is not valid
+            // Repopulate dropdown list in case of validation failure
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
             return View(model);
         }
+
+        // GET: Nurse/ViewPatients
+        public async Task<IActionResult> NurseViewPatientVital()
+        {
+            var patientvitals = await _context.PatientVital.ToListAsync();
+            return View(patientvitals);
+        }
+        // GET: Nurse/EditPatientVital/5
+        public async Task<IActionResult> NurseEditPatientVital(int id)
+        {
+            // Fetch the patient vital record from the database
+            var patientVital = await _context.PatientVital.FindAsync(id);
+            if (patientVital == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag for dropdown list, if applicable
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", patientVital.PatientId);
+
+            return View(patientVital);
+        }
+        // POST: Nurse/EditPatientVital/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditPatientVital(int id, PatientVital model)
+        {
+            if (id != model.PatientVitalId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientVitalExists(model.PatientVitalId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("NurseViewPatientVital");
+            }
+
+            // Populate ViewBag for dropdown list, if applicable
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", model.PatientId);
+
+            return View(model);
+        }
+        private bool PatientVitalExists(int id)
+        {
+            return _context.PatientVital.Any(e => e.PatientVitalId == id);
+        }
+
+
     }
 }
