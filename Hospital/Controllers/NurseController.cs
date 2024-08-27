@@ -123,6 +123,7 @@ namespace Hospital.Controllers
 
 
 
+
         // GET: Nurse/AddPatientVital
         public IActionResult NurseAddPatientVital()
         {
@@ -162,12 +163,7 @@ namespace Hospital.Controllers
             var patientvitals = await _context.PatientVital.ToListAsync();
             return View(patientvitals);
         }
-        /// <summary>
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        // GET: Nurse/EditPatientVital/5
+       
         public async Task<IActionResult> NurseEditPatientVital(int id)
         {
             // Fetch the patient vital record from the database
@@ -222,10 +218,9 @@ namespace Hospital.Controllers
         {
             return _context.PatientVital.Any(e => e.PatientVitalId == id);
         }
-/// <summary>
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// </summary>
-/// <returns></returns>
+
+
+
 
 
 
@@ -265,7 +260,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseViewPatientAllergies"); // Change this to your actual action method
+                    return RedirectToAction("NurseViewPatientAllergy"); // Change this to your actual action method
                 }
                 else
                 {
