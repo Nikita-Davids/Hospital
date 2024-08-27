@@ -162,6 +162,11 @@ namespace Hospital.Controllers
             var patientvitals = await _context.PatientVital.ToListAsync();
             return View(patientvitals);
         }
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: Nurse/EditPatientVital/5
         public async Task<IActionResult> NurseEditPatientVital(int id)
         {
@@ -217,7 +222,158 @@ namespace Hospital.Controllers
         {
             return _context.PatientVital.Any(e => e.PatientVitalId == id);
         }
+/// <summary>
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// </summary>
+/// <returns></returns>
 
 
+
+        // GET: Nurse/AddPatientAllergy
+        [HttpGet]
+        public IActionResult NurseAddPatientAllergy()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "PatientName");
+            return View(new PatientAllergy());
+        }
+
+        // POST: Nurse/AddPatientAllergy
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult NurseAddPatientAllergy(PatientAllergy model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if an allergy entry with the same patient and allergy already exists
+                var existingAllergy = _context.PatientAllergies
+                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                          pa.Allergy.Trim().ToLower() == model.Allergy.Trim().ToLower());
+
+                if (existingAllergy == null)
+                {
+                    // Create a new PatientAllergy entity
+                    var patientAllergy = new PatientAllergy
+                    {
+                        PatientId = model.PatientId,
+                        Allergy = model.Allergy
+                    };
+
+                    // Add the PatientAllergy entity to the context
+                    _context.PatientAllergies.Add(patientAllergy);
+                    _context.SaveChanges(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseViewPatientAllergies"); // Change this to your actual action method
+                }
+                else
+                {
+                    // If the allergy entry with the same patient and allergy already exists, return an error message
+                    ModelState.AddModelError("", "An allergy entry for this patient already exists.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+
+
+        // GET: 
+        public async Task<IActionResult> NurseViewPatientAllergy()
+        {
+            var patientalllergy = await _context.PatientAllergies.ToListAsync();
+            return View(patientalllergy);
+        }
+        // GET: PatientAllergy/NurseEditPatientAllergy/5
+        public async Task<IActionResult> NurseEditPatientAllergy(int id)
+        {
+            // Retrieve the patient allergy record from the database using the provided ID
+            var patientAllergy = await _context.PatientAllergies
+                .FirstOrDefaultAsync(m => m.AllergyId == id);
+
+            // Check if the patient allergy exists. If not, return a 404 Not Found response.
+            if (patientAllergy == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+
+            // Return the view with the patient allergy data to be edited
+            return View(patientAllergy);
+        }
+
+        // POST: PatientAllergy/NurseEditPatientAllergy/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditPatientAllergy(int id, [Bind("AllergyId,PatientId,Allergy")] PatientAllergy patientAllergy)
+        {
+            // Check if the ID in the URL matches the ID of the patient allergy being edited
+            if (id != patientAllergy.AllergyId)
+            {
+                return NotFound();
+            }
+
+            // Check if the allergy for the same patient already exists (excluding the current entry)
+            if (_context.PatientAllergies.Any(pa => pa.PatientId == patientAllergy.PatientId && pa.Allergy == patientAllergy.Allergy && pa.AllergyId != id))
+            {
+                // Add a model error if the allergy already exists and return the view with the error
+                ModelState.AddModelError("Allergy", "This allergy already exists for the selected patient.");
+                // Populate ViewBag with a list of patients for the dropdown if validation fails
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+                return View(patientAllergy);
+            }
+
+            // If the model state is valid, update the patient allergy in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientAllergy);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientAllergyExists(patientAllergy.AllergyId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the index or view action if the update was successful
+                return RedirectToAction(nameof(NurseViewPatientAllergy));
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown if the model state is not valid
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+            return View(patientAllergy);
+        }
+
+        // Helper method to check if a patient allergy exists in the database
+        private bool PatientAllergyExists(int id)
+        {
+            return _context.PatientAllergies.Any(e => e.AllergyId == id);
+        }
+
+     
+       
+        // GET: 
+        public async Task<IActionResult> NurseViewPatientCurrentMedication()
+        {
+            var patientcurrentmedication = await _context.PatientCurrentMedication.ToListAsync();
+            return View(patientcurrentmedication);
+        }
+        // GET: 
+        public async Task<IActionResult> NurseViewPatientMedicalCondition()
+        {
+            var patientcurrentmedicalcondition = await _context.PatientMedicalCondition.ToListAsync();
+            return View(patientcurrentmedicalcondition);
+        }
     }
 }

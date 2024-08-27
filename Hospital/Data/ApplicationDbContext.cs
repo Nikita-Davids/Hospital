@@ -55,12 +55,5 @@ namespace Hospital.Data
 
 
 
-
-
-
-
-
-
-
     }
 }
