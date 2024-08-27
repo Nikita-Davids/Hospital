@@ -26,14 +26,6 @@
             </nav>
         </div>
 
-        @*  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")">
-        <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-        aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        </div>
-        </nav> *@
         <style>
             /*(W3Schools,2023)*/
             /* Hiding navbar */
@@ -127,6 +119,9 @@
                 }
 
             footer {
+                position: fixed;
+                width: 100%;
+                bottom: 0;
                 background-color: #FFDE59;
                 color: #08075F;
                 padding: 5px;
