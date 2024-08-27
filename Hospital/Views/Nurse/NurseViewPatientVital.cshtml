@@ -1,0 +1,137 @@
+﻿@model IEnumerable<Hospital.Models.PatientVital>
+
+@{
+    ViewData["Title"] = "NurseViewPatientVital";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+   
+</style>
+
+<h1>Nurse View Patient Vital</h1>
+
+<p>
+    <a class="btn-link" asp-action="NurseAddPatientVital">Add Patient Vital</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-weight">
+                @Html.DisplayNameFor(model => model.Weight)
+            </th>
+            <th class="col-height">
+                @Html.DisplayNameFor(model => model.Height)
+            </th>
+            <th class="col-tempreture">
+                @Html.DisplayNameFor(model => model.Tempreture)
+            </th>
+            <th class="col-blood-pressure">
+                @Html.DisplayNameFor(model => model.BloodPressure)
+            </th>
+            <th class="col-pulse">
+                @Html.DisplayNameFor(model => model.Pulse)
+            </th>
+            <th class="col-respiratory">
+                @Html.DisplayNameFor(model => model.Respiratory)
+            </th>
+            <th class="col-blood-oxygen">
+                @Html.DisplayNameFor(model => model.BloodOxygen)
+            </th>
+            <th class="col-blood-glucose">
+                @Html.DisplayNameFor(model => model.BloodGlucoseLevel)
+            </th>
+            <th class="col-vital-time">
+                @Html.DisplayNameFor(model => model.VitalTime)
+            </th>
+            <th class="col-patient">
+                @Html.DisplayNameFor(model => model.Patient)
+            </th>
+            <th class="col-action">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-weight">
+                    @Html.DisplayFor(modelItem => item.Weight)
+                </td>
+                <td class="col-height">
+                    @Html.DisplayFor(modelItem => item.Height)
+                </td>
+                <td class="col-tempreture">
+                    @Html.DisplayFor(modelItem => item.Tempreture)
+                </td>
+                <td class="col-blood-pressure">
+                    @Html.DisplayFor(modelItem => item.BloodPressure)
+                </td>
+                <td class="col-pulse">
+                    @Html.DisplayFor(modelItem => item.Pulse)
+                </td>
+                <td class="col-respiratory">
+                    @Html.DisplayFor(modelItem => item.Respiratory)
+                </td>
+                <td class="col-blood-oxygen">
+                    @Html.DisplayFor(modelItem => item.BloodOxygen)
+                </td>
+                <td class="col-blood-glucose">
+                    @Html.DisplayFor(modelItem => item.BloodGlucoseLevel)
+                </td>
+                <td class="col-vital-time">
+                    @Html.DisplayFor(modelItem => item.VitalTime)
+                </td>
+                <td class="col-patient">
+                    @Html.DisplayFor(modelItem => item.Patient.PatientIDNumber)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="NurseEditPatientVital" asp-route-id="@item.PatientVitalId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
