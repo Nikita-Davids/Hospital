@@ -86,9 +86,9 @@
             <th class="col-vital-time">
                 @Html.DisplayNameFor(model => model.VitalTime)
             </th>
-            <th class="col-patient">
+           @*  <th class="col-patient">
                 @Html.DisplayNameFor(model => model.Patient)
-            </th>
+            </th> *@
             <th class="col-action">
                 Action
             </th>
@@ -125,9 +125,9 @@
                 <td class="col-vital-time">
                     @Html.DisplayFor(modelItem => item.VitalTime)
                 </td>
-                <td class="col-patient">
+               @*  <td class="col-patient">
                     @Html.DisplayFor(modelItem => item.Patient.PatientIDNumber)
-                </td>
+                </td> *@
                 <td class="col-action">
                     <a class="btn-link" asp-action="NurseEditPatientVital" asp-route-id="@item.PatientVitalId">Edit</a>
                 </td>
