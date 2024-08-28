@@ -1,0 +1,109 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .btn-primary {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 20px;
+    }
+
+        .btn-primary:hover {
+            background-color: darkred;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+</style>
+
+<!-- Container for the header -->
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Rejected Prescriptions</h1>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Patient Surname</th>
+            <th>Medication Name</th>
+            <th>Dosage Form</th>
+            <th>Quantity</th>
+            <th>Rejection Date</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+              
+                <td>@item.PatientIDNumber</td>
+                <td>@item.PatientName</td>
+                <td>@item.PatientSurname</td>
+                <td>@item.MedicationName</td>
+                <td>@item.PrescriptionDosageForm</td>
+                <td>@item.Quantity</td>
+                <td>@item.RejectionDate.ToString("dd-MM-yyyy")</td>
+                <td>@item.Status</td>
+                <td>
+                    <a href="@Url.Action("DetailsRejectedScript", "Pharmacist", new { prescriptionId = item.PrescriptionId })" class="btn-link">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Back button -->
+@* <div style="text-align: center;">
+    <a href="@Url.Action("Index", "Pharmacist")" class="btn-primary">Back to Pharmacist Portal</a>
+</div> *@

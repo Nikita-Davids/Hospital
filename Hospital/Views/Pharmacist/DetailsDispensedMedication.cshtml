@@ -1,0 +1,127 @@
+﻿@model Hospital.Models.SurgeonPrescription
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    h4 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+        text-align: center;
+    }
+
+    .form-container {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #f9f9f9;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+        .form-group:last-child {
+            border-bottom: none;
+        }
+
+        .form-group dt {
+            font-weight: bold;
+        }
+
+        .form-group dd {
+            margin-left: 0;
+        }
+
+    .btn-action {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-action:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+</style>
+
+
+<div class="form-container">
+    <h4>Dispensed Script:</h4>
+    <dl class="form-group">
+        <hr />
+        <dl class="form-group">
+            <dt>Patient ID Number:</dt>
+            <dd>@Html.DisplayFor(model => model.PatientIdnumber)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Patient Name:</dt>
+            <dd>@Html.DisplayFor(model => model.PatientName)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Patient Surname:</dt>
+            <dd>@Html.DisplayFor(model => model.PatientSurname)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Medication Name:</dt>
+            <dd>@Html.DisplayFor(model => model.MedicationName)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Prescription Dosage Form:</dt>
+            <dd>@Html.DisplayFor(model => model.PrescriptionDosageForm)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Quantity:</dt>
+            <dd>@Html.DisplayFor(model => model.Quantity)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Instructions:</dt>
+            <dd>@Html.DisplayFor(model => model.Instructions)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Urgent:</dt>
+            <dd>@Html.DisplayFor(model => model.Urgent)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Dispense:</dt>
+            <dd>@Html.DisplayFor(model => model.Dispense)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Prescription Date:</dt>
+            <dd>@Html.DisplayFor(model => model.PrescriptionDate)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Dispense Date and Time:</dt>
+            <dd>@Html.DisplayFor(model => model.DispenseDateTime)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Pharmacist Name:</dt>
+            <dd>@Html.DisplayFor(model => model.PharmacistName)</dd>
+        </dl>
+        <dl class="form-group">
+            <dt>Pharmacist Surname:</dt>
+            <dd>@Html.DisplayFor(model => model.PharmacistSurname)</dd>
+        </dl>
+        <div class="form-group">
+            <a asp-action="Edit" asp-route-id="@Model?.PrescriptionId" class="btn-action">Edit</a> |
+            <a asp-action="Index" class="btn-action">Back to List</a>
+        </div>
+</div>

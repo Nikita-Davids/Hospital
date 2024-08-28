@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Hospital.Models.SurgeonPrescription>
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .btn-search, .btn-refresh {
+        background-color: #08075F;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+        .btn-search:hover, .btn-refresh:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .btn-back {
+        background-color: red; /* Red color for the back button */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        position: absolute; /* Position it relative to the container */
+        top: 20px; /* Adjust vertical position */
+        left: 20px; /* Adjust horizontal position */
+    }
+
+        .btn-back:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 620px; /* Adjust the max-width as needed */
+    }
+
+    .form-control {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+</style>
+
+<!-- Container for the back button and header -->
+<div style="position: relative; text-align: center; margin-bottom: 20px;">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+    <h1>View Medication Dispensed</h1>
+</div>
+
+<!-- Search form -->
+<form id="searchForm" method="get" asp-action="ViewMedicationDispensed" class="search-container">
+    <div class="form-group">
+        <input type="text" id="searchQuery" name="searchQuery" class="form-control" placeholder="Search by patient name or surname" />
+        <button type="button" class="btn-search" onclick="filterTable()">Search</button>
+        <a href="@Url.Action("ViewMedicationDispensed", "Pharmacist")" class="btn-refresh">Refresh</a>
+    </div>
+</form>
+
+<!-- Table displaying data -->
+<table class="table" id="medicationTable">
+    <thead>
+        <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Patient Surname</th>
+            <th>Prescription ID</th>
+            <th>Dispensed Date</th>
+            <th>Pharmacist Name</th>
+            <th>Pharmacist Surname</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.PatientIdnumber)</td>
+                <td>@Html.DisplayFor(modelItem => item.PatientName)</td>
+                <td>@Html.DisplayFor(modelItem => item.PatientSurname)</td>
+                <td>@Html.DisplayFor(modelItem => item.PrescriptionId)</td>
+                <td>@Html.DisplayFor(modelItem => item.DispenseDateTime)</td>
+                <td>@Html.DisplayFor(modelItem => item.PharmacistName)</td>
+                <td>@Html.DisplayFor(modelItem => item.PharmacistSurname)</td>
+                <td>
+                    <a asp-action="DetailsDispensedMedication" asp-route-id="@item.PrescriptionId" class="btn-link">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function filterTable() {
+        // Get the search query
+        var searchQuery = document.getElementById('searchQuery').value.toLowerCase();
+
+        // Get the table and rows
+        var table = document.getElementById('medicationTable');
+        var rows = table.getElementsByTagName('tr');
+
+        // Loop through all table rows
+        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+            var cells = rows[i].getElementsByTagName('td');
+            var nameCell = cells[1].textContent.toLowerCase();
+            var surnameCell = cells[2].textContent.toLowerCase();
+
+            // Check if search query matches name or surname
+            if (nameCell.indexOf(searchQuery) > -1 || surnameCell.indexOf(searchQuery) > -1) {
+                rows[i].style.display = ''; // Show row
+            } else {
+                rows[i].style.display = 'none'; // Hide row
+            }
+        }
+    }
+</script>
