@@ -148,5 +148,60 @@ namespace Hospital.Controllers
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
             return View(model);
         }
+
+
+        public IActionResult NurseDispensedAlert()
+        {
+            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+            var dispensedMedications = _context.SurgeonPrescription
+                .Where(sp => sp.Dispense == "Dispense")
+                .ToList();
+
+            // Pass the list of dispensed medications to the view for display
+            return View(dispensedMedications);
+        }
+
+        public IActionResult NurseDispensedDetails(string patientId)
+        {
+            // Retrieve the prescription details for the specific patient
+            var prescriptionDetails = _context.SurgeonPrescription
+                .Where(sp => sp.PatientIdnumber == patientId && sp.Dispense == "Dispense")
+                .Select(sp => new
+                {
+                    sp.PrescriptionId,
+                    sp.PatientIdnumber,
+                    sp.PatientName,
+                    sp.PatientSurname,
+                    sp.MedicationName,
+                    sp.PrescriptionDosageForm,
+                    sp.Quantity
+                })
+                .FirstOrDefault();
+
+            if (prescriptionDetails == null)
+            {
+                return NotFound();
+            }
+
+            return View(prescriptionDetails);
+        }
+
+        [HttpPost]
+        public IActionResult ReceiveMedication(int prescriptionId)
+        {
+            // Find the prescription by the ID
+            var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
+
+            if (prescription != null)
+            {
+                // Update the Dispense field to "Received"
+                prescription.Dispense = "Received";
+                _context.SaveChanges();
+            }
+
+            // Redirect back to the NurseDispensedAlert page after updating
+            return RedirectToAction("NurseDispensedAlert");
+        }
     }
 }
+

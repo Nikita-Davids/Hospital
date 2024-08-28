@@ -1,127 +1,65 @@
 ﻿@model Hospital.Models.Restock
 
 @{
-    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+    ViewData["Title"] = "Restock";
 }
-<style>
-    h1 {
-        text-align: center;
-        color: #08075F;
-        font-weight: bold;
-        text-decoration: underline;
-    }
 
-    .box {
-        border: 1px solid #ccc;
-        padding: 20px;
-        margin: 40px auto;
-        width: 50%;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        background-color: #f9f9f9;
-    }
+<h1>Restock</h1>
 
-    button {
-        padding: 10px 60px;
-        font-size: 16px;
-        background-color: #08075F;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        float: right;
-    }
-
-        button:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
-</style>
-
-<h1>Restock of Medication</h1>
-
+<h4>Restock</h4>
 <hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Restock" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<div class="box">
-    <div class="row">
-        <div class="col-md-12">
-            <form asp-action="Restock" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MedicationName" class="control-label"></label>
+                <select asp-for="MedicationId" class="form-control" asp-items="ViewBag.Medications" onchange="loadDosageForms()"></select>
+                <span asp-validation-for="MedicationId" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="MedicationName" class="control-label">Name Of Medication:</label>
-                    <select asp-for="MedicationName" class="form-control" asp-items="ViewBag.Medications" id="medication-select">
-                        <option value="">Select Medication</option>
-                    </select>
-                    <span asp-validation-for="MedicationName" class="text-danger"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="DosageForm" class="control-label"></label>
+                <select asp-for="DosageForm" class="form-control" asp-items="ViewBag.DosageForms"></select>
+                <span asp-validation-for="DosageForm" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="DosageForm" class="control-label">Dosage Form:</label>
-                    <select asp-for="DosageForm" class="form-control" id="dosage-form-select">
-                        <option value="">Select Dosage Form</option>
-                    </select>
-                    <span asp-validation-for="DosageForm" class="text-danger"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="QuantityReceived" class="control-label"></label>
+                <input asp-for="QuantityReceived" class="form-control" />
+                <span asp-validation-for="QuantityReceived" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="QuantityReceived" class="control-label">Quantity Received:</label>
-                    <input asp-for="QuantityReceived" class="form-control" placeholder="In units" />
-                    <span asp-validation-for="QuantityReceived" class="text-danger"></span>
-                </div>
+            <div class="form-group">
+                <label asp-for="RestockDate" class="control-label"></label>
+                <input asp-for="RestockDate" class="form-control" />
+                <span asp-validation-for="RestockDate" class="text-danger"></span>
+            </div>
 
-                <div class="form-group">
-                    <label asp-for="RestockDate" class="control-label">Restock Date and Time:</label>
-                    <input asp-for="RestockDate" type="datetime-local" class="form-control" />
-                    <span asp-validation-for="RestockDate" class="text-danger"></span>
-                </div>
-                <br />
-
-                <div class="form-group">
-                    <button type="submit" class="button">Add</button>
-                </div>
-            </form>
-        </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
 </div>
 
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.getElementById('medication-select').addEventListener('change', function () {
-            var medicationName = this.value;
-
-            if (medicationName) {
-                fetch('/Pharmacist/GetDosageForms?medicationName=' + encodeURIComponent(medicationName))
-                    .then(response => response.json())
-                    .then(data => {
-                        var dosageFormSelect = document.getElementById('dosage-form-select');
-                        dosageFormSelect.innerHTML = '<option value="">Select Dosage Form</option>'; // Reset dropdown
-
-                        if (data.length > 0) {
-                            data.forEach(function (dosageForm) {
-                                var option = document.createElement('option');
-                                option.value = dosageForm;
-                                option.text = dosageForm;
-                                dosageFormSelect.appendChild(option);
-                            });
-
-                            // Set the dropdown to the first item if there's only one dosage form
-                            if (data.length === 1) {
-                                dosageFormSelect.value = data[0];
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching dosage forms:', error);
-                    });
-            } else {
-                document.getElementById('dosage-form-select').innerHTML = '<option value="">Select Dosage Form</option>';
-            }
-        });
+        function loadDosageForms() {
+            var medicationId = $('select[name="MedicationId"]').val();
+            $.getJSON('@Url.Action("GetDosageForms")', { medicationId: medicationId }, function (data) {
+                var $dosageFormSelect = $('select[name="DosageForm"]');
+                $dosageFormSelect.empty();
+                $.each(data, function (index, item) {
+                    $dosageFormSelect.append($('<option>').text(item).attr('value', item));
+                });
+            });
+        }
     </script>
 }
-

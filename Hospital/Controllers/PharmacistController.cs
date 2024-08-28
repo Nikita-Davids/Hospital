@@ -7,26 +7,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using Hospital.ViewModels;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
-    public class PharmacistController : Controller
+    public class PharmacistController(ApplicationDbContext dbContext) : Controller
     {
-        private readonly ApplicationDbContext _context;
+        ApplicationDbContext _context = dbContext;
 
-        public PharmacistController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
 
         public IActionResult Index()
         {
@@ -38,13 +36,12 @@ namespace Hospital.Controllers
                 .Where(p => p.Dispense == "Not Dispense") // Filter prescriptions based on the Dispense field
                 .Select(p => new PrescriptionDisplayViewModel
                 {
-                    // Populate the view model with details from each prescription
+                    PrescriptionId = p.PrescriptionId, // Ensure this is included for uniqueness
                     PatientIDNumber = p.PatientIdnumber,
                     PatientName = p.PatientName,
                     PatientSurname = p.PatientSurname,
                     PrescriptionDate = p.PrescriptionDate,
 
-                    // Retrieve surgeon's name and surname using the surgeon's ID
                     SurgeonName = _context.Surgeons
                         .Where(s => s.SurgeonId == p.SurgeonId)
                         .Select(s => s.Name)
@@ -54,12 +51,9 @@ namespace Hospital.Controllers
                         .Select(s => s.Surname)
                         .FirstOrDefault(),
 
-                    // Map the Urgent field from the prescription
                     Urgent = p.Urgent
                 })
-                // Order prescriptions by date in descending order
                 .OrderByDescending(p => p.PrescriptionDate)
-                // Convert the query result to a list
                 .ToList();
 
             // Pass the list of prescriptions to the view
@@ -143,7 +137,6 @@ namespace Hospital.Controllers
                             Text = a.DosageFormName
                         }).ToList();
 
-                    // Re-populate distinct ingredients dropdown
                     ViewBag.Ingredients = _context.ActiveIngredient
                         .OrderBy(m => m.IngredientName) // Sort by Ingredient Name A-Z
                         .Select(a => a.IngredientName)
@@ -176,7 +169,6 @@ namespace Hospital.Controllers
                     Text = a.DosageFormName
                 }).ToList();
 
-            // Re-populate distinct ingredients dropdown
             ViewBag.Ingredients = _context.ActiveIngredient
                 .OrderBy(m => m.IngredientName) // Sort by IngredientName A-Z
                 .Select(a => a.IngredientName)
@@ -261,15 +253,14 @@ namespace Hospital.Controllers
             medication.IsDeleted = "Active";
 
             // Update MedicationActiveIngredients
-            medication.MedicationActiveIngredients = CombinedIngredientsHidden;
+            medication.MedicationActiveIngredients = !string.IsNullOrWhiteSpace(CombinedIngredientsHidden)
+                ? CombinedIngredientsHidden
+                : string.Empty;
 
-            // Save changes to the database
-            _context.Update(medication);
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("ViewAddMedication");
         }
-
 
         // Method to display the medication deletion confirmation view
         public async Task<IActionResult> DeleteMedication(int id)
@@ -289,13 +280,14 @@ namespace Hospital.Controllers
             return View(medication);
         }
 
-        // POST: Medications/Delete/5
+        // POST: Confirm and delete the medication
         [HttpPost, ActionName("DeleteMedication")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ConfirmDeleteMedication(int id)
         {
             // Fetch the medication record based on the provided ID
-            var medication = await _context.Medication.FindAsync(id);
+            var medication = await _context.Medication
+                .FirstOrDefaultAsync(m => m.MedicationId == id);
 
             // Check if the medication was not found
             if (medication == null)
@@ -304,230 +296,26 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            // Mark the medication as deleted by setting the IsDeleted flag
+            // Soft delete the medication by setting IsDeleted to "Deleted"
             medication.IsDeleted = "Deleted";
 
             // Update the medication record in the database
-            _context.Update(medication);
-
-            // Save changes to the database
             await _context.SaveChangesAsync();
 
-            // Redirect to the action that displays the list of medications
-            return RedirectToAction(nameof(ViewAddMedication));
+            // Redirect the user to the ViewAddMedication action after deletion
+            return RedirectToAction("ViewAddMedication");
         }
 
-        // Method to check if medication exists
-        private bool MedicationExists(int id)
-        {
-            return _context.Medication.Any(e => e.MedicationId == id);
-        }
-
-
-        // GET: /Pharmacist/ViewAddMedication
+        // GET: Pharmacist/ViewAddMedication
         public IActionResult ViewAddMedication()
         {
-            var medications = _context.Medication.ToList(); // Get all medications
+            // Retrieve all medication records from the database using _context
+            List<Medication> medications = _context.Medication.ToList();
+
+            // Pass the list of medications to the view for display
             return View(medications);
         }
 
-
-        // Restock Controller Actions
-
-        // GET: Retrieves dosage forms for a specified medication
-        [HttpGet]
-        public IActionResult GetDosageForms(string medicationName)
-        {
-            // Retrieve distinct dosage forms for the selected medication name
-            var dosageForms = _context.Medication
-                .Where(m => m.MedicationName == medicationName && m.IsDeleted != "Deleted") // Filter by medication name and not deleted
-                .OrderBy(m => m.DosageForm) // Sort by DosageForm A-Z
-                .Select(m => m.DosageForm) // Select dosage form
-                .Distinct() // Get distinct dosage forms
-                .ToList(); // Convert to list
-
-            // Return the list of dosage forms as JSON
-            return Json(dosageForms);
-        }
-
-        // GET: Display the restock form
-        public IActionResult Restock()
-        {
-            // Retrieve distinct medication names, excluding those marked as deleted
-            var medications = _context.Medication
-                .Where(m => m.IsDeleted != "Deleted")
-                .OrderBy(m => m.MedicationName) // Sort by MedicationName A-Z
-                .Select(m => m.MedicationName) // Select medication names
-                .Distinct() // Get distinct names
-                .ToList(); // Convert to list
-
-            // Pass the list of medication names to the view using ViewBag
-            ViewBag.Medications = new SelectList(medications);
-
-            // Return the view for restocking
-            return View();
-        }
-        [HttpPost]
-        public IActionResult Restock(Restock r)
-        {
-            if (!ModelState.IsValid)
-            {
-                // Re-populate the medication names for the view if validation fails
-                var medications = _context.Medication
-                    .Where(m => m.IsDeleted != "Deleted")
-                    .OrderBy(m => m.MedicationName)
-                    .Select(m => m.MedicationName)
-                    .Distinct()
-                    .ToList();
-
-                ViewBag.Medications = new SelectList(medications);
-                return View(r);
-            }
-
-            if (r.QuantityReceived <= 0)
-            {
-                ViewBag.Error = "Quantity must be greater than 0";
-                return View(r);
-            }
-
-            try
-            {
-                var medication = _context.Medication
-                    .FirstOrDefault(m => m.MedicationName == r.MedicationName && m.DosageForm == r.DosageForm);
-
-                if (medication != null)
-                {
-                    r.MedicationId = medication.MedicationId;
-
-                    _context.Restock.Add(r);
-
-                    var stockEntry = _context.Stock
-                        .FirstOrDefault(s => s.MedicationId == medication.MedicationId);
-
-                    if (stockEntry != null)
-                    {
-                        stockEntry.StockOnHand += r.QuantityReceived;
-                    }
-                    else
-                    {
-                        _context.Stock.Add(new Stock
-                        {
-                            MedicationId = medication.MedicationId,
-                            StockOnHand = r.QuantityReceived
-                        });
-                    }
-
-                    _context.SaveChanges();
-                    return RedirectToAction("ViewRestock", "Pharmacist");
-                }
-                else
-                {
-                    ViewBag.Error = "Invalid medication or dosage form selected";
-                    return View(r);
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "An error occurred while restocking medication: " + ex.Message;
-                return View(r);
-            }
-        }
-
-
-
-        // GET action method for editing restock entries
-        public IActionResult EditRestock(int id)
-        {
-            // Check if the provided id is valid
-            if (id == 0)
-            {
-                // Return NotFound if the id is zero
-                return NotFound();
-            }
-
-            // Retrieve the restock entry with the specified id
-            Restock restock = _context.Restock
-                .Where(e => e.RestockId == id) // Filter by RestockId
-                .FirstOrDefault(); // Fetch the first matching record or null if not found
-
-            // Check if the restock entry exists
-            if (restock == null)
-            {
-                // Return NotFound if the restock entry does not exist
-                return NotFound();
-            }
-
-            // Return the view for editing the restock entry, passing the restock object
-            return View(restock);
-        }
-
-        // POST action method for updating restock entries
-        [HttpPost]
-        public IActionResult EditRestock([Bind("RestockId,MedicationName,DosageForm,QuantityReceived")] Restock r)
-        {
-            // Check if the model state is valid
-            if (!ModelState.IsValid)
-            {
-                // Return the view with the current restock object if model state is invalid
-                return View(r);
-            }
-
-            // Retrieve the existing restock entry with the specified id
-            Restock existingRestock = _context.Restock
-                .Where(e => e.RestockId == r.RestockId) // Filter by RestockId
-                .FirstOrDefault(); // Fetch the first matching record or null if not found
-
-            // Check if the restock entry exists
-            if (existingRestock != null)
-            {
-                // Update the properties of the existing restock entry with the new values
-                existingRestock.MedicationName = r.MedicationName;
-                existingRestock.DosageForm = r.DosageForm;
-                existingRestock.QuantityReceived = r.QuantityReceived;
-                existingRestock.RestockDate = DateTime.Now; // Set the current date and time
-
-                // Save changes to the database
-                _context.SaveChanges();
-            }
-
-            // Redirect to the "ViewRestock" action in the "Pharmacist" controller after successful update
-            return RedirectToAction("ViewRestock", "Pharmacist");
-        }
-
-        // Action method for displaying the list of restocks, with optional search functionality
-        public IActionResult ViewRestock(string searchQuery)
-        {
-            // Initialize the queryable collection of restocks
-            var query = _context.Restock.AsQueryable();
-
-            // Attempt to parse the searchQuery as a date
-            DateTime searchDate;
-            if (DateTime.TryParse(searchQuery, out searchDate))
-            {
-                // Extract the start of the day from the searchDate
-                var startDate = searchDate.Date; // Represents 00:00 of the specified date
-
-                // Calculate the end of the day (start of the next day)
-                var endDate = startDate.AddDays(1); // Represents 00:00 of the following day
-
-                // Filter the restocks by RestockDate, ensuring only entries for the specified date are included
-                query = query.Where(r => r.RestockDate >= startDate && r.RestockDate < endDate);
-            }
-            else if (!string.IsNullOrEmpty(searchQuery))
-            {
-                // Filter the restocks by MedicationName if searchQuery is not empty
-                query = query.Where(r => r.MedicationName.Contains(searchQuery));
-            }
-
-            // Execute the query and retrieve the filtered list of restocks
-            var restocks = query.ToList();
-
-            // Pass the searchQuery to the view using ViewData for display or future use
-            ViewData["SearchQuery"] = searchQuery;
-
-            // Return the view, passing the filtered list of restocks
-            return View(restocks);
-        }
 
         // GET method to display the stock management view
         public async Task<IActionResult> StockManagement()
@@ -555,6 +343,10 @@ namespace Hospital.Controllers
             // Pass the view model to the view
             return View(viewModel);
         }
+
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> StockManagement(StockOrderListViewModel model)
@@ -691,10 +483,10 @@ namespace Hospital.Controllers
                     Body = new BodyBuilder
                     {
                         HtmlBody = $@"
-    <h3>Stock Order Update</h3>
-    <p>The stock order has been successfully recorded in the system with the following details:</p>
-    {orderDetails}
-    <p>Thank you for using the hospital's stock management system.</p>"
+            <h3>Stock Order Update</h3>
+            <p>The stock order has been successfully recorded in the system with the following details:</p>
+            {orderDetails}
+            <p>Thank you for using the hospital's stock management system.</p>"
                     }.ToMessageBody()
                 };
 
@@ -755,8 +547,502 @@ namespace Hospital.Controllers
             // Return the view with the filtered list of ordered stock
             return View(orderStockWithMedications);
         }
- 
 
+
+
+        // GET: PharmacistPatientList
+        public IActionResult PharmacistPatientList()
+        {
+            // Return the view with a list of Patients from the database
+            return View(_context.Patients.ToList());
+        }
+
+        // GET: PrescribedScript
+        public IActionResult PrescribedScript(string patientId)
+        {
+            // Retrieve prescription details for the specified patient ID
+            var prescriptionDetails = _context.SurgeonPrescription
+                .Where(p => p.PatientIdnumber == patientId) // Filter prescriptions by the patient ID
+                .Select(p => new PrescribedScriptViewModel
+                {
+                    // Populate the view model with patient and prescription details
+                    PatientIDNumber = p.PatientIdnumber,
+                    PatientName = p.PatientName,
+                    PatientSurname = p.PatientSurname,
+
+                    // Retrieve the surgeon's name and surname using the surgeon's ID
+                    SurgeonName = _context.Surgeons
+                        .Where(s => s.SurgeonId == p.SurgeonId)
+                        .Select(s => s.Name)
+                        .FirstOrDefault(),
+                    SurgeonSurname = _context.Surgeons
+                        .Where(s => s.SurgeonId == p.SurgeonId)
+                        .Select(s => s.Surname)
+                        .FirstOrDefault(),
+
+                    // Include the date of prescription
+                    PrescriptionDate = p.PrescriptionDate,
+                    PrescriptionId = p.PrescriptionId,
+                    SurgeonId = p.SurgeonId,
+
+                    // Retrieve details of medications prescribed to the patient
+                    Medications = _context.SurgeonPrescription
+                        .Where(sp => sp.PatientIdnumber == patientId) // Filter medications by the patient ID
+                        .Select(sp => new MedicationDetailViewModel
+                        {
+                            // Populate each medication detail
+                            MedicationName = sp.MedicationName,
+                            PrescriptionDosageForm = sp.PrescriptionDosageForm,
+                            Instructions = sp.Instructions,
+                            Quantity = sp.Quantity
+                        })
+                        .ToList() // Convert the result to a list
+                })
+                .FirstOrDefault(); // Retrieve the first (or default) result
+
+            // Return a 404 Not Found response if no prescription details were found
+            if (prescriptionDetails == null)
+            {
+                return NotFound();
+            }
+
+            // Pass the prescription details to the view
+            return View(prescriptionDetails);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Dispense(string id)
+        {
+            // Fetch all prescribed scripts for the given patient ID
+            var prescribedScripts = await _context.SurgeonPrescription
+                .Where(ps => ps.PatientIdnumber == id)
+                .ToListAsync();
+
+            // Check if any prescribed scripts were found
+            if (prescribedScripts == null || !prescribedScripts.Any())
+            {
+                // Return a 404 Not Found response if no prescriptions are found
+                return NotFound("Prescription not found.");
+            }
+
+            // Begin a database transaction to ensure all operations succeed together
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Process each prescribed script
+                foreach (var script in prescribedScripts)
+                {
+                    // Fetch the current stock information for the medication
+                    var stock = await _context.Stock
+                        .FirstOrDefaultAsync(s => s.MedicationId == script.MedicationId);
+
+                    // Throw an exception if the stock record is not found
+                    if (stock == null)
+                    {
+                        throw new InvalidOperationException($"Stock record not found for Medication ID {script.MedicationId}.");
+                    }
+
+                    // Check if there is no stock available
+                    if (stock.StockOnHand <= 0)
+                    {
+                        // Return a JSON response indicating no stock is available
+                        return Json(new { success = false, message = $"No stock available for Medication ID {script.MedicationId}." });
+                    }
+
+                    // Check if there is enough stock to fulfill the prescription
+                    if (stock.StockOnHand < script.Quantity)
+                    {
+                        // Return a JSON response indicating insufficient stock
+                        return Json(new { success = false, message = $"Insufficient stock for Medication ID {script.MedicationId}. Available stock: {stock.StockOnHand}." });
+                    }
+
+                    // Subtract the prescribed quantity from the stock on hand
+                    stock.StockOnHand -= script.Quantity;
+
+                    // Update the Dispense field to "Dispense"
+                    script.Dispense = "Dispense";
+
+                    // Check and log the pharmacist name and surname
+                    var pharmacistName = DisplayNameAndSurname.passUserName ?? "Unknown Name";
+                    var pharmacistSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname";
+
+                    Console.WriteLine($"Updating pharmacist name to: {pharmacistName}");
+                    Console.WriteLine($"Updating pharmacist surname to: {pharmacistSurname}");
+
+                    // Update name and surname
+                    script.PharmacistName = pharmacistName;
+                    script.PharmacistSurname = pharmacistSurname;
+
+                    // Record the current time as the dispense date and time
+                    script.DispenseDateTime = DateTime.Now;
+                }
+
+                // Save all changes to the database
+                await _context.SaveChangesAsync();
+
+                // Commit the transaction if all operations succeeded
+                await transaction.CommitAsync();
+
+                // Return a JSON response indicating success
+                return Json(new { success = true, message = "Stock successfully updated and prescription dispensed." });
+            }
+            catch (Exception ex)
+            {
+                // Log the error (consider using a logging framework for real applications)
+                Console.WriteLine($"Error dispensing medication: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                // Rollback the transaction if an error occurred
+                await transaction.RollbackAsync();
+
+                // Return a 500 Internal Server Error response
+                return StatusCode(500, "An error occurred while dispensing medications.");
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult Reject(int prescriptionId, int surgeonId, string rejectionReason)
+        {
+            try
+            {
+                // Validate form values
+                if (prescriptionId <= 0 || surgeonId <= 0 || string.IsNullOrEmpty(rejectionReason))
+                {
+                    return Json(new { success = false, message = "Invalid data." });
+                }
+
+                // Check if the PrescriptionId and SurgeonId exist in the database
+                var prescription = _context.SurgeonPrescription
+                    .FirstOrDefault(sp => sp.PrescriptionId == prescriptionId && sp.SurgeonId == surgeonId);
+
+                if (prescription == null)
+                {
+                    return Json(new { success = false, message = "Invalid prescription or surgeon ID." });
+                }
+
+                // Update the Dispense field to "Rejected"
+                prescription.Dispense = "Rejected";
+
+                // Update pharmacist information
+                var pharmacistName = DisplayNameAndSurname.passUserName ?? "Unknown Name";
+                var pharmacistSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname";
+
+                prescription.PharmacistName = pharmacistName;
+                prescription.PharmacistSurname = pharmacistSurname;
+
+                // Create a new RejectedPrescription entity
+                var rejectedPrescription = new RejectedPrescription
+                {
+                    PrescriptionId = prescriptionId,
+                    SurgeonId = surgeonId,
+                    RejectionReason = rejectionReason,
+                    Status = "Pending",
+                    PharmacistName = pharmacistName,
+                    PharmacistSurname = pharmacistSurname
+                };
+
+                // Add the new entity to the context
+                _context.RejectedPrescription.Add(rejectedPrescription);
+
+                // Save changes to the database
+                _context.SaveChanges();
+
+                // Return a successful response with redirect URL
+                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectScript", "Pharmacist") });
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"An error occurred while rejecting the prescription: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMessage += $" Inner exception: {ex.InnerException.Message}";
+                }
+                return Json(new { success = false, message = errorMessage });
+            }
+        }
+
+        public IActionResult ViewMedicationDispensed()
+        {
+            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+            var dispensedMedications = _context.SurgeonPrescription
+                .Where(sp => sp.Dispense == "Dispense")
+                .ToList();
+
+            // Pass the list of dispensed medications to the view for display
+            return View(dispensedMedications);
+        }
+
+
+        public IActionResult DetailsDispensedMedication(int id)
+        {
+            // Check if the provided 'id' parameter is zero (0)
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            // Retrieve the SurgeonPrescription with the specified id
+            var sp = _context.SurgeonPrescription
+                .SingleOrDefault(e => e.PrescriptionId == id);
+
+            // Check if the prescription was found
+            if (sp == null)
+            {
+                return NotFound();
+            }
+
+            // Return the view with the retrieved SurgeonPrescription object
+            return View(sp);
+        }
+
+        public IActionResult DetailsRejectedScript(int prescriptionId)
+        {
+            // Query to join the SurgeonPrescriptions and RejectedPrescription tables
+            // Filter by the provided prescriptionId
+            var rejectedPrescription = (from sp in _context.SurgeonPrescription
+                                        join rp in _context.RejectedPrescription
+                                        on sp.PrescriptionId equals rp.PrescriptionId
+                                        where sp.PrescriptionId == prescriptionId
+                                        select new RejectedPrescriptionViewModel
+                                        {
+                                            PrescriptionId = sp.PrescriptionId,
+                                            PatientIDNumber = sp.PatientIdnumber,
+                                            PatientName = sp.PatientName,
+                                            PatientSurname = sp.PatientSurname,
+                                            MedicationName = sp.MedicationName,
+                                            PrescriptionDosageForm = sp.PrescriptionDosageForm,
+                                            Quantity = sp.Quantity,
+                                            Instructions = sp.Instructions,
+                                            Urgent = sp.Urgent,
+                                            SurgeonID = sp.SurgeonId,
+                                            PrescriptionDate = sp.PrescriptionDate,
+                                            DispenseDateTime = sp.DispenseDateTime,
+                                            PharmacistName = rp.PharmacistName,
+                                            PharmacistSurname = rp.PharmacistSurname,
+                                            RejectionReason = rp.RejectionReason,
+                                            RejectionDate = rp.RejectionDate,
+                                            Status = rp.Status
+                                        }).FirstOrDefault();
+
+            // Check if the query result is null, which means no matching record was found
+            if (rejectedPrescription == null)
+            {
+                return NotFound(); // Return a 404 Not Found response if the prescription was not found
+            }
+
+            // Pass the rejectedPrescription model to the view for rendering
+            return View(rejectedPrescription);
+        }
+
+
+        public IActionResult ViewRejectScript()
+        {
+            // Query to join the SurgeonPrescriptions and RejectedPrescription tables
+            // Filter for prescriptions where the Dispense status is "Rejected"
+            var rejectedPrescriptions = from sp in _context.SurgeonPrescription
+                                        join rp in _context.RejectedPrescription
+                                        on sp.PrescriptionId equals rp.PrescriptionId
+                                        where sp.Dispense == "Rejected"
+                                        select new RejectedPrescriptionViewModel
+                                        {
+                                            PrescriptionId = sp.PrescriptionId,
+                                            PatientIDNumber = sp.PatientIdnumber,
+                                            PatientName = sp.PatientName,
+                                            PatientSurname = sp.PatientSurname,
+                                            MedicationName = sp.MedicationName,
+                                            PrescriptionDosageForm = sp.PrescriptionDosageForm,
+                                            Quantity = sp.Quantity,
+                                            RejectionReason = rp.RejectionReason,
+                                            RejectionDate = rp.RejectionDate,
+                                            PharmacistName = rp.PharmacistName,
+                                            PharmacistSurname = rp.PharmacistSurname,
+                                            Status = rp.Status
+                                        };
+
+            // Convert the query result to a list and pass it to the view
+            return View(rejectedPrescriptions.ToList());
+        }
+
+        // GET: Restock page with dropdowns for medication names and dosage forms
+        public IActionResult Restock()
+        {
+            // Get medication names for the dropdown
+            var medications = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .OrderBy(m => m.MedicationName)
+                .Select(m => new { m.MedicationId, m.MedicationName })
+                .ToList();
+
+            // Populate ViewBag with medication names
+            ViewBag.Medications = new SelectList(medications, "MedicationId", "MedicationName");
+
+            // Initialize ViewBag for dosage forms
+            ViewBag.DosageForms = new SelectList(Enumerable.Empty<SelectListItem>());
+
+            return View();
+        }
+
+        // POST: Handle form submission and update dosage forms based on selected medication
+        [HttpPost]
+        public IActionResult Restock(Restock restock)
+        {
+            try
+            {
+                // Check if the model state is valid
+                if (!ModelState.IsValid)
+                {
+                    // Re-populate the dropdowns if validation fails
+                    PopulateDropDowns();
+                    return View(restock);
+                }
+
+                // Save the restock data to the database
+                _context.Restock.Add(restock);
+                _context.SaveChanges();
+
+                return RedirectToAction("ViewRestock");
+            }
+            catch
+            {
+                ViewBag.Error = "An error occurred while processing your request.";
+                PopulateDropDowns();
+                return View(restock);
+            }
+        }
+
+        // GET: Get dosage forms for a specified medication
+
+        //[HttpGet]
+        //public JsonResult GetDosageForms(int medicationId)
+        //{
+        //    var dosageForms = _context.DosageForm
+        //        .Where(d => d.MedicationId == medicationId) // Adjust the filtering based on your schema
+        //        .Select(d => new { d.Id, d.FormName }) // Return necessary fields
+        //        .ToList();
+
+        //    return Json(dosageForms);
+        //}
+
+
+        // Method to populate dropdowns for medication names and dosage forms
+        private void PopulateDropDowns()
+        {
+            var medications = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .OrderBy(m => m.MedicationName)
+                .Select(m => new { m.MedicationId, m.MedicationName })
+                .ToList();
+            ViewBag.Medications = new SelectList(medications, "MedicationId", "MedicationName");
+
+            ViewBag.DosageForms = new SelectList(Enumerable.Empty<SelectListItem>());
+        }
+
+        [HttpGet]
+        public JsonResult GetMedicationId(string medicationName, string dosageForm)
+        {
+            var medicationId = _context.Medication
+                .Where(m => m.MedicationName == medicationName && m.DosageForm == dosageForm && m.IsDeleted != "Deleted")
+                .Select(m => m.MedicationId)
+                .FirstOrDefault();
+
+            return Json(medicationId);
+        }
+
+        public IActionResult RestockTest()
+        {
+            // Retrieve medications and dosage forms from the database
+            var medications = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .OrderBy(m => m.MedicationName)
+                .Select(m => new
+                {
+                    m.MedicationName,
+                    m.DosageForm
+                })
+                .ToList();
+
+            // Prepare data for ViewBag
+            ViewBag.Medications = medications.Select(m => m.MedicationName).Distinct().ToList();
+            ViewBag.DosageForms = medications
+                .GroupBy(m => m.MedicationName)
+                .ToDictionary(g => g.Key, g => g.Select(m => m.DosageForm).Distinct().ToList());
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult RestockTest(Restock restock)
+        {
+            try
+            {
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 ||restock.RestockDate==null|| restock.MedicationId == 0)
+                {
+                    ViewBag.Error = "Please enter all fields";
+                    return View();
+                }
+                else
+                {
+                    Restock r = new Restock()
+                    {
+                        MedicationName = restock.MedicationName,
+                        DosageForm = restock.DosageForm,
+                        QuantityReceived = restock.QuantityReceived,
+                        RestockDate = restock.RestockDate,
+                        MedicationId = restock.MedicationId
+                    };
+                    _context.Restock.Add(r);
+                    // Find the stock entry for the medication
+                    var stockEntry = _context.Stock
+                        .FirstOrDefault(s => s.MedicationId == r.MedicationId);
+
+                    if (stockEntry != null)
+                    {
+                        // Medication exists in Stock table, update stock quantity
+                        stockEntry.StockOnHand += r.QuantityReceived;
+                    }
+                    else
+                    {
+                        // Medication does not exist in Stock table, add new entry
+                        _context.Stock.Add(new Stock
+                        {
+                            MedicationId = r.MedicationId ?? 0,
+                            StockOnHand = r.QuantityReceived
+                        });
+                    }
+                    _context.SaveChanges();
+
+                    return RedirectToAction("ViewRestock");
+                }
+            }
+            catch
+            {
+                ViewBag.Error = "Restock already in the database";
+                return View();
+            }
+        }
 
     }
+
 }
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -525,6 +525,50 @@ namespace Hospital.Migrations
                     b.ToTable("Province");
                 });
 
+            modelBuilder.Entity("Hospital.Models.RejectedPrescription", b =>
+                {
+                    b.Property<int>("RejectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RejectionId"));
+
+                    b.Property<string>("PharmacistName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PharmacistSurname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PrescriptionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RejectionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RejectionReason")
+                        .IsRequired()
+                        .HasMaxLength(2147483647)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("SurgeonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RejectionId");
+
+                    b.HasIndex("PrescriptionId");
+
+                    b.HasIndex("SurgeonId");
+
+                    b.ToTable("RejectedPrescription");
+                });
+
             modelBuilder.Entity("Hospital.Models.Restock", b =>
                 {
                     b.Property<int>("RestockId")
@@ -1060,7 +1104,7 @@ namespace Hospital.Migrations
             modelBuilder.Entity("Hospital.Models.OrderStock", b =>
                 {
                     b.HasOne("Hospital.Models.Medication", "Medication")
-                        .WithMany()
+                        .WithMany("OrderStocks")
                         .HasForeignKey("MedicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1142,10 +1186,29 @@ namespace Hospital.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Hospital.Models.RejectedPrescription", b =>
+                {
+                    b.HasOne("Hospital.Models.SurgeonPrescription", "SurgeonPrescription")
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hospital.Models.Surgeon", "Surgeon")
+                        .WithMany()
+                        .HasForeignKey("SurgeonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Surgeon");
+
+                    b.Navigation("SurgeonPrescription");
+                });
+
             modelBuilder.Entity("Hospital.Models.Restock", b =>
                 {
                     b.HasOne("Hospital.Models.Medication", "Medication")
-                        .WithMany()
+                        .WithMany("Restocks")
                         .HasForeignKey("MedicationId");
 
                     b.Navigation("Medication");
@@ -1154,7 +1217,7 @@ namespace Hospital.Migrations
             modelBuilder.Entity("Hospital.Models.Stock", b =>
                 {
                     b.HasOne("Hospital.Models.Medication", "Medication")
-                        .WithMany()
+                        .WithMany("Stocks")
                         .HasForeignKey("MedicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1174,7 +1237,7 @@ namespace Hospital.Migrations
             modelBuilder.Entity("Hospital.Models.SurgeonPrescription", b =>
                 {
                     b.HasOne("Hospital.Models.Medication", "Medication")
-                        .WithMany()
+                        .WithMany("SurgeonPrescriptions")
                         .HasForeignKey("MedicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1250,6 +1313,17 @@ namespace Hospital.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Hospital.Models.Medication", b =>
+                {
+                    b.Navigation("OrderStocks");
+
+                    b.Navigation("Restocks");
+
+                    b.Navigation("Stocks");
+
+                    b.Navigation("SurgeonPrescriptions");
                 });
 
             modelBuilder.Entity("Hospital.Models.Town", b =>
