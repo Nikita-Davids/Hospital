@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Hospital.Models.PatientCurrentMedication>
+
+@{
+    ViewData["Title"] = "NurseViewCurrentMedication";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+
+}
+
+<h1>NurseViewCurrentMedication</h1>
+
+
+<p>
+    <a class="btn-link" asp-action="NurseAddCurrentMedication">Add Current Medication</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentMedication)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentMedication)
+            </td>
+            <td>
+                    <a class="btn-link" asp-action="NurseEditCurrentMedication" asp-route-id="@item.MedicationId">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

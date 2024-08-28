@@ -1,0 +1,30 @@
+﻿@model Hospital.Models.PatientMedicalCondition
+
+@{
+    ViewData["Title"] = "NurseAddMedicalCondition";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+<h1>NurseAddMedicalCondtion</h1>
+<hr />
+<div class="form-container">
+        <form asp-action="NurseAddMedicalCondition">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="PatientId" class="control-label"></label>
+                <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="MedicalCondition" class="control-label"></label>
+                <input asp-for="MedicalCondition" class="form-control" />
+                <span asp-validation-for="MedicalCondition" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatientMedicalCondition">View Medical Condition</a>
+</div>

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Hospital.Models.PatientAllergy>
+
+@{
+    ViewData["Title"] = "NurseViewPatientAllergy";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+
+<h1>Nurse View Patient Allergy</h1>
+
+<p>
+    <a class="btn-link" asp-action="NurseAddPatientAllergy">Add Patient Allergy</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-patient-id">
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th class="col-allergy">
+                @Html.DisplayNameFor(model => model.Allergy)
+            </th>
+            <th class="col-action">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-patient-id">
+                    @Html.DisplayFor(modelItem => item.PatientId)
+                </td>
+                <td class="col-allergy">
+                    @Html.DisplayFor(modelItem => item.Allergy)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="NurseEditPatientAllergy" asp-route-id="@item.AllergyId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

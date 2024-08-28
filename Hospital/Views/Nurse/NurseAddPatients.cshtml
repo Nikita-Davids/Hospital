@@ -3,11 +3,13 @@
 @{
     ViewData["Title"] = "NurseAddPatients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
-
 }
 
 
 <h1>Nurse Add Patients</h1>
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatients">View Patients</a>
+</div>
 
 <div class="form-container">
     <form asp-action="NurseAddPatients">
@@ -144,69 +146,4 @@
     </form>
 </div>
 
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseViewPatients">Back to List</a>
-</div>
 
-
-<style>
-    h1 {
-        text-align: center;
-        color: #08075F;
-        font-weight: bold;
-        text-decoration: underline;
-    }
-
-    .btn-link {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 13px;
-    }
-
-        .btn-link:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
-
-    .form-container {
-        border: 1px solid #ccc; /* Light gray border */
-        padding: 20px; /* Add padding inside the border */
-        border-radius: 8px; /* Rounded corners */
-        background-color: #f9f9f9; /* Light background color */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: shadow for a subtle 3D effect */
-        max-width: 600px; /* Maximum width of the form container */
-        margin: 20px auto; /* Center container horizontally */
-    }
-
-    .button-container {
-        text-align: right; /* Align button to the right */
-    }
-
-    .btn-primary {
-        padding: 10px 60px;
-        font-size: 16px;
-        background-color: #08075F;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-
-        .btn-primary:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    input.form-control {
-        width: 100%;
-    }
-</style>

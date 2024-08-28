@@ -29,5 +29,5 @@ public partial class PatientVital
 
     public TimeSpan? VitalTime { get; set; }
 
-    public virtual Patients Patient { get; set; } = null!;
+   // public virtual Patients Patient { get; set; } = null!;
 }

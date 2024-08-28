@@ -15,5 +15,5 @@ public partial class DischargedPatient
 
     public DateTime DischargeDate { get; set; }
 
-    public virtual Patients? Patient { get; set; }
+    //public virtual Patients? Patient { get; set; }
 }

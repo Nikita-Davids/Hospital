@@ -13,5 +13,5 @@ public partial class PatientCurrentMedication
 
     public string CurrentMedication { get; set; } = null!;
 
-    public virtual Patients Patient { get; set; } = null!;
+   //public virtual Patients Patient { get; set; } = null!;
 }

@@ -1,20 +1,20 @@
 ﻿@model Hospital.Models.PatientVital
 
 @{
-    ViewData["Title"] = "NurseAddPatientVital";
+    ViewData["Title"] = "NurseEditPatientVital";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>Nurse Add Patient Vital</h1>
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseViewPatientVital">View Patient Vital</a>
-</div>
+<h1>Edit Patient Vital</h1>
+<hr />
 <div class="form-container">
-    <form asp-action="NurseAddPatientVital">
+    <form asp-action="NurseEditPatientVital">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="PatientVitalId" />
         <div class="form-group">
             <label asp-for="PatientId" class="control-label"></label>
-            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+            <input asp-for="PatientId" class="form-control" />
+            <span asp-validation-for="PatientId" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Weight" class="control-label"></label>
@@ -58,12 +58,15 @@
         </div>
         <div class="form-group">
             <label asp-for="VitalTime" class="control-label"></label>
-            <input asp-for="VitalTime" class="form-control" type="time" />
+            <input asp-for="VitalTime" class="form-control" />
             <span asp-validation-for="VitalTime" class="text-danger"></span>
         </div>
         <div class="form-group button-container">
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <input type="submit" value="Save" class="btn btn-primary" />
         </div>
     </form>
 </div>
 
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatientVital">View Patient Vital</a>
+</div>

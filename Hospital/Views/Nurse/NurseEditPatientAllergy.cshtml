@@ -1,0 +1,34 @@
+﻿@model Hospital.Models.PatientAllergy
+
+@{
+    ViewData["Title"] = "NurseEditPatientAllergy";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+<h1>Edit Patient Allergy</h1>
+<hr />
+<div class="form-container">
+    <form asp-action="NurseEditPatientAllergy">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="AllergyId" />
+        <div class="form-group">
+            <label asp-for="PatientId" class="control-label"></label>
+            <input asp-for="PatientId" class="form-control" />
+            <span asp-validation-for="PatientId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Allergy" class="control-label"></label>
+            <input asp-for="Allergy" class="form-control" />
+            <span asp-validation-for="Allergy" class="text-danger"></span>
+        </div>
+        <div class="form-group button-container">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatientAllergy">View Patient Allergy</a>
+</div>
+
+

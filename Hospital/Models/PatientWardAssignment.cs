@@ -17,7 +17,7 @@ public partial class PatientWardAssignment
 
     public DateTime? DateDischarged { get; set; }
 
-    public virtual Bed Bed { get; set; } = null!;
+    //public virtual Bed Bed { get; set; } = null!;
 
-    public virtual Patients Patient { get; set; } = null!;
+    //public virtual Patients Patient { get; set; } = null!;
 }

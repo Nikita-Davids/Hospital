@@ -8,7 +8,7 @@
 <h1>Nurse View Discharges</h1>
 
 <p>
-    <a class="btn-link" asp-action="NurseDischargePatients">Create New</a>
+    <a class="btn-link" asp-action="NurseDischargePatients">Discharge Patient</a>
 </p>
 
 <table class="table">
@@ -16,7 +16,7 @@
         <tr>
             <th class="col-name">@Html.DisplayNameFor(model => model.DischargeTime)</th>
             <th class="col-name">@Html.DisplayNameFor(model => model.DischargeDate)</th>
-            <th class="col-name">@Html.DisplayNameFor(model => model.Patient)</th>
+            <th class="col-name">@Html.DisplayNameFor(model => model.PatientId)</th>
             <th class="col-action">Actions</th>
         </tr>
     </thead>
@@ -31,7 +31,7 @@
                     @Html.DisplayFor(modelItem => item.DischargeDate)
                 </td>
                 <td class="col-name">
-                    @Html.DisplayFor(modelItem => item.Patient.PatientIDNumber)
+                    @Html.DisplayFor(modelItem => item.PatientId)
                 </td>
                 <td class="col-action">
                     <a class="btn-link" asp-action="NurseEditDischargePatients" asp-route-id="@item.DischargedPatients">Edit</a>
@@ -40,55 +40,3 @@
         }
     </tbody>
 </table>
-
-<style>
-    h1 {
-        text-align: center;
-        color: #08075F;
-        font-weight: bold;
-        text-decoration: underline;
-    }
-
-    .btn-link {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 13px;
-    }
-
-        .btn-link:hover {
-            background-color: #FFDE59;
-        }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .table th {
-            background-color: #f2f2f2;
-        }
-
-        .table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-    /* Ensure all columns have the same width */
-    .col-name {
-        width: 20%;
-    }
-
-    .col-action {
-        width: 20%;
-        text-align: center;
-    }
-</style>

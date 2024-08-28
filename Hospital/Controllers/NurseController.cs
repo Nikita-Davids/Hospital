@@ -9,10 +9,7 @@ namespace Hospital.Controllers
     public class NurseController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
-        public IActionResult Index()
-        {
-            return View();
-        }
+
         public IActionResult NurseDischargePatients()
         {
             // Fetch the list of patients and create a concatenated display name
@@ -27,8 +24,6 @@ namespace Hospital.Controllers
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View();
         }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseDischargePatients(DischargedPatient model)
@@ -41,13 +36,16 @@ namespace Hospital.Controllers
             }
             return View(model);
         }
-
         public IActionResult NurseViewDischarges()
         {
             // Fetch all DischargedPatient entries
             var dischargedPatients = _context.DischargedPatients.ToList();
             return View(dischargedPatients);
         }
+       
+
+
+
         // GET: Nurse/AddPatient
         public IActionResult NurseAddPatients()
         {
@@ -124,6 +122,8 @@ namespace Hospital.Controllers
         }
 
 
+
+
         // GET: Nurse/AddPatientVital
         public IActionResult NurseAddPatientVital()
         {
@@ -132,76 +132,500 @@ namespace Hospital.Controllers
             return View();
         }
 
-        // POST: Nurse/AddPatientVital
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseAddPatientVital(PatientVital model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(model);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("NurseViewPatientVitals"); // Redirect to a list view or another appropriate action
+                try
+                {
+                    _context.Add(model);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("NurseViewPatientVitals");
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
+                }
             }
 
-            // Repopulate the dropdown list if the model state is not valid
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+
+        // GET: Nurse/ViewPatients
+        public async Task<IActionResult> NurseViewPatientVital()
+        {
+            var patientvitals = await _context.PatientVital.ToListAsync();
+            return View(patientvitals);
+        }
+       
+        public async Task<IActionResult> NurseEditPatientVital(int id)
+        {
+            // Fetch the patient vital record from the database
+            var patientVital = await _context.PatientVital.FindAsync(id);
+            if (patientVital == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag for dropdown list, if applicable
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", patientVital.PatientId);
+
+            return View(patientVital);
+        }
+        // POST: Nurse/EditPatientVital/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditPatientVital(int id, PatientVital model)
+        {
+            if (id != model.PatientVitalId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientVitalExists(model.PatientVitalId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("NurseViewPatientVital");
+            }
+
+            // Populate ViewBag for dropdown list, if applicable
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", model.PatientId);
+
+            return View(model);
+        }
+        private bool PatientVitalExists(int id)
+        {
+            return _context.PatientVital.Any(e => e.PatientVitalId == id);
+        }
+
+
+
+
+
+
+        // GET: Nurse/AddPatientAllergy
+        [HttpGet]
+        public IActionResult NurseAddPatientAllergy()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "PatientName");
+            return View(new PatientAllergy());
+        }
+
+        // POST: Nurse/AddPatientAllergy
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult NurseAddPatientAllergy(PatientAllergy model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if an allergy entry with the same patient and allergy already exists
+                var existingAllergy = _context.PatientAllergies
+                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                          pa.Allergy.Trim().ToLower() == model.Allergy.Trim().ToLower());
+
+                if (existingAllergy == null)
+                {
+                    // Create a new PatientAllergy entity
+                    var patientAllergy = new PatientAllergy
+                    {
+                        PatientId = model.PatientId,
+                        Allergy = model.Allergy
+                    };
+
+                    // Add the PatientAllergy entity to the context
+                    _context.PatientAllergies.Add(patientAllergy);
+                    _context.SaveChanges(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseViewPatientAllergy"); // Change this to your actual action method
+                }
+                else
+                {
+                    // If the allergy entry with the same patient and allergy already exists, return an error message
+                    ModelState.AddModelError("", "An allergy entry for this patient already exists.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
             return View(model);
         }
 
 
-        public IActionResult NurseDispensedAlert()
+        // GET: 
+        public async Task<IActionResult> NurseViewPatientAllergy()
         {
-            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
-            var dispensedMedications = _context.SurgeonPrescription
-                .Where(sp => sp.Dispense == "Dispense")
-                .ToList();
-
-            // Pass the list of dispensed medications to the view for display
-            return View(dispensedMedications);
+            var patientalllergy = await _context.PatientAllergies.ToListAsync();
+            return View(patientalllergy);
         }
-
-        public IActionResult NurseDispensedDetails(string patientId)
+        // GET: PatientAllergy/NurseEditPatientAllergy/5
+        public async Task<IActionResult> NurseEditPatientAllergy(int id)
         {
-            // Retrieve the prescription details for the specific patient
-            var prescriptionDetails = _context.SurgeonPrescription
-                .Where(sp => sp.PatientIdnumber == patientId && sp.Dispense == "Dispense")
-                .Select(sp => new
-                {
-                    sp.PrescriptionId,
-                    sp.PatientIdnumber,
-                    sp.PatientName,
-                    sp.PatientSurname,
-                    sp.MedicationName,
-                    sp.PrescriptionDosageForm,
-                    sp.Quantity
-                })
-                .FirstOrDefault();
+            // Retrieve the patient allergy record from the database using the provided ID
+            var patientAllergy = await _context.PatientAllergies
+                .FirstOrDefaultAsync(m => m.AllergyId == id);
 
-            if (prescriptionDetails == null)
+            // Check if the patient allergy exists. If not, return a 404 Not Found response.
+            if (patientAllergy == null)
             {
                 return NotFound();
             }
 
-            return View(prescriptionDetails);
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+
+            // Return the view with the patient allergy data to be edited
+            return View(patientAllergy);
         }
 
+        // POST: PatientAllergy/NurseEditPatientAllergy/5
         [HttpPost]
-        public IActionResult ReceiveMedication(int prescriptionId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditPatientAllergy(int id, [Bind("AllergyId,PatientId,Allergy")] PatientAllergy patientAllergy)
         {
-            // Find the prescription by the ID
-            var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
-
-            if (prescription != null)
+            // Check if the ID in the URL matches the ID of the patient allergy being edited
+            if (id != patientAllergy.AllergyId)
             {
-                // Update the Dispense field to "Received"
-                prescription.Dispense = "Received";
-                _context.SaveChanges();
+                return NotFound();
             }
 
-            // Redirect back to the NurseDispensedAlert page after updating
-            return RedirectToAction("NurseDispensedAlert");
+            // Check if the allergy for the same patient already exists (excluding the current entry)
+            if (_context.PatientAllergies.Any(pa => pa.PatientId == patientAllergy.PatientId && pa.Allergy == patientAllergy.Allergy && pa.AllergyId != id))
+            {
+                // Add a model error if the allergy already exists and return the view with the error
+                ModelState.AddModelError("Allergy", "This allergy already exists for the selected patient.");
+                // Populate ViewBag with a list of patients for the dropdown if validation fails
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+                return View(patientAllergy);
+            }
+
+            // If the model state is valid, update the patient allergy in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientAllergy);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientAllergyExists(patientAllergy.AllergyId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the index or view action if the update was successful
+                return RedirectToAction(nameof(NurseViewPatientAllergy));
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown if the model state is not valid
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAllergy.PatientId);
+            return View(patientAllergy);
         }
+
+        // Helper method to check if a patient allergy exists in the database
+        private bool PatientAllergyExists(int id)
+        {
+            return _context.PatientAllergies.Any(e => e.AllergyId == id);
+        }
+
+
+
+
+
+        // GET: Nurse/AddPatientCurrentMedication
+        [HttpGet]
+        public IActionResult NurseAddCurrentMedication()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            return View(new PatientCurrentMedication());
+        }
+
+        // POST: Nurse/AddPatientCurrentMedication
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddCurrentMedication(PatientCurrentMedication model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a current medication entry with the same patient and medication already exists
+                var existingMedication = await _context.PatientCurrentMedication
+                    .FirstOrDefaultAsync(pm => pm.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                               pm.CurrentMedication.Trim().ToLower() == model.CurrentMedication.Trim().ToLower());
+
+                if (existingMedication == null)
+                {
+                    // Create a new PatientCurrentMedication entity
+                    var patientMedication = new PatientCurrentMedication
+                    {
+                        PatientId = model.PatientId,
+                        CurrentMedication = model.CurrentMedication
+                    };
+
+                    // Add the PatientCurrentMedication entity to the context
+                    _context.PatientCurrentMedication.Add(patientMedication);
+                    await _context.SaveChangesAsync(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseViewPatientCurrentMedication");
+                }
+                else
+                {
+                    // If the medication entry with the same patient and medication already exists, return an error message
+                    ModelState.AddModelError("", "A medication entry for this patient already exists.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+
+        // GET: Nurse/ViewPatientCurrentMedication
+        public async Task<IActionResult> NurseViewPatientCurrentMedication()
+        {
+            var patientMedications = await _context.PatientCurrentMedication.ToListAsync();
+            return View(patientMedications);
+        }
+
+        // GET: Nurse/EditPatientCurrentMedication/5
+        public async Task<IActionResult> NurseEditCurrentMedication(int id)
+        {
+            // Retrieve the patient current medication record from the database using the provided ID
+            var patientMedication = await _context.PatientCurrentMedication
+                .FirstOrDefaultAsync(pm => pm.MedicationId == id);
+
+            // Check if the patient medication exists. If not, return a 404 Not Found response.
+            if (patientMedication == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientMedication.PatientId);
+
+            // Return the view with the patient medication data to be edited
+            return View(patientMedication);
+        }
+
+        // POST: Nurse/EditPatientCurrentMedication/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditCurrentMedication(int id, [Bind("MedicationId,PatientId,CurrentMedication")] PatientCurrentMedication patientMedication)
+        {
+            // Check if the ID in the URL matches the ID of the patient medication being edited
+            if (id != patientMedication.MedicationId)
+            {
+                return NotFound();
+            }
+
+            // Check if the medication for the same patient already exists (excluding the current entry)
+            if (await _context.PatientCurrentMedication
+                .AnyAsync(pm => pm.PatientId == patientMedication.PatientId &&
+                                pm.CurrentMedication == patientMedication.CurrentMedication &&
+                                pm.MedicationId != id))
+            {
+                // Add a model error if the medication already exists and return the view with the error
+                ModelState.AddModelError("CurrentMedication", "This medication already exists for the selected patient.");
+                // Populate ViewBag with a list of patients for the dropdown if validation fails
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientMedication.PatientId);
+                return View(patientMedication);
+            }
+
+            // If the model state is valid, update the patient medication in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientMedication);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientCurrentMedicationExists(patientMedication.MedicationId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the index or view action if the update was successful
+                return RedirectToAction(nameof(NurseViewPatientCurrentMedication));
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown if the model state is not valid
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientMedication.PatientId);
+            return View(patientMedication);
+        }
+
+        // Helper method to check if a patient current medication exists in the database
+        private bool PatientCurrentMedicationExists(int id)
+        {
+            return _context.PatientCurrentMedication.Any(e => e.MedicationId == id);
+        }
+
+
+
+
+
+        // GET: Nurse/AddPatientMedicalCondition
+        [HttpGet]
+        public IActionResult NurseAddMedicalCondition()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            return View(new PatientMedicalCondition());
+        }
+        // POST: Nurse/AddPatientMedicalCondition
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddMedicalCondition(PatientMedicalCondition model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a medical condition entry with the same patient and condition already exists
+                var existingCondition = await _context.PatientMedicalCondition
+                    .FirstOrDefaultAsync(pc => pc.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                               pc.MedicalCondition.Trim().ToLower() == model.MedicalCondition.Trim().ToLower());
+
+                if (existingCondition == null)
+                {
+                    // Create a new PatientMedicalCondition entity
+                    var patientCondition = new PatientMedicalCondition
+                    {
+                        PatientId = model.PatientId,
+                        MedicalCondition = model.MedicalCondition
+                    };
+
+                    // Add the PatientMedicalCondition entity to the context
+                    _context.PatientMedicalCondition.Add(patientCondition);
+                    await _context.SaveChangesAsync(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseViewPatientMedicalCondition");
+                }
+                else
+                {
+                    // If the condition entry with the same patient and condition already exists, return an error message
+                    ModelState.AddModelError("", "A medical condition entry for this patient already exists.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+        // GET: 
+        public async Task<IActionResult> NurseViewPatientMedicalCondition()
+        {
+            var patientcurrentmedicalcondition = await _context.PatientMedicalCondition.ToListAsync();
+            return View(patientcurrentmedicalcondition);
+        }
+        // GET: Nurse/EditPatientMedicalCondition/5
+        public async Task<IActionResult> NurseEditMedicalCondition(int id)
+        {
+            // Retrieve the patient medical condition record from the database using the provided ID
+            var patientCondition = await _context.PatientMedicalCondition
+                .FirstOrDefaultAsync(pc => pc.ConditionId == id);
+
+            // Check if the patient condition exists. If not, return a 404 Not Found response.
+            if (patientCondition == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+
+            // Return the view with the patient condition data to be edited
+            return View(patientCondition);
+        }
+        // POST: Nurse/EditPatientMedicalCondition/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditMedicalCondition(int id, [Bind("ConditionId,PatientId,MedicalCondition")] PatientMedicalCondition patientCondition)
+        {
+            // Check if the ID in the URL matches the ID of the patient condition being edited
+            if (id != patientCondition.ConditionId)
+            {
+                return NotFound();
+            }
+
+            // Check if the condition for the same patient already exists (excluding the current entry)
+            if (await _context.PatientMedicalCondition
+                .AnyAsync(pc => pc.PatientId == patientCondition.PatientId &&
+                                pc.MedicalCondition == patientCondition.MedicalCondition &&
+                                pc.ConditionId != id))
+            {
+                // Add a model error if the condition already exists and return the view with the error
+                ModelState.AddModelError("MedicalCondition", "This condition already exists for the selected patient.");
+                // Populate ViewBag with a list of patients for the dropdown if validation fails
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+                return View(patientCondition);
+            }
+
+            // If the model state is valid, update the patient condition in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientCondition);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientMedicalConditionExists(patientCondition.ConditionId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the index or view action if the update was successful
+                return RedirectToAction(nameof(NurseViewPatientMedicalCondition));
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown if the model state is not valid
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+            return View(patientCondition);
+        }
+        // Helper method to check if a patient medical condition exists in the database
+        private bool PatientMedicalConditionExists(int id)
+        {
+            return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
+        }
+
     }
 }
-
