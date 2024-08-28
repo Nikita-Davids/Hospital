@@ -5,56 +5,7 @@
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<style>
-    h1 {
-        text-align: center;
-        color: #08075F;
-        font-weight: bold;
-        text-decoration: underline;
-    }
-
-    .btn-link {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 13px;
-    }
-
-        .btn-link:hover {
-            background-color: #FFDE59;
-        }
-
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .table th {
-            background-color: #f2f2f2;
-        }
-
-        .table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-   
-</style>
-
 <h1>Nurse View Patient Vital</h1>
-
-<p>
-    <a class="btn-link" asp-action="NurseAddPatientVital">Add Patient Vital</a>
-</p>
 
 <table class="table">
     <thead>
@@ -86,9 +37,6 @@
             <th class="col-vital-time">
                 @Html.DisplayNameFor(model => model.VitalTime)
             </th>
-           @*  <th class="col-patient">
-                @Html.DisplayNameFor(model => model.Patient)
-            </th> *@
             <th class="col-action">
                 Action
             </th>
@@ -125,9 +73,6 @@
                 <td class="col-vital-time">
                     @Html.DisplayFor(modelItem => item.VitalTime)
                 </td>
-               @*  <td class="col-patient">
-                    @Html.DisplayFor(modelItem => item.Patient.PatientIDNumber)
-                </td> *@
                 <td class="col-action">
                     <a class="btn-link" asp-action="NurseEditPatientVital" asp-route-id="@item.PatientVitalId">Edit</a>
                 </td>
@@ -135,3 +80,6 @@
         }
     </tbody>
 </table>
+<p>
+    <a class="btn-link" asp-action="NurseAddPatientVital">Add Patient Vital</a>
+</p>

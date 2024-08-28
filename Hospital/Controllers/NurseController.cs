@@ -410,7 +410,7 @@ namespace Hospital.Controllers
         }
 
         // GET: Nurse/ViewPatientCurrentMedication
-        public async Task<IActionResult> NurseViewCurrentMedication()
+        public async Task<IActionResult> NurseViewPatientCurrentMedication()
         {
             var patientMedications = await _context.PatientCurrentMedication.ToListAsync();
             return View(patientMedications);
@@ -480,7 +480,7 @@ namespace Hospital.Controllers
                     }
                 }
                 // Redirect to the index or view action if the update was successful
-                return RedirectToAction(nameof(NurseViewCurrentMedication));
+                return RedirectToAction(nameof(NurseViewPatientCurrentMedication));
             }
 
             // Populate ViewBag with a list of patients for the dropdown if the model state is not valid

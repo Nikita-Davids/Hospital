@@ -7,11 +7,8 @@
 }
 
 <h1>NurseEditCurrentMedication</h1>
-
-<h4>PatientCurrentMedication</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="form-container">
         <form asp-action="NurseEditCurrentMedication">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="MedicationId" />
@@ -29,9 +26,8 @@
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
-    </div>
 </div>
 
-<div>
-    <a asp-action="NurseViewCurrentMedication">View Current Medication</a>
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewCurrentMedication">View Current Medication</a>
 </div>
