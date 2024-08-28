@@ -230,7 +230,7 @@ namespace Hospital.Controllers
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
-            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "PatientName");
+            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "IngredientName");
             return View(new PatientAllergy());
         }
 
@@ -271,6 +271,7 @@ namespace Hospital.Controllers
 
             // Repopulate dropdown list in case of validation failure
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "IngredientName", model.PatientId);
             return View(model);
         }
 
@@ -626,6 +627,129 @@ namespace Hospital.Controllers
         {
             return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
         }
+
+
+
+
+        // GET: Nurse/AddPatientsAdministration
+        [HttpGet]
+        public IActionResult NurseAddPatientsAdministration()
+        {
+            // Ensure these collections are not null
+            var patients = _context.Patients.ToList();
+            var wards = _context.Ward.ToList();
+            var beds = _context.Bed.ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientId", "PatientName");
+            ViewBag.WardId = new SelectList(wards, "WardId", "WardName");
+            ViewBag.BedId = new SelectList(beds, "BedId", "BedNumber");
+
+            return View(new PatientsAdministration());
+        }
+
+        // POST: Nurse/AddPatientsAdministration
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddPatientsAdministration(PatientsAdministration model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingEntry = await _context.PatientsAdministration
+                    .FirstOrDefaultAsync(pa => pa.PatientId == model.PatientId &&
+                                                pa.PatientWard == model.PatientWard &&
+                                                pa.PatientBed == model.PatientBed);
+
+                if (existingEntry == null)
+                {
+                    _context.PatientsAdministration.Add(model);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("NurseViewPatientsAdministration");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "This patient administration entry already exists.");
+                }
+            }
+
+            // Repopulate dropdown lists in case of validation failure
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", model.PatientId);
+            ViewBag.WardId = new SelectList(await _context.Ward.ToListAsync(), "WardId", "WardName", model.PatientWard);
+            ViewBag.BedId = new SelectList(await _context.Bed.ToListAsync(), "BedId", "BedNumber", model.PatientBed);
+
+            return View(model);
+        }
+
+
+        // GET: NurseViewPatientsAdministration
+        public async Task<IActionResult> NurseViewPatientsAdministration()
+        {
+            var patientsAdministrations = await _context.PatientsAdministration.ToListAsync();
+            return View(patientsAdministrations);
+        }
+
+        // GET: Nurse/EditPatientsAdministration/5
+        public async Task<IActionResult> NurseEditPatientsAdministration(int id)
+        {
+            var patientAdministration = await _context.PatientsAdministration
+                .FirstOrDefaultAsync(pa => pa.PatientsAdministration1 == id);
+
+            if (patientAdministration == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", patientAdministration.PatientId);
+            ViewBag.WardId = new SelectList(await _context.Ward.ToListAsync(), "WardId", "WardName", patientAdministration.PatientWard);
+            ViewBag.BedNumber = new SelectList(await _context.Bed.ToListAsync(), "BedId", "BedNumber", patientAdministration.PatientBed);
+
+            return View(patientAdministration);
+        }
+
+        // POST: Nurse/EditPatientsAdministration/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditPatientsAdministration(int id, [Bind("Id,PatientId,PatientWard,PatientBed")] PatientsAdministration model)
+        {
+            if (id != model.PatientsAdministration1)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientsAdministrationExists(model.PatientsAdministration1))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(NurseViewPatientsAdministration));
+            }
+
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientId", "PatientName", model.PatientId);
+            ViewBag.WardId = new SelectList(await _context.Ward.ToListAsync(), "WardId", "WardName", model.PatientWard);
+            ViewBag.BedNumber = new SelectList(await _context.Bed.ToListAsync(), "BedId", "BedNumber", model.PatientBed);
+
+            return View(model);
+        }
+
+        private bool PatientsAdministrationExists(int id)
+        {
+            return _context.PatientsAdministration.Any(e => e.PatientsAdministration1 == id);
+        }
+
+
+
 
     }
 }
