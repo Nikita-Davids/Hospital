@@ -1,35 +1,44 @@
 ﻿@model Hospital.Models.Restock
-
+ 
 @{
-    ViewData["Title"] = "Restock";
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
-
-<h1>Restock</h1>
-
+ 
+<h1>RestockTest</h1>
+ 
 <h4>Restock</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Restock" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+<div class="col-md-4">
+<form asp-action="Restock">
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ 
             <div class="form-group">
-                <label asp-for="MedicationName" class="control-label"></label>
-                <select asp-for="MedicationId" class="form-control" asp-items="ViewBag.Medications" onchange="loadDosageForms()"></select>
-                <span asp-validation-for="MedicationId" class="text-danger"></span>
-            </div>
-
+<label asp-for="MedicationName" class="control-label"></label>
+<select asp-for="MedicationName" class="form-control" id="medicationDropdown">
+<option value="">Select Medication</option>
+                    @foreach (var medication in ViewBag.Medications as List<string>)
+                    {
+<option value="@medication">@medication</option>
+                    }
+</select>
+<span asp-validation-for="MedicationName" class="text-danger"></span>
+</div>
+ 
             <div class="form-group">
-                <label asp-for="DosageForm" class="control-label"></label>
-                <select asp-for="DosageForm" class="form-control" asp-items="ViewBag.DosageForms"></select>
-                <span asp-validation-for="DosageForm" class="text-danger"></span>
-            </div>
-
+<label asp-for="DosageForm" class="control-label"></label>
+<select asp-for="DosageForm" class="form-control" id="dosageFormDropdown">
+<option value="">Select Dosage Form</option>
+</select>
+<span asp-validation-for="DosageForm" class="text-danger"></span>
+</div>
+ 
             <div class="form-group">
-                <label asp-for="QuantityReceived" class="control-label"></label>
-                <input asp-for="QuantityReceived" class="form-control" />
-                <span asp-validation-for="QuantityReceived" class="text-danger"></span>
-            </div>
+<label asp-for="QuantityReceived" class="control-label"></label>
+<input asp-for="QuantityReceived" class="form-control" />
+<span asp-validation-for="QuantityReceived" class="text-danger"></span>
+</div>
+
 
             <div class="form-group">
                 <label asp-for="RestockDate" class="control-label"></label>
@@ -38,28 +47,61 @@
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input asp-for="MedicationId" type="hidden" id="medicationIdTextbox" />
             </div>
-        </form>
-    </div>
-</div>
+            
 
+            <div class="form-group">
+<input type="submit" value="Create" class="btn btn-primary" />
+</div>
+</form>
+</div>
+</div>
+ 
 <div>
-    <a asp-action="Index">Back to List</a>
+<a asp-action="Index">Back to List</a>
 </div>
-
+ 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        function loadDosageForms() {
-            var medicationId = $('select[name="MedicationId"]').val();
-            $.getJSON('@Url.Action("GetDosageForms")', { medicationId: medicationId }, function (data) {
-                var $dosageFormSelect = $('select[name="DosageForm"]');
-                $dosageFormSelect.empty();
-                $.each(data, function (index, item) {
-                    $dosageFormSelect.append($('<option>').text(item).attr('value', item));
+<script type="text/javascript">
+        // JavaScript to update DosageForm dropdown based on selected MedicationName
+        document.getElementById('medicationDropdown').addEventListener('change', function () {
+            var selectedMedication = this.value;
+            var dosageForms = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DosageForms));
+            var dosageFormDropdown = document.getElementById('dosageFormDropdown');
+            dosageFormDropdown.innerHTML = '<option value="">Select Dosage Form</option>'; // Reset DosageForm dropdown
+ 
+            if (selectedMedication && dosageForms[selectedMedication]) {
+                dosageForms[selectedMedication].forEach(function (dosageForm) {
+                    var option = document.createElement('option');
+                    option.value = dosageForm;
+                    option.text = dosageForm;
+                    dosageFormDropdown.appendChild(option);
                 });
-            });
-        }
-    </script>
+            }
+        });
+ 
+        // JavaScript to update MedicationId textbox based on selected MedicationName and DosageForm
+        document.getElementById('dosageFormDropdown').addEventListener('change', function () {
+            var selectedMedication = document.getElementById('medicationDropdown').value;
+            var selectedDosageForm = this.value;
+ 
+            if (selectedMedication && selectedDosageForm) {
+                $.ajax({
+                    url: '@Url.Action("GetMedicationId", "Pharmacist")', // Update with correct controller name
+                    type: 'GET',
+                    data: { medicationName: selectedMedication, dosageForm: selectedDosageForm },
+                    success: function (data) {
+                        document.getElementById('medicationIdTextbox').value = data;
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error occurred:', status, error);
+                    }
+                });
+            }
+        });
+</script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

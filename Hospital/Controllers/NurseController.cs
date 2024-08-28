@@ -42,7 +42,7 @@ namespace Hospital.Controllers
             var dischargedPatients = _context.DischargedPatients.ToList();
             return View(dischargedPatients);
         }
-       
+
 
 
 
@@ -157,27 +157,6 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-        // GET: Nurse/ViewPatients
-        public async Task<IActionResult> NurseViewPatientVital()
-        {
-            var patientvitals = await _context.PatientVital.ToListAsync();
-            return View(patientvitals);
-        }
-       
-        public async Task<IActionResult> NurseEditPatientVital(int id)
-        {
-            // Fetch the patient vital record from the database
-            var patientVital = await _context.PatientVital.FindAsync(id);
-            if (patientVital == null)
-            {
-                return NotFound();
-            }
-
-            // Populate ViewBag for dropdown list, if applicable
-            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", patientVital.PatientId);
-
-            return View(patientVital);
-        }
         // POST: Nurse/EditPatientVital/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -626,6 +605,70 @@ namespace Hospital.Controllers
         {
             return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
         }
-
     }
 }
+        //public IActionResult NurseDispensedAlert()
+        //{
+        //    // Initialize the database context to access the SurgeonPrescription table
+        //    using (var context = new NORTHSIDEHOSPITALContext())
+        //    {
+        //        // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+        //        var dispensedMedications = context.SurgeonPrescriptions
+        //            .Where(sp => sp.Dispense == "Dispense")
+        //            .ToList();
+
+        //        // Pass the list of dispensed medications to the view for display
+        //        return View(dispensedMedications);
+        //    }
+        //}
+
+        //public IActionResult NurseDispensedDetails(string patientId)
+        //{
+        //    using (var context = new NORTHSIDEHOSPITALContext())
+        //    {
+        //        // Retrieve the prescription details for the specific patient
+        //        var prescriptionDetails = context.SurgeonPrescriptions
+        //            .Where(sp => sp.PatientIdnumber == patientId && sp.Dispense == "Dispense")
+        //            .Select(sp => new
+        //            {
+        //                sp.PrescriptionId,
+        //                sp.PatientIdnumber,
+        //                sp.PatientName,
+        //                sp.PatientSurname,
+        //                sp.MedicationName,
+        //                sp.PrescriptionDosageForm,
+        //                sp.Quantity
+        //            })
+        //            .FirstOrDefault();
+
+        //        if (prescriptionDetails == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        return View(prescriptionDetails);
+        //    }
+        //}
+
+//        [HttpPost]
+//        public IActionResult ReceiveMedication(int prescriptionId)
+//        {
+//            using (var context = new NORTHSIDEHOSPITALContext())
+//            {
+//                // Find the prescription by the ID
+//                var prescription = context.SurgeonPrescriptions.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
+
+//                if (prescription != null)
+//                {
+//                    // Update the Dispense field to "Received"
+//                    prescription.Dispense = "Received";
+//                    context.SaveChanges();
+//                }
+
+//                // Redirect back to the NurseDispensedAlert page after updating
+//                return RedirectToAction("NurseDispensedAlert");
+//            }
+//        }
+//    }
+//}
+

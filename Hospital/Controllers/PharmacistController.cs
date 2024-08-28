@@ -478,7 +478,7 @@ namespace Hospital.Controllers
                 var emailMessage = new MimeMessage
                 {
                     From = { new MailboxAddress("Stock Management", "noreply@hospital.com") },
-                    To = { new MailboxAddress("Admin", "robertobooysen11@gmail.com") }, // Recipients email
+                    To = { new MailboxAddress("Admin", "kitadavids@gmail.com") }, // Recipients email
                     Subject = "Stock Order Update",
                     Body = new BodyBuilder
                     {
@@ -864,79 +864,7 @@ namespace Hospital.Controllers
             return View(rejectedPrescriptions.ToList());
         }
 
-        // GET: Restock page with dropdowns for medication names and dosage forms
-        public IActionResult Restock()
-        {
-            // Get medication names for the dropdown
-            var medications = _context.Medication
-                .Where(m => m.IsDeleted != "Deleted")
-                .OrderBy(m => m.MedicationName)
-                .Select(m => new { m.MedicationId, m.MedicationName })
-                .ToList();
 
-            // Populate ViewBag with medication names
-            ViewBag.Medications = new SelectList(medications, "MedicationId", "MedicationName");
-
-            // Initialize ViewBag for dosage forms
-            ViewBag.DosageForms = new SelectList(Enumerable.Empty<SelectListItem>());
-
-            return View();
-        }
-
-        // POST: Handle form submission and update dosage forms based on selected medication
-        [HttpPost]
-        public IActionResult Restock(Restock restock)
-        {
-            try
-            {
-                // Check if the model state is valid
-                if (!ModelState.IsValid)
-                {
-                    // Re-populate the dropdowns if validation fails
-                    PopulateDropDowns();
-                    return View(restock);
-                }
-
-                // Save the restock data to the database
-                _context.Restock.Add(restock);
-                _context.SaveChanges();
-
-                return RedirectToAction("ViewRestock");
-            }
-            catch
-            {
-                ViewBag.Error = "An error occurred while processing your request.";
-                PopulateDropDowns();
-                return View(restock);
-            }
-        }
-
-        // GET: Get dosage forms for a specified medication
-
-        //[HttpGet]
-        //public JsonResult GetDosageForms(int medicationId)
-        //{
-        //    var dosageForms = _context.DosageForm
-        //        .Where(d => d.MedicationId == medicationId) // Adjust the filtering based on your schema
-        //        .Select(d => new { d.Id, d.FormName }) // Return necessary fields
-        //        .ToList();
-
-        //    return Json(dosageForms);
-        //}
-
-
-        // Method to populate dropdowns for medication names and dosage forms
-        private void PopulateDropDowns()
-        {
-            var medications = _context.Medication
-                .Where(m => m.IsDeleted != "Deleted")
-                .OrderBy(m => m.MedicationName)
-                .Select(m => new { m.MedicationId, m.MedicationName })
-                .ToList();
-            ViewBag.Medications = new SelectList(medications, "MedicationId", "MedicationName");
-
-            ViewBag.DosageForms = new SelectList(Enumerable.Empty<SelectListItem>());
-        }
 
         [HttpGet]
         public JsonResult GetMedicationId(string medicationName, string dosageForm)
@@ -949,7 +877,7 @@ namespace Hospital.Controllers
             return Json(medicationId);
         }
 
-        public IActionResult RestockTest()
+        public IActionResult Restock()
         {
             // Retrieve medications and dosage forms from the database
             var medications = _context.Medication
@@ -972,11 +900,11 @@ namespace Hospital.Controllers
         }
 
         [HttpPost]
-        public IActionResult RestockTest(Restock restock)
+        public IActionResult Restock(Restock restock)
         {
             try
             {
-                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 ||restock.RestockDate==null|| restock.MedicationId == 0)
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.RestockDate == null || restock.MedicationId == 0)
                 {
                     ViewBag.Error = "Please enter all fields";
                     return View();
@@ -1022,9 +950,120 @@ namespace Hospital.Controllers
             }
         }
 
-    }
 
+        // GET: Restock
+        public IActionResult ViewRestock(string searchQuery)
+        {
+            // Initialize the queryable collection of restocks
+            var query = _context.Restock.AsQueryable();
+
+            // Attempt to parse the searchQuery as a date
+            DateTime searchDate;
+            if (DateTime.TryParse(searchQuery, out searchDate))
+            {
+                // Extract the start of the day from the searchDate
+                var startDate = searchDate.Date; // Represents 00:00 of the specified date
+
+                // Calculate the end of the day (start of the next day)
+                var endDate = startDate.AddDays(1); // Represents 00:00 of the following day
+
+                // Filter the restocks by RestockDate, ensuring only entries for the specified date are included
+                query = query.Where(r => r.RestockDate >= startDate && r.RestockDate < endDate);
+            }
+            else if (!string.IsNullOrEmpty(searchQuery))
+            {
+                // Filter the restocks by MedicationName if searchQuery is not empty
+                query = query.Where(r => r.MedicationName.Contains(searchQuery));
+            }
+
+            // Execute the query and retrieve the filtered list of restocks
+            var restocks = query.ToList();
+
+            // Pass the searchQuery to the view using ViewData for display or future use
+            ViewData["SearchQuery"] = searchQuery;
+
+            // Return the view, passing the filtered list of restocks
+            return View(restocks);
+        }
+        [HttpGet]
+        public IActionResult EditRestock(int id)
+        {
+            // Find the existing Restock by ID using _context
+            var restock = _context.Restock.Find(id);
+
+            if (restock == null)
+            {
+                return NotFound();
+            }
+
+            // Retrieve medications and dosage forms
+            var medications = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .OrderBy(m => m.MedicationName)
+                .Select(m => new
+                {
+                    m.MedicationName,
+                    m.DosageForm
+                })
+                .ToList();
+
+            // Prepare data for ViewBag
+            ViewBag.Medications = medications.Select(m => m.MedicationName).Distinct().ToList();
+            ViewBag.DosageForms = medications
+                .GroupBy(m => m.MedicationName)
+                .ToDictionary(g => g.Key, g => g.Select(m => m.DosageForm).Distinct().ToList());
+
+            return View(restock);
+        }
+
+        [HttpPost]
+        public IActionResult EditRestock(Restock restock)
+        {
+            try
+            {
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.MedicationId == 0)
+                {
+                    ViewBag.Error = "Please enter all fields";
+                    return View(restock);
+                }
+                else
+                {
+                    // Find the existing Restock by ID using _context
+                    var existingRestock = _context.Restock.Find(restock.RestockId);
+
+                    if (existingRestock == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Update the existing restock entry
+                    existingRestock.MedicationName = restock.MedicationName;
+                    existingRestock.DosageForm = restock.DosageForm;
+                    existingRestock.QuantityReceived = restock.QuantityReceived;
+                    existingRestock.MedicationId = restock.MedicationId;
+
+                    // Save changes to the database using _context
+                    _context.SaveChanges();
+
+                    return RedirectToAction("ViewRestock");
+                }
+            }
+            catch
+            {
+                ViewBag.Error = "Error updating the restock entry";
+                return View(restock);
+            }
+        }
+
+
+    }
 }
+
+    
+
+
+
+
 
 
 
