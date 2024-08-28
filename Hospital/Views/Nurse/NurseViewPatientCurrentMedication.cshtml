@@ -1,0 +1,94 @@
+﻿@model IEnumerable<Hospital.Models.PatientCurrentMedication>
+
+@{
+    ViewData["Title"] = "NurseViewPatientCurrentMedication";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+
+}
+
+<h1>NurseViewPatientCurrentMedication</h1>
+
+<p>
+    <a class="btn-link" asp-action="NurseAddPatientCurrentMedication">Add Patient Current Medication</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentMedication)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Patient)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentMedication)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Patient.PatientIDNumber)
+            </td>
+            <td>
+               <a asp-action="NurseEditPatientCurrentMedication" asp-route-id="@item.MedicationId">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 20%; /* Adjust as needed */
+    }
+
+    .col-action {
+        width: 10%; /* Adjust as needed */
+        text-align: center;
+    }
+</style>
