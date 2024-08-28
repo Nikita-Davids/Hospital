@@ -1,0 +1,48 @@
+﻿@model dynamic
+
+@{
+    ViewData["Title"] = "Nurse Dispensed Details";
+}
+
+<h1><u><b>Nurse Dispensed Details</b></u></h1>
+<br>
+
+<div class="prescription-item">
+    <div class="prescription-details">
+        <p><b>Patient ID:</b> @Model.PatientIdnumber</p>
+        <p><b>Patient Name:</b> @Model.PatientName @Model.PatientSurname</p>
+        <p><b>Medication:</b> @Model.MedicationName</p>
+        <p><b>Dosage Form:</b> @Model.PrescriptionDosageForm</p>
+        <p><b>Quantity:</b> @Model.Quantity</p>
+    </div>
+
+    <form asp-action="ReceiveMedication" method="post">
+        <input type="hidden" name="prescriptionId" value="@Model.PrescriptionId" />
+        <button type="submit" class="receive-button">Receive</button>
+    </form>
+</div>
+
+<a href="@Url.Action("NurseDispensedAlert", "Nurse")" class="view-button">Back to Alerts</a>
+
+<style>
+    .prescription-item {
+        border: 2px solid #ccc;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+
+    .view-button, .receive-button {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .view-button:hover, .receive-button:hover {
+            background-color: #FFDE59;
+        }
+</style>
