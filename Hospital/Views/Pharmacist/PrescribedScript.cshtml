@@ -138,6 +138,23 @@
             .button-container .btn-success:hover {
                 background-color: #35B558;
             }
+    /* Styling for the modal content */
+    .modal-content {
+        width: 50%; /* Adjust the width to make it smaller */
+        margin: auto; /* Center the modal */
+        padding: 20px;
+        border: 2px solid #08075F; /* Add a blue border */
+        border-radius: 10px; /* Rounded corners */
+        background-color: #f7f7f7; /* Background color */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+    }
+
+        .modal-content h2 {
+            text-align: center;
+            color: #08075F;
+            margin-bottom: 20px;
+        }
+
 </style>
 
 <div class="container-box">
@@ -148,8 +165,7 @@
         <p><strong>Patient Name:</strong> @Model.PatientName @Model.PatientSurname</p>
         <p><strong>Surgeon Name:</strong> @Model.SurgeonName @Model.SurgeonSurname</p>
         <p><strong>Prescription Date:</strong> @Model.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
-        <p><strong>ID:</strong> @Model.PrescriptionId</p>
-        <p><strong>S ID:</strong> @Model.SurgeonId</p>
+       
     </div>
 
     <h6>Medication to dispense:</h6>
@@ -212,6 +228,8 @@
             </div>
         </form>
     </div>
+</div>
+
 </div>
 
 

@@ -4,6 +4,7 @@ namespace Hospital.ModelViews
 {
     public class PrescriptionDisplayViewModel
     {
+        public int PrescriptionId { get; set; }
         public string PatientIDNumber { get; set; }
         public string PatientName { get; set; }
         public string PatientSurname { get; set; }
