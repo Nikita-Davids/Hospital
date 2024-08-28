@@ -494,11 +494,138 @@ namespace Hospital.Controllers
             return _context.PatientCurrentMedication.Any(e => e.MedicationId == id);
         }
 
+
+
+
+
+        // GET: Nurse/AddPatientMedicalCondition
+        [HttpGet]
+        public IActionResult NurseAddMedicalCondition()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            return View(new PatientMedicalCondition());
+        }
+        // POST: Nurse/AddPatientMedicalCondition
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddMedicalCondition(PatientMedicalCondition model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if a medical condition entry with the same patient and condition already exists
+                var existingCondition = await _context.PatientMedicalCondition
+                    .FirstOrDefaultAsync(pc => pc.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                               pc.MedicalCondition.Trim().ToLower() == model.MedicalCondition.Trim().ToLower());
+
+                if (existingCondition == null)
+                {
+                    // Create a new PatientMedicalCondition entity
+                    var patientCondition = new PatientMedicalCondition
+                    {
+                        PatientId = model.PatientId,
+                        MedicalCondition = model.MedicalCondition
+                    };
+
+                    // Add the PatientMedicalCondition entity to the context
+                    _context.PatientMedicalCondition.Add(patientCondition);
+                    await _context.SaveChangesAsync(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseViewPatientMedicalCondition");
+                }
+                else
+                {
+                    // If the condition entry with the same patient and condition already exists, return an error message
+                    ModelState.AddModelError("", "A medical condition entry for this patient already exists.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
         // GET: 
         public async Task<IActionResult> NurseViewPatientMedicalCondition()
         {
             var patientcurrentmedicalcondition = await _context.PatientMedicalCondition.ToListAsync();
             return View(patientcurrentmedicalcondition);
         }
+        // GET: Nurse/EditPatientMedicalCondition/5
+        public async Task<IActionResult> NurseEditMedicalCondition(int id)
+        {
+            // Retrieve the patient medical condition record from the database using the provided ID
+            var patientCondition = await _context.PatientMedicalCondition
+                .FirstOrDefaultAsync(pc => pc.ConditionId == id);
+
+            // Check if the patient condition exists. If not, return a 404 Not Found response.
+            if (patientCondition == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+
+            // Return the view with the patient condition data to be edited
+            return View(patientCondition);
+        }
+        // POST: Nurse/EditPatientMedicalCondition/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditMedicalCondition(int id, [Bind("ConditionId,PatientId,MedicalCondition")] PatientMedicalCondition patientCondition)
+        {
+            // Check if the ID in the URL matches the ID of the patient condition being edited
+            if (id != patientCondition.ConditionId)
+            {
+                return NotFound();
+            }
+
+            // Check if the condition for the same patient already exists (excluding the current entry)
+            if (await _context.PatientMedicalCondition
+                .AnyAsync(pc => pc.PatientId == patientCondition.PatientId &&
+                                pc.MedicalCondition == patientCondition.MedicalCondition &&
+                                pc.ConditionId != id))
+            {
+                // Add a model error if the condition already exists and return the view with the error
+                ModelState.AddModelError("MedicalCondition", "This condition already exists for the selected patient.");
+                // Populate ViewBag with a list of patients for the dropdown if validation fails
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+                return View(patientCondition);
+            }
+
+            // If the model state is valid, update the patient condition in the database
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientCondition);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientMedicalConditionExists(patientCondition.ConditionId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // Redirect to the index or view action if the update was successful
+                return RedirectToAction(nameof(NurseViewPatientMedicalCondition));
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown if the model state is not valid
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientCondition.PatientId);
+            return View(patientCondition);
+        }
+        // Helper method to check if a patient medical condition exists in the database
+        private bool PatientMedicalConditionExists(int id)
+        {
+            return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
+        }
+
     }
 }

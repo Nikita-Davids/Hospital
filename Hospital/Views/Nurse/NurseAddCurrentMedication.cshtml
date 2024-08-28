@@ -8,10 +8,8 @@
 
 <h1>NurseAddCurrentMedication</h1>
 
-<h4>PatientCurrentMedication</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+    <div class="form-container">
         <form asp-action="NurseAddCurrentMedication">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -28,9 +26,6 @@
             </div>
         </form>
     </div>
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewCurrentMedication">View Current Medication</a>
 </div>
-
-<div>
-    <a asp-action="NurseViewCurrentMedication">View Current Medication</a>
-</div>
-
