@@ -11,9 +11,9 @@ public partial class PatientsAdministration
 
     public string PatientId { get; set; } = null!;
 
-    public int PatientWard { get; set; }
+    public int PatientWard { get; set; } // change to string
 
-    public string PatientBed { get; set; } = null!;
+    public string PatientBed { get; set; } = null!; //change to int
 
-   // public virtual Patients Patient { get; set; } = null!;
+    //public virtual Patients Patient { get; set; } = null!;
 }

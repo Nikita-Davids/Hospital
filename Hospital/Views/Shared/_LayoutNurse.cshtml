@@ -19,10 +19,11 @@
         <div class="text-center">
             <!-- Navigation bar with links to other pages -->
             <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
-                <a asp-controller="Nurse" asp-action="NurseAddPatients">Patients</a>
+                <a asp-controller="Nurse" asp-action="NurseAddPatients">Add Patients</a>
+                <a asp-controller="Nurse" asp-action="NurseAddPatientsAdministration">Admit Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseDischargePatients">DischargePatients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
-                <a asp-controller="Admin" asp-action="AdminLogin">Logout</a>
+                <a asp-controller="Admin" asp-action="AdminLogin">Logout</a>                
             </nav>
         </div>
 
