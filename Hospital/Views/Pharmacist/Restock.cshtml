@@ -1,76 +1,139 @@
 ﻿@model Hospital.Models.Restock
- 
+
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 }
- 
-<h1>RestockTest</h1>
- 
-<h4>Restock</h4>
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .button {
+        padding: 9px 50px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin: 40px auto;
+        width: 60%;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .align-right {
+        text-align: right;
+    }
+</style>
+
+<h1>Restock</h1>
+
 <hr />
-<div class="row">
-<div class="col-md-4">
-<form asp-action="Restock">
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
- 
-            <div class="form-group">
-<label asp-for="MedicationName" class="control-label"></label>
-<select asp-for="MedicationName" class="form-control" id="medicationDropdown">
-<option value="">Select Medication</option>
-                    @foreach (var medication in ViewBag.Medications as List<string>)
-                    {
-<option value="@medication">@medication</option>
-                    }
-</select>
-<span asp-validation-for="MedicationName" class="text-danger"></span>
-</div>
- 
-            <div class="form-group">
-<label asp-for="DosageForm" class="control-label"></label>
-<select asp-for="DosageForm" class="form-control" id="dosageFormDropdown">
-<option value="">Select Dosage Form</option>
-</select>
-<span asp-validation-for="DosageForm" class="text-danger"></span>
-</div>
- 
-            <div class="form-group">
-<label asp-for="QuantityReceived" class="control-label"></label>
-<input asp-for="QuantityReceived" class="form-control" />
-<span asp-validation-for="QuantityReceived" class="text-danger"></span>
+<div class="box">
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Restock" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="MedicationName" class="control-label"></label>
+                    <select asp-for="MedicationName" class="form-control" id="medicationDropdown">
+                        <option value="">Select Medication</option>
+                        @foreach (var medication in ViewBag.Medications as List<string>)
+                        {
+                            <option value="@medication">@medication</option>
+                        }
+                    </select>
+                    <span asp-validation-for="MedicationName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DosageForm" class="control-label"></label>
+                    <select asp-for="DosageForm" class="form-control" id="dosageFormDropdown">
+                        <option value="">Select Dosage Form</option>
+                    </select>
+                    <span asp-validation-for="DosageForm" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="QuantityReceived" class="control-label"></label>
+                    <input asp-for="QuantityReceived" class="form-control" />
+                    <span asp-validation-for="QuantityReceived" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RestockDate" class="control-label"></label>
+                    <input asp-for="RestockDate" class="form-control" />
+                    <span asp-validation-for="RestockDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input asp-for="MedicationId" type="hidden" id="medicationIdTextbox" />
+                </div>
+
+                <div class="form-group align-right">
+                    <input type="submit" value="Create" class="button" />
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-
-            <div class="form-group">
-                <label asp-for="RestockDate" class="control-label"></label>
-                <input asp-for="RestockDate" class="form-control" />
-                <span asp-validation-for="RestockDate" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <input asp-for="MedicationId" type="hidden" id="medicationIdTextbox" />
-            </div>
-            
-
-            <div class="form-group">
-<input type="submit" value="Create" class="btn btn-primary" />
-</div>
-</form>
-</div>
-</div>
- 
 <div>
-<a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="button">Back to List</a>
 </div>
- 
+
 @section Scripts {
-<script type="text/javascript">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
         // JavaScript to update DosageForm dropdown based on selected MedicationName
         document.getElementById('medicationDropdown').addEventListener('change', function () {
             var selectedMedication = this.value;
             var dosageForms = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DosageForms));
             var dosageFormDropdown = document.getElementById('dosageFormDropdown');
             dosageFormDropdown.innerHTML = '<option value="">Select Dosage Form</option>'; // Reset DosageForm dropdown
- 
+
             if (selectedMedication && dosageForms[selectedMedication]) {
                 dosageForms[selectedMedication].forEach(function (dosageForm) {
                     var option = document.createElement('option');
@@ -80,12 +143,12 @@
                 });
             }
         });
- 
+
         // JavaScript to update MedicationId textbox based on selected MedicationName and DosageForm
         document.getElementById('dosageFormDropdown').addEventListener('change', function () {
             var selectedMedication = document.getElementById('medicationDropdown').value;
             var selectedDosageForm = this.value;
- 
+
             if (selectedMedication && selectedDosageForm) {
                 $.ajax({
                     url: '@Url.Action("GetMedicationId", "Pharmacist")', // Update with correct controller name
@@ -100,7 +163,7 @@
                 });
             }
         });
-</script>
+    </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

@@ -1,9 +1,8 @@
-﻿@model IEnumerable<Hospital.ViewModels.OrderStockViewModel>
+﻿@model IEnumerable<Hospital.Models.Restock>
 
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
-
 <style>
     h1 {
         text-align: center;
@@ -38,7 +37,6 @@
 
         .btn-search:hover, .btn-refresh:hover {
             background-color: #FFDE59;
-            color: #08075F;
         }
 
     .btn-back {
@@ -60,20 +58,18 @@
 
     .search-container {
         display: flex;
-        justify-content: center;
+        justify-content: center; /* Center the search bar horizontally */
         margin-bottom: 20px;
     }
 
     .form-group {
         display: flex;
         align-items: center;
-        width: 100%;
-        max-width: 620px; /* Adjust the max-width as needed */
     }
 
     .form-control {
-        flex-grow: 1;
-        margin-right: 10px;
+        width: 600px; /* Increase the width as needed */
+        margin-right: 10px; /* Add space between the input and the button */
     }
 
     .table {
@@ -82,53 +78,59 @@
     }
 
         .table th, .table td {
-            border: 1px solid #ddd;
+            border: 1px solid #ddd; /* Light grey border */
             padding: 8px;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #f2f2f2; /* Light grey background for header */
             text-align: left;
         }
 
         .table tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f9f9f9; /* Alternating row colors */
         }
 </style>
 
 <!-- Container for the back button and header -->
 <div style="position: relative; text-align: center; margin-bottom: 20px;">
     <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
-    <h1>View Ordered Stock</h1>
+    <h1>Restocked Medication</h1>
 </div>
 
-<form id="searchForm" method="get" asp-action="ViewOrderedStock" class="search-container">
+<form id="searchForm" method="get" asp-action="ViewRestock" class="search-container">
     <div class="form-group">
         <input type="text" id="searchQuery" name="searchQuery" class="form-control" value="@ViewData["SearchQuery"]" placeholder="Enter medication name or date (yyyy-mm-dd)" />
         <button type="submit" class="btn-search">Search</button>
-        <a href="@Url.Action("ViewOrderedStock", "Pharmacist")" class="btn-refresh">Refresh</a>
+        <a href="@Url.Action("ViewRestock", "Pharmacist")" class="btn-refresh">Refresh</a>
     </div>
 </form>
 
 <p>
-    <a class="btn-link" asp-controller="Pharmacist" asp-action="StockManagement">Order Stock</a>
+    <a class="btn-link" asp-controller="Pharmacist" asp-action="Restock">Restock New Medication</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Medication</th>
-            <th>Quantity Ordered</th>
-            <th>Order Stock Date</th>
+            <th>@Html.DisplayNameFor(model => model.MedicationName)</th>
+            <th>@Html.DisplayNameFor(model => model.DosageForm)</th>
+            <th>@Html.DisplayNameFor(model => model.QuantityReceived)</th>
+            <th>@Html.DisplayNameFor(model => model.RestockDate)</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.MedicationName</td>
-                <td>@item.QuantityOrdered</td>
-                <td>@item.OrderStockDate.ToShortDateString()</td>
+                <td>@Html.DisplayFor(modelItem => item.MedicationName)</td>
+                <td>@Html.DisplayFor(modelItem => item.DosageForm)</td>
+                <td>@Html.DisplayFor(modelItem => item.QuantityReceived)</td>
+                <td>@Html.DisplayFor(modelItem => item.RestockDate)</td>
+                <td>
+                    <a class="btn-link" asp-controller="Pharmacist" asp-action="EditRestock" asp-route-id="@item.RestockId">Edit</a>
+                </td>
             </tr>
         }
     </tbody>
