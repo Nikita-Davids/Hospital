@@ -9,6 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using Hospital.ViewModels;
 using System.Diagnostics;
+using MailKit.Net.Smtp;
+
+using System.Text;
+using System.Net.Mail;
+using System.Net;
 
 namespace Hospital.Controllers
 {
@@ -451,10 +456,17 @@ namespace Hospital.Controllers
 
         private async Task SendOrderStockSuccessEmail(List<StockOrderViewModel> selectedItems)
         {
+            // Check if there are any items to email about
+            if (selectedItems == null || !selectedItems.Any())
+            {
+                Console.WriteLine("No items selected for email notification.");
+                return;
+            }
+
             try
             {
                 // Build the order details for the email body
-                string orderDetails = "<ul>";
+                StringBuilder orderDetailsBuilder = new StringBuilder("<ul>");
 
                 foreach (var item in selectedItems)
                 {
@@ -467,47 +479,63 @@ namespace Hospital.Controllers
                     // Add medication name, dosage form, quantity, and date to the email body
                     if (medication != null)
                     {
-                        orderDetails += $"<li>Medication: {medication.MedicationName} ({medication.DosageForm}), " +
-                                        $"Quantity: {item.QuantityToOrder}, Date: {item.OrderStockDate:yyyy-MM-dd}</li>";
+                        orderDetailsBuilder.Append($"<li>Medication: {medication.MedicationName} ({medication.DosageForm}), " +
+                                                   $"Quantity: {item.QuantityToOrder}, Date: {item.OrderStockDate:yyyy-MM-dd}</li>");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Medication not found for MedicationId: {item.MedicationId}");
                     }
                 }
 
-                orderDetails += "</ul>";
+                orderDetailsBuilder.Append("</ul>");
 
-                // Define email details
-                var emailMessage = new MimeMessage
+                // Define the email message
+                var fromAddress = new MailAddress("kitadavids@gmail.com", "Stock Management");
+                var toAddress = new MailAddress("robertobooysen11@gmail.com", "Admin");
+                const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
+
+                var smtpClient = new System.Net.Mail.SmtpClient
                 {
-                    From = { new MailboxAddress("Stock Management", "noreply@hospital.com") },
-                    To = { new MailboxAddress("Admin", "kitadavids@gmail.com") }, // Recipients email
-                    Subject = "Stock Order Update",
-                    Body = new BodyBuilder
-                    {
-                        HtmlBody = $@"
-            <h3>Stock Order Update</h3>
-            <p>The stock order has been successfully recorded in the system with the following details:</p>
-            {orderDetails}
-            <p>Thank you for using the hospital's stock management system.</p>"
-                    }.ToMessageBody()
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
                 };
 
-                // Send the email
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                var mailMessage = new MailMessage
                 {
-                    // Connect to the SMTP server
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("kitadavids1@gmail.com", "nhjj efnx mjpv okee");
-                    await client.SendAsync(emailMessage);
-                    await client.DisconnectAsync(true);
-                }
+                    From = fromAddress,
+                    Subject = "Northside Hospital-(Group 6-4th year Project)_ ",
+                    Body = $@"
+        <h3>Stock Order Update</h3>
+        <p>The stock order has been successfully recorded in the system with the following details:</p>
+        {orderDetailsBuilder}
+        <p>Thank you for using the hospital's stock management system.</p>",
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(toAddress);
+
+                // Send the email
+                await smtpClient.SendMailAsync(mailMessage);
 
                 Console.WriteLine("Email sent successfully.");
             }
             catch (Exception ex)
             {
-                // Log email sending errors
+                // Log email sending errors with more detail
                 Console.WriteLine($"Error occurred while sending email: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
         }
+
+
+
 
         // Action method for displaying ordered stock based on search query
         public IActionResult ViewOrderedStock(string searchQuery)
