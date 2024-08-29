@@ -1,14 +1,74 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
+using Hospital.ModelViews;
+using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 
 namespace Hospital.Controllers
 {
     public class NurseController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
+
+        public IActionResult NurseIndex()
+        {
+            // Retrieve the user's full name from TempData
+            ViewBag.UserName = TempData["UserName"];
+
+            // Retrieve all patient vital records
+            var patientVitals = _context.PatientVital
+                .Select(v => new PatientVital
+                {
+                    PatientVitalId = v.PatientVitalId,
+                    PatientId = v.PatientId,
+                    Weight = v.Weight,
+                    Height = v.Height,
+                    Tempreture = v.Tempreture,
+                    BloodPressure = v.BloodPressure,
+                    Pulse = v.Pulse,
+                    Respiratory = v.Respiratory,
+                    BloodOxygen = v.BloodOxygen,
+                    BloodGlucoseLevel = v.BloodGlucoseLevel,
+                    VitalTime = v.VitalTime
+                })
+                .OrderByDescending(v => v.VitalTime)
+                .ToList();
+
+            // Pass the list of patient vitals to the view
+            return View(patientVitals);
+        }
+        public ActionResult AllPatientDetails(string id)
+        {
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            var allergies = _context.PatientAllergies.Where(a => a.PatientId == id).ToList();
+            var medications = _context.PatientCurrentMedication.Where(m => m.PatientId == id).ToList();
+            var conditions = _context.PatientMedicalCondition.Where(c => c.PatientId == id).ToList();
+
+            var viewModel = new PatientDetailsViewModel
+            {
+                PatientIDNumber = patient.PatientIDNumber,
+                PatientName = patient.PatientName,
+                PatientSurname = patient.PatientSurname,
+                PatientAddress = patient.PatientAddress,
+                PatientContactNumber = patient.PatientContactNumber,
+                PatientEmailAddress = patient.PatientEmailAddress,
+                PatientDateOfBirth = patient.PatientDateOfBirth,
+                PatientGender = patient.PatientGender,
+                Allergies = allergies,
+                CurrentMedications = medications,
+                MedicalConditions = conditions
+            };
+
+            return View(viewModel);
+        }
 
         public IActionResult NurseDischargePatients()
         {
@@ -686,5 +746,82 @@ namespace Hospital.Controllers
             return View(patientsAdministration);
         }
 
+
+
+
+
+
+
+
+
+
+
+        public async Task SendPatientVitalsEmail(List<PatientVital> recordedVitals)
+        {
+            try
+            {
+                // Build the vitals details for the email body
+                string vitalsDetails = "<ul>";
+
+                foreach (var item in recordedVitals)
+                {
+                    // Retrieve the patient's information based on the PatientId
+                    var patient = await _context.Patients
+                        .Where(p => p.PatientIDNumber == item.PatientId)
+                        .Select(p => new { p.PatientIDNumber, p.PatientName, p.PatientSurname })
+                        .FirstOrDefaultAsync();
+
+                    // Add patient's name and recorded vitals to the email body
+                    if (patient != null)
+                    {
+                        vitalsDetails += $"<li>Patient: {patient.PatientName} {patient.PatientSurname} (ID: {patient.PatientIDNumber}), " +
+                                         $"Weight: {item.Weight} kg, " +
+                                         $"Height: {item.Height} cm, " +
+                                         $"Temperature: {item.Tempreture}°C, " +
+                                         $"Blood Pressure: {item.BloodPressure} mmHg, " +
+                                         $"Pulse: {item.Pulse} bpm, " +
+                                         $"Respiratory Rate: {item.Respiratory} breaths/min, " +
+                                         $"Blood Oxygen: {item.BloodOxygen}%, " +
+                                         $"Blood Glucose Level: {item.BloodGlucoseLevel} mg/dL, " +
+                                         $"Time Recorded: {item.VitalTime?.ToString(@"hh\:mm")}</li>";
+                    }
+                }
+
+                vitalsDetails += "</ul>";
+
+                // Define email details
+                var emailMessage = new MimeMessage
+                {
+                    From = { new MailboxAddress("Hospital Vitals Monitoring", "noreply@hospital.com") },
+                    To = { new MailboxAddress("Surgeon", "gabrielkojo77@gmail.com") }, // Recipients email
+                    Subject = "Patient Vitals Recorded",
+                    Body = new BodyBuilder
+                    {
+                        HtmlBody = $@"
+                        <h3>Patient Vitals Recorded</h3>
+                        <p>The following vitals have been recorded in the system:</p>
+                        {vitalsDetails}
+                        <p>Thank you for using the hospital's patient monitoring system.</p>"
+                    }.ToMessageBody()
+                };
+
+                // Send the email
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    // Connect to the SMTP server
+                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync("kitadavids1@gmail.com", "nhjj efnx mjpv okee");
+                    await client.SendAsync(emailMessage);
+                    await client.DisconnectAsync(true);
+                }
+
+                Console.WriteLine("Email sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Log email sending errors
+                Console.WriteLine($"Error occurred while sending email: {ex.Message}");
+            }
+        }
     }
 }
