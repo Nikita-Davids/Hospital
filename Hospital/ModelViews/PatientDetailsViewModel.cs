@@ -38,5 +38,7 @@ namespace Hospital.ModelViews
 
         // Medical Conditions
         public List<PatientMedicalCondition> MedicalConditions { get; set; }
+
+        public List<PatientVital> PatientVitals { get; set; }
     }
 }

@@ -688,64 +688,7 @@ namespace Hospital.Controllers
             return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
         }
 
-        // GET: Nurse/NurseAddPatientsAdministration
-        [HttpGet]
-        public IActionResult NurseAddPatientsAdministration()
-        {
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
-            return View();
-        }
-
-        // POST: Nurse/NurseAddPatientsAdministration
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult NurseAddPatientsAdministration(PatientsAdministration model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if an administration record with the same patient, ward, and bed already exists
-                var existingRecord = _context.PatientsAdministration
-                    .FirstOrDefault(pa => pa.PatientId == model.PatientId &&
-                                          pa.PatientWard == model.PatientWard &&
-                                          pa.PatientBed == model.PatientBed);
-
-                if (existingRecord == null)
-                {
-                    // Create a new PatientsAdministration entity
-                    var patientsAdministration = new PatientsAdministration
-                    {
-                        PatientId = model.PatientId,
-                        PatientWard = model.PatientWard,
-                        PatientBed = model.PatientBed
-                    };
-
-                    // Add the PatientsAdministration entity to the context
-                    _context.PatientsAdministration.Add(patientsAdministration);
-                    _context.SaveChanges(); // Save changes
-
-                    // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseViewPatientsAdministration"); // Change this to your actual action method
-                }
-                else
-                {
-                    // If the record with the same patient, ward, and bed already exists, return an error message
-                    ModelState.AddModelError("", "This patient is already assigned to the specified ward and bed.");
-                }
-            }
-
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
-            return View(model);
-        }
-
-        // GET: Nurse/NurseViewPatientsAdministration
-        public async Task<IActionResult> NurseViewPatientsAdministration()
-        {
-            var patientsAdministration = await _context.PatientsAdministration.ToListAsync();
-            return View(patientsAdministration);
-        }
-
+     
 
 
 
@@ -823,5 +766,58 @@ namespace Hospital.Controllers
                 Console.WriteLine($"Error occurred while sending email: {ex.Message}");
             }
         }
+        public IActionResult NurseDispensedAlert()
+        {
+            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+            var dispensedMedications = _context.SurgeonPrescription
+                .Where(sp => sp.Dispense == "Dispense")
+                .ToList();
+
+            // Pass the list of dispensed medications to the view for display
+            return View(dispensedMedications);
+        }
+
+        public IActionResult NurseDispensedDetails(string patientId)
+        {
+            // Retrieve the prescription details for the specific patient
+            var prescriptionDetails = _context.SurgeonPrescription
+                .Where(sp => sp.PatientIdnumber == patientId && sp.Dispense == "Dispense")
+                .Select(sp => new
+                {
+                    sp.PrescriptionId,
+                    sp.PatientIdnumber,
+                    sp.PatientName,
+                    sp.PatientSurname,
+                    sp.MedicationName,
+                    sp.PrescriptionDosageForm,
+                    sp.Quantity
+                })
+                .FirstOrDefault();
+
+            if (prescriptionDetails == null)
+            {
+                return NotFound();
+            }
+
+            return View(prescriptionDetails);
+        }
+
+        [HttpPost]
+        public IActionResult ReceiveMedication(int prescriptionId)
+        {
+            // Find the prescription by the ID
+            var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
+
+            if (prescription != null)
+            {
+                // Update the Dispense field to "Received"
+                prescription.Dispense = "Received";
+                _context.SaveChanges();
+            }
+
+            // Redirect back to the NurseDispensedAlert page after updating
+            return RedirectToAction("NurseDispensedAlert");
+        }
     }
 }
+
