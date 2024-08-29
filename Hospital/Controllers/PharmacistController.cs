@@ -479,8 +479,8 @@ namespace Hospital.Controllers
                     // Add medication name, dosage form, quantity, and date to the email body
                     if (medication != null)
                     {
-                        orderDetailsBuilder.Append($"<li>Medication: {medication.MedicationName} ({medication.DosageForm}), " +
-                                                   $"Quantity: {item.QuantityToOrder}, Date: {item.OrderStockDate:yyyy-MM-dd}</li>");
+                        orderDetailsBuilder.Append($"<li><strong>Medication:</strong> {medication.MedicationName} ({medication.DosageForm}), " +
+                                                   $"<strong>Quantity:</strong> {item.QuantityToOrder}, <strong>Date:</strong> {item.OrderStockDate:yyyy-MM-dd}</li>");
                     }
                     else
                     {
@@ -492,7 +492,7 @@ namespace Hospital.Controllers
 
                 // Define the email message
                 var fromAddress = new MailAddress("kitadavids@gmail.com", "Stock Management");
-                var toAddress = new MailAddress("robertobooysen11@gmail.com", "Admin");
+                var toAddress = new MailAddress("kitadavids@gmail.com", "Admin");
                 const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
 
                 var smtpClient = new System.Net.Mail.SmtpClient
@@ -508,12 +508,15 @@ namespace Hospital.Controllers
                 var mailMessage = new MailMessage
                 {
                     From = fromAddress,
-                    Subject = "Northside Hospital-(Group 6-4th year Project)_ ",
+                    Subject = "Northside Hospital(Group 6) - Stock Order ",
                     Body = $@"
-        <h3>Stock Order Update</h3>
-        <p>The stock order has been successfully recorded in the system with the following details:</p>
-        {orderDetailsBuilder}
-        <p>Thank you for using the hospital's stock management system.</p>",
+<h3>Medication to be Ordered</h3>
+<p>Good Day,</p>
+<p>Please find below the list of medications that need to be ordered:</p>
+{orderDetailsBuilder}
+<p>The above items have been requested to be ordered. Please process accordingly.</p>
+<p>Thank you for your attention to this matter.</p>
+<p>Best regards,<br> Pharmacist-Group 6</p>",
                     IsBodyHtml = true
                 };
                 mailMessage.To.Add(toAddress);
@@ -533,6 +536,7 @@ namespace Hospital.Controllers
                 }
             }
         }
+
 
 
 
@@ -1049,19 +1053,30 @@ namespace Hospital.Controllers
         {
             try
             {
-                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.MedicationId == 0)
+                // Validate input
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived <= 0 || restock.MedicationId == 0)
                 {
                     ViewBag.Error = "Please enter all fields";
                     return View(restock);
                 }
                 else
                 {
-                    // Find the existing Restock by ID using _context
+                    // Find the existing Restock entry by ID
                     var existingRestock = _context.Restock.Find(restock.RestockId);
 
                     if (existingRestock == null)
                     {
                         return NotFound();
+                    }
+
+                    // Find the stock entry for the medication
+                    var stockEntry = _context.Stock
+                        .FirstOrDefault(s => s.MedicationId == restock.MedicationId);
+
+                    if (stockEntry == null)
+                    {
+                        ViewBag.Error = "Stock entry not found.";
+                        return View(restock);
                     }
 
                     // Update the existing restock entry
@@ -1070,22 +1085,30 @@ namespace Hospital.Controllers
                     existingRestock.QuantityReceived = restock.QuantityReceived;
                     existingRestock.MedicationId = restock.MedicationId;
 
-                    // Save changes to the database using _context
+                    // Update stock quantity
+                    stockEntry.StockOnHand += restock.QuantityReceived;
+
+                    // Save changes to the database
+                    _context.Update(existingRestock);
+                    _context.Update(stockEntry);
                     _context.SaveChanges();
 
                     return RedirectToAction("ViewRestock");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                ViewBag.Error = "Error updating the restock entry";
+                ViewBag.Error = $"Error updating the restock entry: {ex.Message}";
                 return View(restock);
             }
         }
 
-
     }
+
+
+
 }
+
 
     
 
