@@ -1,0 +1,137 @@
+﻿@model IEnumerable<Hospital.Models.Restock>
+
+@{
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+}
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .btn-search, .btn-refresh {
+        background-color: #08075F;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+        .btn-search:hover, .btn-refresh:hover {
+            background-color: #FFDE59;
+        }
+
+    .btn-back {
+        background-color: red; /* Red color for the back button */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        position: absolute; /* Position it relative to the container */
+        top: 20px; /* Adjust vertical position */
+        left: 20px; /* Adjust horizontal position */
+    }
+
+        .btn-back:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+
+    .search-container {
+        display: flex;
+        justify-content: center; /* Center the search bar horizontally */
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        width: 600px; /* Increase the width as needed */
+        margin-right: 10px; /* Add space between the input and the button */
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd; /* Light grey border */
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2; /* Light grey background for header */
+            text-align: left;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9; /* Alternating row colors */
+        }
+</style>
+
+<!-- Container for the back button and header -->
+<div style="position: relative; text-align: center; margin-bottom: 20px;">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+    <h1>Restocked Medication</h1>
+</div>
+
+<form id="searchForm" method="get" asp-action="ViewRestock" class="search-container">
+    <div class="form-group">
+        <input type="text" id="searchQuery" name="searchQuery" class="form-control" value="@ViewData["SearchQuery"]" placeholder="Enter medication name or date (yyyy-mm-dd)" />
+        <button type="submit" class="btn-search">Search</button>
+        <a href="@Url.Action("ViewRestock", "Pharmacist")" class="btn-refresh">Refresh</a>
+    </div>
+</form>
+
+<p>
+    <a class="btn-link" asp-controller="Pharmacist" asp-action="Restock">Restock New Medication</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.MedicationName)</th>
+            <th>@Html.DisplayNameFor(model => model.DosageForm)</th>
+            <th>@Html.DisplayNameFor(model => model.QuantityReceived)</th>
+            <th>@Html.DisplayNameFor(model => model.RestockDate)</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.MedicationName)</td>
+                <td>@Html.DisplayFor(modelItem => item.DosageForm)</td>
+                <td>@Html.DisplayFor(modelItem => item.QuantityReceived)</td>
+                <td>@Html.DisplayFor(modelItem => item.RestockDate)</td>
+                <td>
+                    <a class="btn-link" asp-controller="Pharmacist" asp-action="EditRestock" asp-route-id="@item.RestockId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
