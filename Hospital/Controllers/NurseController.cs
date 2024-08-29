@@ -1,5 +1,6 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
+using Hospital.ModelViews;
 using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -39,7 +40,35 @@ namespace Hospital.Controllers
             // Pass the list of patient vitals to the view
             return View(patientVitals);
         }
+        public ActionResult AllPatientDetails(string id)
+        {
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
+            if (patient == null)
+            {
+                return NotFound();
+            }
 
+            var allergies = _context.PatientAllergies.Where(a => a.PatientId == id).ToList();
+            var medications = _context.PatientCurrentMedication.Where(m => m.PatientId == id).ToList();
+            var conditions = _context.PatientMedicalCondition.Where(c => c.PatientId == id).ToList();
+
+            var viewModel = new PatientDetailsViewModel
+            {
+                PatientIDNumber = patient.PatientIDNumber,
+                PatientName = patient.PatientName,
+                PatientSurname = patient.PatientSurname,
+                PatientAddress = patient.PatientAddress,
+                PatientContactNumber = patient.PatientContactNumber,
+                PatientEmailAddress = patient.PatientEmailAddress,
+                PatientDateOfBirth = patient.PatientDateOfBirth,
+                PatientGender = patient.PatientGender,
+                Allergies = allergies,
+                CurrentMedications = medications,
+                MedicalConditions = conditions
+            };
+
+            return View(viewModel);
+        }
 
         public IActionResult NurseDischargePatients()
         {
