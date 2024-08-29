@@ -320,12 +320,12 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseViewPatientAllergy"); // Change this to your actual action method
+                    return RedirectToAction("NurseAddPatientAllergy"); // Change this to your actual action method
                 }
                 else
                 {
                     // If the allergy entry with the same patient and allergy already exists, return an error message
-                    ModelState.AddModelError("", "An allergy entry for this patient already exists.");
+                    ModelState.AddModelError("", "this allergy entry for this patient already exists.");
                 }
             }
 
