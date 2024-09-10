@@ -768,6 +768,9 @@ namespace Hospital.Controllers
         }
         public IActionResult NurseDispensedAlert()
         {
+
+            ViewBag.UserName = TempData["UserName"];
+
             // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
             var dispensedMedications = _context.SurgeonPrescription
                 .Where(sp => sp.Dispense == "Dispense")
