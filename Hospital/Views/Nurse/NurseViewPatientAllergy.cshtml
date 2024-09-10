@@ -5,14 +5,16 @@
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
+<h1>@ViewData["Title"]</h1>
 
-<h1>Nurse View Patient Allergy</h1>
+<!-- Search box -->
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search allergies..." class="form-control mb-3">
 
 <p>
     <a class="btn-link" asp-action="NurseAddPatientAllergy">Add Patient Allergy</a>
 </p>
 
-<table class="table">
+<table class="table" id="allergyTable">
     <thead>
         <tr>
             <th class="col-patient-id">
@@ -43,3 +45,28 @@
         }
     </tbody>
 </table>
+
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("allergyTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
+            tr[i].style.display = "none"; // Hide the row initially
+            td = tr[i].getElementsByTagName("td");
+
+            for (j = 0; j < td.length; j++) { // Loop through columns
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show the row if a match is found
+                        break; // Stop searching the rest of the columns in this row
+                    }
+                }
+            }
+        }
+    }
+</script>
