@@ -72,7 +72,7 @@
 
 <h1>Edit Dosage Form</h1>
 
-<hr />
+
 <div class="row">
     <div class="col-md-6 offset-md-3 form-border">
         <form asp-action="AdminEditDosageForms">
@@ -80,7 +80,7 @@
             <input type="hidden" asp-for="DosageFormID" />
 
             <div class="form-group">
-                <label asp-for="DosageFormName" class="control-label"></label>
+                <label asp-for="DosageFormName" class="control-label">Dosage Form Name:</label>
                 <input asp-for="DosageFormName" class="form-control" />
                 <span asp-validation-for="DosageFormName" class="text-danger"></span>
             </div>
@@ -97,3 +97,6 @@
         </form>
     </div>
 </div>
+<br />
+<br />
+<br />

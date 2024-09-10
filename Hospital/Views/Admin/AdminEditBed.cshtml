@@ -1,7 +1,7 @@
 ﻿@model Hospital.Models.Bed
 
 @{
-    ViewData["Title"] = "AdminEditBed";
+    ViewData["Title"] = "Edit Beds";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -66,8 +66,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<h4>Bed</h4>
-<hr />
+
 <div class="row">
     <div class="col-md-6 offset-md-3 form-border">
         <form asp-action="AdminEditBed">
@@ -92,15 +91,21 @@
                 </select>
                 <span asp-validation-for="IsOccupied" class="text-danger"></span>
             </div>
+            <br />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+            <br />
+            <div>
+                <a class="btn-link" asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a class="btn-link" asp-action="Index">Back to List</a>
-</div>
+
+<br />
+<br />
+
 
 
