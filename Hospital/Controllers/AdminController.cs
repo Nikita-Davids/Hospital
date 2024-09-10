@@ -159,6 +159,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Active ingredient added successfully.";
                 // Ensure that Strength is in the format "Amount Unit"
                 string strength = model.Strength;
 
@@ -181,7 +182,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("AdminViewActiveIngredients");
+                    return RedirectToAction("AdminAddActiveIngredients");
                 }
                 else
                 {
