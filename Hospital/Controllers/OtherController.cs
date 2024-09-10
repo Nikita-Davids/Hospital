@@ -7,119 +7,147 @@ using System.Linq;
 
 namespace Hospital.Controllers
 {
-    public class OtherController(ApplicationDbContext dbContext) : Controller
+    public class OtherController : Controller
     {
-        ApplicationDbContext _context = dbContext;
+        private readonly ApplicationDbContext _context;
+
+        public OtherController(ApplicationDbContext dbContext)
+        {
+            _context = dbContext;
+        }
+
         // GET: /Other/OtherLogin
         [HttpGet]
         public IActionResult OtherLogin()
         {
-            // Return the login view to the user
             return View();
         }
 
-        // POST: /Other/OtherLogin
-        [HttpPost]
+        //// POST: /Other/OtherLogin
+        //[HttpPost]
+        //public IActionResult OtherLogin(LoginViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Define the correct password for validation (this should come from a user store in a real system)
+        //        const string defaultPassword = "Password123!";
+
+        //        if (model.Password == defaultPassword)
+        //        {
+        //            // Check if the email exists in the Nurses table
+        //            var nurse = _context.Nurses.FirstOrDefault(n => n.EmailAddress == model.EmailAddress);
+        //            if (nurse != null)
+        //            {
+        //                // Redirect to NurseAlerts if a Nurse is found
+        //                TempData["SuccessMessage"] = $"Welcome Nurse {nurse.Name} {nurse.Surname}";
+        //                return RedirectToAction("NurseAlerts", "Nurse");
+        //            }
+
+        //            // Check if the email exists in the Surgeons table
+        //            var surgeon = _context.Surgeons.FirstOrDefault(s => s.EmailAddress == model.EmailAddress);
+        //            if (surgeon != null)
+        //            {
+        //                // Redirect to the Surgeon Index page if a Surgeon is found
+        //                TempData["SuccessMessage"] = $"Welcome Surgeon {surgeon.Name} {surgeon.Surname}";
+        //                return RedirectToAction("Index", "Surgeon");
+        //            }
+
+        //            // Check if the email exists in the Pharmacists table
+        //            var pharmacist = _context.Pharmacists.FirstOrDefault(p => p.EmailAddress == model.EmailAddress);
+        //            if (pharmacist != null)
+        //            {
+        //                // Redirect to the Pharmacist Index page if a Pharmacist is found
+        //                TempData["SuccessMessage"] = $"Welcome Pharmacist {pharmacist.Name} {pharmacist.Surname}";
+        //                return RedirectToAction("Index", "Pharmacist");
+        //            }
+
+        //            // Check if the email exists in the Admin table
+        //            var admin = _context.AdminLogin.FirstOrDefault(a => a.EmailAddress == model.EmailAddress);
+        //            if (admin != null)
+        //            {
+        //                // Redirect to the Admin Index page if an Admin is found
+        //                TempData["SuccessMessage"] = "Welcome Admin";
+        //                return RedirectToAction("Index", "Admin");
+        //            }
+
+        //            // If email is not found in any table, display an error message
+        //            ViewBag.ErrorMessage = "Invalid login attempt. Email address not found.";
+        //            return View(model);
+        //        }
+        //        else
+        //        {
+        //            // Incorrect password
+        //            ViewBag.ErrorMessage = "Invalid login attempt. Incorrect password.";
+        //            return View(model);
+        //        }
+        //    }
+
+        //    // If model validation fails, return to the view
+        //    return View(model);
+        //}
         public IActionResult OtherLogin(LoginViewModel model)
         {
-            // Initialize the context to interact with the database
             if (ModelState.IsValid)
             {
-                // Define the default password for validation
                 const string defaultPassword = "Password123!";
 
-                // Verify if the provided password matches the default password
+                // Ensure password matches
                 if (model.Password == defaultPassword)
                 {
-                    // Variables to determine the outcome and store user information
-                    bool emailFound = false;
-                    string redirectAction = string.Empty;
-                    string redirectController = string.Empty;
-                    string userName = string.Empty;
-                    string userSurname = string.Empty;
+                    // Log the login attempt for debugging purposes
+                    Console.WriteLine($"Login attempt by {model.EmailAddress}");
 
-                    // Determine the user role and perform the corresponding check
-                    switch (model.Role)
+                    // Check if the email exists in the Nurses table
+                    var nurse = _context.Nurses.FirstOrDefault(n => n.EmailAddress == model.EmailAddress);
+                    if (nurse != null)
                     {
-                        case "Nurse":
-                            // Attempt to find a nurse with the provided email address
-                            var nurse = _context.Nurses.FirstOrDefault(n => n.EmailAddress == model.EmailAddress);
-                            if (nurse != null)
-                            {
-                                // If found, set the emailFound flag and store user details
-                                emailFound = true;
-                                redirectAction = "Index";
-                                redirectController = "Nurse";
-                                // Update static class with user details
-                                DisplayNameAndSurname.getUserName(nurse.Name);
-                                DisplayNameAndSurname.getUserSurname(nurse.Surname);
-                            }
-                            break;
-
-                        case "Surgeon":
-                            // Attempt to find a surgeon with the provided email address
-                            var surgeon = _context.Surgeons.SingleOrDefault(s => s.EmailAddress == model.EmailAddress);
-                            if (surgeon != null)
-                            {
-                                // If found, set the emailFound flag and store user details
-                                emailFound = true;
-                                redirectAction = "Index";
-                                redirectController = "Surgeon";
-                                // Update static class with user details
-                                DisplayNameAndSurname.getUserName(surgeon.Name);
-                                DisplayNameAndSurname.getUserSurname(surgeon.Surname);
-                            }
-                            break;
-
-                        case "Pharmacist":
-                            // Attempt to find a pharmacist with the provided email address
-                            var pharmacist = _context.Pharmacists.SingleOrDefault(p => p.EmailAddress == model.EmailAddress);
-                            if (pharmacist != null)
-                            {
-                                // If found, set the emailFound flag and store user details
-                                emailFound = true;
-                                redirectAction = "Index";
-                                redirectController = "Pharmacist";
-                                // Update static class with user details
-                                DisplayNameAndSurname.getUserName(pharmacist.Name);
-                                DisplayNameAndSurname.getUserSurname(pharmacist.Surname);
-                            }
-                            break;
-
-                        case "Admin":
-                            // Attempt to find an admin with the provided email address
-                            var admin = _context.AdminLogin.SingleOrDefault(a => a.EmailAddress == model.EmailAddress);
-                            if (admin != null)
-                            {
-                                // If found, set the emailFound flag for Admin role
-                                emailFound = true;
-                                redirectAction = "Index";
-                                redirectController = "Admin";
-                            }
-                            break;
+                        TempData["SuccessMessage"] = $"Welcome Nurse : {nurse.Name} {nurse.Surname}";
+                        return RedirectToAction("NurseDispensedAlert", "Nurse");
                     }
 
-                    // If an email match is found, redirect to the appropriate action and controller
-                    if (emailFound)
+
+                    // Check if the email exists in the Surgeons table
+                    var surgeon = _context.Surgeons.FirstOrDefault(s => s.EmailAddress == model.EmailAddress);
+                    if (surgeon != null)
                     {
-                        TempData["SuccessMessage"] = "You are Logged in!" + @DisplayNameAndSurname.passUserName + " " + @DisplayNameAndSurname.passUserSurname;
-                        return RedirectToAction(redirectAction, redirectController);
+                        TempData["SuccessMessage"] = $"Welcome Surgeon: {surgeon.Name} {surgeon.Surname}";
+                        return RedirectToAction("AddSurgeonPrescription", "Surgeon");
                     }
-                    else
+
+                    // Check if the email exists in the Pharmacists table
+                    var pharmacist = _context.Pharmacists.FirstOrDefault(p => p.EmailAddress == model.EmailAddress);
+                    if (pharmacist != null)
                     {
-                        // Set an error message if the role and email do not match
-                        ViewBag.ErrorMessage = "Invalid login attempt. The selected role does not match the email address.";
+                        TempData["SuccessMessage"] = $"Welcome Pharmacist :{pharmacist.Name} {pharmacist.Surname}";
+                        return RedirectToAction("Index", "Pharmacist");
                     }
+
+                    // Check if the email exists in the Admin table
+                    var admin = _context.AdminLogin.FirstOrDefault(a => a.EmailAddress == model.EmailAddress);
+                    if (admin != null)
+                    {
+                        TempData["SuccessMessage"] = "Welcome Admin";
+                        return RedirectToAction("Index", "Admin");
+                    }
+
+                    // Log error if no matching email is found
+                    Console.WriteLine($"Login failed: Email {model.EmailAddress} not found in any role");
+                    ViewBag.ErrorMessage = "Invalid login attempt. Email address not found.";
+                    return View(model);
                 }
                 else
                 {
-                    // Set an error message if the password is incorrect
+                    // Log incorrect password attempt
+                    Console.WriteLine($"Login failed: Incorrect password for {model.EmailAddress}");
                     ViewBag.ErrorMessage = "Invalid login attempt. Incorrect password.";
+                    return View(model);
                 }
             }
 
-            // Return the view with the model to display validation errors or login issues
+            // Log if ModelState is invalid
+            Console.WriteLine("Login failed: ModelState is invalid");
             return View(model);
         }
+
     }
 }

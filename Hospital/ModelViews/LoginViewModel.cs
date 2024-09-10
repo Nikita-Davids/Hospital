@@ -4,18 +4,15 @@ namespace Hospital.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email Address")]
+        [Required(ErrorMessage = "Email address is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address format")]
         public string EmailAddress { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
-
-        [Required]
-        [Display(Name = "Role")]
-        public string Role { get; set; }
     }
+
+
 }
+
