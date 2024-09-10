@@ -1,0 +1,99 @@
+﻿@model IEnumerable<Hospital.Models.ChronicCondition>
+
+@{
+    ViewData["Title"] = "ViewChronicConditions";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    /* Adjust the column widths */
+    .col-code {
+        width: 30%; /* Allocate space for ICD-10 Code */
+    }
+
+    .col-diagnosis {
+        width: 50%; /* Allocate space for Diagnosis */
+    }
+
+    .col-action {
+        width: 20%; /* Allocate space for Action */
+        text-align: center;
+    }
+</style>
+
+<h1>View Chronic Conditions</h1>
+
+<p>
+    <a class="btn-link" asp-action="AdminAddChronicCondition">Add Chronic Condition</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-code">
+                @Html.DisplayNameFor(model => model.First().Icd10Code)
+            </th>
+            <th class="col-diagnosis">
+                @Html.DisplayNameFor(model => model.First().Diagnosis)
+            </th>
+            <th>Action</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-code">
+                    @Html.DisplayFor(modelItem => item.Icd10Code)
+                </td>
+                <td class="col-diagnosis">
+                    @Html.DisplayFor(modelItem => item.Diagnosis)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="AdminEditChronicMedication" asp-route-id="@item.ChronicConditionId">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
