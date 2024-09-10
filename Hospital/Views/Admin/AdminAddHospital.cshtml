@@ -5,7 +5,9 @@
 }
 
 <h1>Register Hospital</h1>
-
+<div class="button-container">
+    <a class="btn-link" asp-action="AdminViewHospital">View All Added Hospitals</a>
+</div>
 <div class="form-container">
     <form asp-action="AdminAddHospital">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -58,10 +60,6 @@
             <input type="submit" value="Add" class="button" />
         </div>
     </form>
-   
-</div>
-<div class="button-container">
-    <a class="btn-link" asp-action="AdminViewHospital">View All Added Hospitals</a>
 </div>
 
 <style>

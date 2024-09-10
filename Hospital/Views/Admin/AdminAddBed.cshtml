@@ -72,7 +72,9 @@
 <h1>Add Bed</h1>
 
 <hr />
-
+<div class="button-container">
+    <a asp-action="AdminVIewBed" class="btn-link">View All Beds</a>
+</div>
 <div class="box">
     <form asp-action="AdminAddBed">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -98,13 +100,10 @@
             </select>
             <span asp-validation-for="IsOccupied" class="text-danger"></span>
         </div>
-
-        <div class="button-container">
-            <button type="submit">Create</button>
+        <div class="form-group">
+            <input type="submit" value="Add" class="button" />
         </div>
     </form>
 </div>
 
-<div class="button-container">
-    <a asp-action="Index" class="btn-link">Back to List</a>
-</div>
+

@@ -55,7 +55,6 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
-        float:left;
     }
 
         .btn-link:hover {
@@ -72,6 +71,9 @@
 
 
 
+<div class="button-container">
+    <a class="btn-link" asp-action="AdminViewSuburb">View All Suburbs</a>
+</div>
 <div class="box">
     <form asp-action="AdminAddSuburb" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -94,8 +96,8 @@
             <span asp-validation-for="TownId" class="text-danger"></span>
         </div>
 
-        <div class="form-group">
-            <button type="submit">Create Suburb</button>
+        <div class="form-group button-container">
+            <button type="submit">Add Suburb</button>
         </div>
 
         <br />
@@ -109,9 +111,4 @@
         </div>
     }
 </div>
-
-<div class="button-container">
-    <a class="btn-link" asp-action="Index">Back to List</a>
-</div>
-
 

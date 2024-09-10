@@ -65,7 +65,7 @@
 <h1>Admin View Bed</h1>
 
 <p>
-    <a class="btn-link" asp-action="AdminAddBed">Create New</a>
+    <a class="btn-link" asp-action="AdminAddBed">Add Bed</a>
 </p>
 
 <table class="table">
@@ -93,8 +93,7 @@
                     @Html.DisplayFor(modelItem => item.IsOccupied)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="AdminEditBed" asp-route-id="@item.BedId">Edit</a> |
-                    <a class="btn-link" asp-action="AdminViewBed" asp-route-id="@item.BedId">Details</a>
+                    <a class="btn-link" asp-action="AdminEditBed" asp-route-id="@item.BedId">Edit</a>
                 </td>
             </tr>
         }
