@@ -409,7 +409,7 @@ namespace Hospital.Controllers
         }
 
         // GET: Hospitals/Edit/5
-        public async Task<IActionResult> EditDayHospital(int id)
+        public async Task<IActionResult> AdminEditDayHospital(int id)
         {
             // Retrieve the hospital record from the database using the provided ID
             var hospital = await _context.DayHospital.FindAsync(id);
@@ -427,7 +427,7 @@ namespace Hospital.Controllers
         // POST: Hospitals/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditDayHospital(int id, [Bind("HospitalId,HospitalName,Address,City,Province,PostalCode,ContactNumber,EmailAddress,PracticeManager,PurchaseManagerEmail")] DayHospital hospital)
+        public async Task<IActionResult> AdminEditDayHospital(int id, [Bind("HospitalId,HospitalName,Address,City,Province,PostalCode,ContactNumber,EmailAddress,PracticeManager,PurchaseManagerEmail")] DayHospital hospital)
         {
             // Check if the ID in the URL matches the ID of the hospital being edited
             if (id != hospital.HospitalId)
@@ -591,7 +591,7 @@ namespace Hospital.Controllers
 
 
         // GET: ChronicConditions/Edit/5
-        public async Task<IActionResult> EditAdminChronicMedication(int id)
+        public async Task<IActionResult> AdminEditChronicMedication(int id)
         {
             // Retrieve the chronic condition record from the database using the provided ID
             var chronicCondition = await _context.ChronicCondition.FindAsync(id);
@@ -609,7 +609,7 @@ namespace Hospital.Controllers
         // POST: ChronicConditions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAdminChronicMedication(int id, [Bind("ChronicConditionId,Icd10Code,Diagnosis")] ChronicCondition chronicCondition)
+        public async Task<IActionResult> AdminEditChronicMedication(int id, [Bind("ChronicConditionId,Icd10Code,Diagnosis")] ChronicCondition chronicCondition)
         {
             // Check if the ID in the URL matches the ID of the chronic condition being edited
             if (id != chronicCondition.ChronicConditionId)
@@ -647,7 +647,7 @@ namespace Hospital.Controllers
                     }
                 }
                 // Redirect to the Index action if the update was successful
-                return RedirectToAction(nameof(ViewChronicConditions));
+                return RedirectToAction(nameof(AdminViewChronicConditions));
             }
 
             // Return the view with validation errors if the model state is not valid
@@ -661,7 +661,7 @@ namespace Hospital.Controllers
         }
 
 
-        public IActionResult ViewChronicConditions()
+        public IActionResult AdminViewChronicConditions()
         {
             return View(_context.ChronicCondition);
         }
@@ -698,7 +698,7 @@ namespace Hospital.Controllers
                         _context.SaveChanges(); // Save changes
 
                         // Redirect to the list view after successful addition
-                        return RedirectToAction("ViewOperatingTheatres");
+                        return RedirectToAction("AdminViewOperatingTheatres");
                     }
                     else
                     {
@@ -721,14 +721,14 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-        public IActionResult ViewOperatingTheatres()
+        public IActionResult AdminViewOperatingTheatres()
         {
             return View(_context.OperatingTheatre);
         }
 
 
         // GET: OperatingTheatres/Edit/5
-        public async Task<IActionResult> EditAdminTheatres(int id)
+        public async Task<IActionResult> AdminEditTheatres(int id)
         {
             // Retrieve the operating theatre record from the database using the provided ID
             var operatingTheatre = await _context.OperatingTheatre.FindAsync(id);
@@ -746,7 +746,7 @@ namespace Hospital.Controllers
         // POST: OperatingTheatres/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAdminTheatres(int id, [Bind("OperatingTheatreId,OperatingTheatreName")] OperatingTheatre operatingTheatre)
+        public async Task<IActionResult> AdminEditTheatres(int id, [Bind("OperatingTheatreId,OperatingTheatreName")] OperatingTheatre operatingTheatre)
         {
             // Check if the ID in the URL matches the ID of the operating theatre being edited
             if (id != operatingTheatre.OperatingTheatreId)
@@ -784,7 +784,7 @@ namespace Hospital.Controllers
                     }
                 }
                 // Redirect to the Index action if the update was successful
-                return RedirectToAction(nameof(ViewOperatingTheatres));
+                return RedirectToAction(nameof(AdminViewOperatingTheatres));
             }
 
             // Return the view with validation errors if the model state is not valid
@@ -948,7 +948,7 @@ namespace Hospital.Controllers
 
 
         [HttpGet]
-        public IActionResult EditViewTown(int id)
+        public IActionResult AdminEditTown(int id)
         {
             // Fetch the town and its related province from the database
             var town = _context.Town
@@ -969,7 +969,7 @@ namespace Hospital.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditViewTown(Town model)
+        public async Task<IActionResult> AdminEditTown(Town model)
         {
             if (ModelState.IsValid)
             {
