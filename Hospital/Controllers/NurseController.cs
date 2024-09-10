@@ -484,6 +484,7 @@ namespace Hospital.Controllers
             var patientMedication = await _context.PatientCurrentMedication
                 .FirstOrDefaultAsync(pm => pm.MedicationId == id);
 
+          
             // Check if the patient medication exists. If not, return a 404 Not Found response.
             if (patientMedication == null)
             {
