@@ -3,7 +3,12 @@
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
 <h1>Register Hospital</h1>
 
 <div class="form-container">
@@ -21,18 +26,59 @@
         </div>
         <div class="form-group">
             <label asp-for="City" class="control-label"></label>
-            <input asp-for="City" class="form-control" />
-            <span asp-validation-for="City" class="text-danger"></span>
+            <select class="form-control" id="City" name="City" required>
+                <option value="Gqeberha">Gqeberha</option>
+                <option value="Johannesburg">Johannesburg</option>
+                <option value="Bhisho">Bhisho</option>
+                <option value="Polokwane">Polokwane</option>
+                <option value="Bloemfontein">Bloemfontein</option>
+                <option value="Mbombela">Mbombela</option>
+                <option value="Mahikeng">Mahikeng</option>
+                <option value="Cape Town">Cape Town</option>
+                <option value="Pietermarizburg">Pietermarizburg</option>
+                <option value="Durban">Durban</option>
+            </select>
         </div>
         <div class="form-group">
             <label asp-for="Province" class="control-label"></label>
-            <input asp-for="Province" class="form-control" />
-            <span asp-validation-for="Province" class="text-danger"></span>
+            <select class="form-control" id="Province" name="Province" required>
+                <option value="Western Cape">Western Cape</option>
+                <option value="North West">North West</option>
+                <option value="Eastern Cape">Eastern Cape</option>
+                <option value="Gauteng">Gauteng</option>
+                <option value="Free State">Free State</option>
+                <option value="Limpopo">Limpopo</option>
+                <option value="Mpumalanga">Mpumalanga</option>
+                <option value="Northern Cape">Northern Cape</option>
+                <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+            </select>
         </div>
         <div class="form-group">
             <label asp-for="PostalCode" class="control-label"></label>
-            <input asp-for="PostalCode" class="form-control" />
-            <span asp-validation-for="PostalCode" class="text-danger"></span>
+            <select class="form-control" id="PostalCode" name="PatientPostalCode" required>
+                <option value="1200">1200</option>
+                <option value="4001">4001</option>
+                <option value="6025">6025</option>
+                <option value="4051">4051</option>
+                <option value="6001">6001</option>
+                <option value="4091">4091</option>
+                <option value="6001">6001</option>
+                <option value="4001">4001</option>
+                <option value="1300">1300</option>
+                <option value="4052">4052</option>
+                <option value="6045">6045</option>
+                <option value="4001">4001</option>
+                <option value="1226">1226</option>
+                <option value="6070">6070</option>
+                <option value="4359">4359</option>
+                <option value="4309">4309</option>
+                <option value="6001">6001</option>
+                <option value="1201">1201</option>
+                <option value="4399">4399</option>
+                <option value="4001">4001</option>
+                <option value="6020">6020</option>
+                <option value="6001">6001</option>
+            </select>
         </div>
         <div class="form-group">
             <label asp-for="ContactNumber" class="control-label"></label>
@@ -65,7 +111,22 @@
 </div>
 <br />
 <br />
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            // Ensure that the success message is visible
+            successMessage.style.display = "block";
+            console.log("Success message is visible");
 
+            // Hide the success message after 3 seconds
+            setTimeout(function () {
+                successMessage.style.display = "none";
+                console.log("Success message hidden");
+            }, 3000); // Hide message after 3 seconds
+        }
+    });
+</script>
 <style>
     h1 {
         text-align: center;
