@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<Hospital.Models.Medication>
 
+
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
@@ -41,26 +42,32 @@
     .search-container {
         display: flex;
         justify-content: center;
-        align-items: center; /* Align items vertically */
         margin-bottom: 20px;
     }
 
+    .form-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 420px;
+    }
+
     .form-control {
-        width: 900px; /* Increased width for the search input */
+        flex-grow: 1;
         margin-right: 10px;
     }
 
-    .btn-search, .btn-refresh {
+    .btn-search {
         background-color: #08075F;
         color: white;
         padding: 5px 10px;
         border: none;
         cursor: pointer;
         font-size: 13px;
-        margin-left: 5px; /* Smaller margin between buttons */
+        margin-left: 10px;
     }
 
-        .btn-search:hover, .btn-refresh:hover {
+        .btn-search:hover {
             background-color: #FFDE59;
             color: #08075F;
         }
@@ -119,13 +126,6 @@
     <h1>View Medications</h1>
 </div>
 
-<!-- Search bar with refresh button -->
-<div class="search-container">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search by medication name..." />
-   
-</div>
-
-
 <p>
     <a class="button" asp-action="AddMedication">Create New</a>
 </p>
@@ -159,32 +159,3 @@
         }
     </tbody>
 </table>
-<br />
-<br />
-<br />
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('.table tbody tr');
-
-        function filterRows() {
-            const searchTerm = searchInput.value.toLowerCase();
-            tableRows.forEach(row => {
-                const medicationName = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
-                if (medicationName.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        searchInput.addEventListener('input', filterRows);
-
-        window.refreshTable = function () {
-            searchInput.value = ''; // Clear the search input
-            filterRows(); // Show all rows
-        };
-    });
-</script>

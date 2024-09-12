@@ -186,25 +186,6 @@
 <br />
 
 <script>
-    let isDateSelected = false; // Flag to track if the date has been selected
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize the date pickers with today's date and current time
-        var now = new Date();
-        var todayDate = now.toISOString().split('T')[0]; // Date part
-        var currentTime = now.toTimeString().split(' ')[0]; // Time part in HH:MM:SS format
-
-        document.querySelectorAll('.order-date-time-picker').forEach(function (dateTimePicker) {
-            // Set date and time to now
-            dateTimePicker.value = `${todayDate}T${currentTime}`;
-            var hiddenDateTimeInput = dateTimePicker.nextElementSibling;
-            hiddenDateTimeInput.value = dateTimePicker.value;
-        });
-
-        // Update button state on page load
-        updateOrderButtonState();
-    });
-
     function toggleQuantity(checkbox) {
         var row = checkbox.closest('tr');
         var select = row.querySelector('.quantity-select');
@@ -212,37 +193,29 @@
         select.disabled = !checkbox.checked;
         dateTimePicker.style.display = checkbox.checked ? 'block' : 'none';
 
+        // Reset quantity to 0 units if checkbox is unchecked
         if (!checkbox.checked) {
             select.value = "0";
             validateQuantity(select); // Ensure validation message is updated
         }
 
+        // Enable/disable the Order Stock button based on checkbox selection
         updateOrderButtonState();
     }
 
     function updateOrderButtonState() {
         var anyChecked = Array.from(document.querySelectorAll('.order-checkbox')).some(c => c.checked);
         var orderButton = document.getElementById('orderButton');
-        orderButton.disabled = !anyChecked;
+        orderButton.disabled = !anyChecked; // Disable button if no checkboxes are selected
     }
 
-    function updateAllDates(dateTimePicker) {
-        if (!isDateSelected) {
-            var dateTime = dateTimePicker.value;
-
-            document.querySelectorAll('.order-checkbox:checked').forEach(function (checkbox) {
-                var row = checkbox.closest('tr');
-                var picker = row.querySelector('.order-date-time-picker');
-                if (picker !== dateTimePicker) {
-                    picker.value = dateTime;
-                    var hiddenDateTimeInput = row.querySelector('input[type="hidden"]');
-                    hiddenDateTimeInput.value = dateTime;
-                }
-            });
-
-            // Set flag to prevent further changes
-            isDateSelected = true;
-        }
+    function updateHiddenDateTime(dateTimePicker, index) {
+        var hiddenDateTimeInput = document.getElementById('hiddenOrderStockDate_' + index);
+        var dateTime = new Date(dateTimePicker.value);
+        var formattedDateTime = dateTime.toISOString().split('.')[0];
+        var milliseconds = dateTime.getMilliseconds();
+        formattedDateTime += '.' + milliseconds.toString().padStart(3, '0');
+        hiddenDateTimeInput.value = formattedDateTime;
     }
 
     function validateQuantity(selectElement) {
@@ -273,7 +246,9 @@
                 select.classList.add('error');
                 errorMessage.style.display = 'block';
                 hasErrors = true;
+                // Collect error message
                 errorMessages.push('Please select a quantity greater than 0 units.');
+                // Scroll to the problematic select element
                 select.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 select.focus();
             } else {
@@ -290,7 +265,7 @@
         var table = document.getElementById('stockTable');
         var rows = table.getElementsByTagName('tr');
 
-        for (var i = 1; i < rows.length; i++) {
+        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header
             var cells = rows[i].getElementsByTagName('td');
             var medicationName = cells[0].textContent.toLowerCase();
 
@@ -311,6 +286,7 @@
         event.preventDefault();
         const validation = validateQuantities();
         if (validation.hasErrors) {
+            // Display a single alert with one aggregated error message
             alert(validation.errorMessages);
             return; // Prevent form submission if validation fails
         }
@@ -331,11 +307,9 @@
         }
     };
 
-    // Event listener for all date time pickers to update all dates
-    document.querySelectorAll('.order-date-time-picker').forEach(function (dateTimePicker) {
-        dateTimePicker.addEventListener('change', function () {
-            updateAllDates(this);
-        });
+    // Initialize button state on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        updateOrderButtonState(); // Ensure the button state is correct on initial load
     });
 </script>
 

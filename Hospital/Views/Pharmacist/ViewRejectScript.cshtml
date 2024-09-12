@@ -60,49 +60,17 @@
         .table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-
-    .search-container {
-        display: flex;
-        justify-content: center;
-        align-items: center; /* Center vertically */
-        margin-bottom: 20px;
-    }
-
-    .form-control {
-        width: 300px; /* Adjust width as needed */
-        margin-right: 10px;
-    }
-
-    .btn-search, .btn-refresh {
-        background-color: #08075F;
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        cursor: pointer;
-        font-size: 13px;
-        margin-left: 5px;
-    }
-
-        .btn-search:hover, .btn-refresh:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
 </style>
 
-<!-- Container for the header and search bar -->
+<!-- Container for the header -->
 <div style="text-align: center; margin-bottom: 20px;">
     <h1>Rejected Prescriptions</h1>
-    <!-- Search bar with refresh button -->
-    <div class="search-container">
-        <input type="text" id="searchInput" class="form-control" placeholder="Search by medication name..." />
-        <button class="btn-search" onclick="filterRows()">Search</button>
-        <button class="btn-refresh" onclick="refreshTable()">Refresh</button>
-    </div>
 </div>
 
 <table class="table">
     <thead>
         <tr>
+            
             <th>Patient ID</th>
             <th>Patient Name</th>
             <th>Patient Surname</th>
@@ -118,6 +86,7 @@
         @foreach (var item in Model)
         {
             <tr>
+              
                 <td>@item.PatientIDNumber</td>
                 <td>@item.PatientName</td>
                 <td>@item.PatientSurname</td>
@@ -133,33 +102,8 @@
         }
     </tbody>
 </table>
-<br />
-<br />
-<br />
 
-<script>
-    function filterRows() {
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('.table tbody tr');
-        const searchTerm = searchInput.value.toLowerCase();
-
-        tableRows.forEach(row => {
-            const medicationName = row.querySelector('td:nth-child(4)').textContent.toLowerCase(); // Column index for Medication Name
-            if (medicationName.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-
-    function refreshTable() {
-        document.getElementById('searchInput').value = ''; // Clear the search input
-        filterRows(); // Show all rows
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelector('.btn-search').addEventListener('click', filterRows);
-        document.querySelector('.btn-refresh').addEventListener('click', refreshTable);
-    });
-</script>
+<!-- Back button -->
+@* <div style="text-align: center;">
+    <a href="@Url.Action("Index", "Pharmacist")" class="btn-primary">Back to Pharmacist Portal</a>
+</div> *@
