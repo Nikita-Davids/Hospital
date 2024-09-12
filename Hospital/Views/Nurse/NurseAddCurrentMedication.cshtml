@@ -12,22 +12,22 @@
     </div>
 }
 
-<h1>NurseAddCurrentMedication</h1>
+<h1>Add Current Medication</h1>
 
     <div class="form-container">
         <form asp-action="NurseAddCurrentMedication">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="PatientId" class="control-label"></label>
-                <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+            <label asp-for="PatientId" class="control-label">Patient</label>
+            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="CurrentMedication" class="control-label"></label>
+            <label asp-for="CurrentMedication" class="control-label">Current Medication</label>
                 <input asp-for="CurrentMedication" class="form-control" />
                 <span asp-validation-for="CurrentMedication" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Add" class="btn btn-primary" />
             </div>
         </form>
     </div>

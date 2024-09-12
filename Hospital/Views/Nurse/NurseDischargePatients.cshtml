@@ -11,13 +11,13 @@
     </div>
 }
 
-<h1>Nurse Discharge Patients</h1>
+<h1>Discharge Patients</h1>
 
 <div class="form-container">
     <form asp-action="NurseDischargePatients" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-            <label asp-for="PatientId" class="control-label">Patient ID:</label>
+            <label asp-for="PatientId" class="control-label">Patient</label>
             <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
         </div>
         <div class="form-group">
@@ -31,7 +31,7 @@
             <span asp-validation-for="DischargeDate" class="text-danger"></span>
         </div>
         <div class="form-group button-container">
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <input type="submit" value="Discharge" class="btn btn-primary" />
         </div>
     </form>
 </div>
