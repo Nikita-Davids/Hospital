@@ -90,9 +90,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Patient Discharged successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("NurseViewDischarges", "Nurse");
+                return RedirectToAction("NurseDischargePatients", "Nurse");
             }
             return View(model);
         }
@@ -119,9 +120,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Patient added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("NurseViewPatients");
+                return RedirectToAction("NurseAddPatients");
             }
             return View(model);
         }
@@ -200,9 +202,10 @@ namespace Hospital.Controllers
             {
                 try
                 {
+                    TempData["SuccessMessage"] = "Patient Vitals added successfully.";
                     _context.Add(model);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction("NurseViewPatientVitals");
+                    return RedirectToAction("NurseAddPatientVital");
                 }
                 catch (Exception ex)
                 {
@@ -301,6 +304,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Patient Allergy added successfully.";
                 // Check if an allergy entry with the same patient and allergy already exists
                 var existingAllergy = _context.PatientAllergies
                     .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
@@ -437,6 +441,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Patient Medication added successfully.";
                 // Check if a current medication entry with the same patient and medication already exists
                 var existingMedication = await _context.PatientCurrentMedication
                     .FirstOrDefaultAsync(pm => pm.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
@@ -456,7 +461,7 @@ namespace Hospital.Controllers
                     await _context.SaveChangesAsync(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseViewPatientCurrentMedication");
+                    return RedirectToAction("NurseAddCurrentMedication");
                 }
                 else
                 {
@@ -575,6 +580,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Patient Medical Condition added successfully.";
                 // Check if a medical condition entry with the same patient and condition already exists
                 var existingCondition = await _context.PatientMedicalCondition
                     .FirstOrDefaultAsync(pc => pc.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
@@ -594,7 +600,7 @@ namespace Hospital.Controllers
                     await _context.SaveChangesAsync(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseViewPatientMedicalCondition");
+                    return RedirectToAction("NurseAddMedicalCondition");
                 }
                 else
                 {

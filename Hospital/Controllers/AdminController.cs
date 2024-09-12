@@ -55,6 +55,7 @@ namespace Hospital.Controllers
             // Check if the model state is valid (i.e., all required fields are filled out correctly).
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Healthcare Professional added successfully.";
                 // Convert the input to lower case for case-insensitive comparison
                 var email = model.EmailAddress.Trim().ToLower();
                 var registrationNumber = model.HealthCouncilRegistrationNumber.Trim().ToLower();
@@ -298,7 +299,6 @@ namespace Hospital.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AdminAddDosageForms(DosageForm model)
         {
-
 
             if (ModelState.IsValid)
             {
@@ -688,6 +688,7 @@ namespace Hospital.Controllers
             {
                 try
                 {
+                    TempData["SuccessMessage"] = "Operating Theatre added successfully.";
                     // Check for existing OperatingTheatre
                     var existingTheatre = _context.OperatingTheatre
                         .FirstOrDefault(t => t.OperatingTheatreName == model.OperatingTheatreName);
@@ -699,7 +700,7 @@ namespace Hospital.Controllers
                         _context.SaveChanges(); // Save changes
 
                         // Redirect to the list view after successful addition
-                        return RedirectToAction("AdminViewOperatingTheatres");
+                        return RedirectToAction("AdminAddTheatres");
                     }
                     else
                     {
@@ -798,13 +799,12 @@ namespace Hospital.Controllers
             return _context.OperatingTheatre.Any(e => e.OperatingTheatreId == id);
         }
 
+
         [HttpGet]
         public IActionResult AdminAddProvinces()
         {
             return View(); // This view should be a form for adding a single Province, so no need to pass a model here.
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -812,6 +812,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Province added successfully.";
                 try
                 {
                     var existingProvince = _context.Province
@@ -821,7 +822,7 @@ namespace Hospital.Controllers
                     {
                         _context.Province.Add(model); // Add the new Province
                         _context.SaveChanges(); // Save changes to the database
-                        return RedirectToAction("AdminViewProvinces"); // Redirect to view provinces
+                        return RedirectToAction("AdminAddProvinces"); // Redirect to view provinces
                     }
                     else
                     {
@@ -911,6 +912,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Town added successfully.";
                 try
                 {
                     var existingTown = _context.Town
@@ -920,7 +922,7 @@ namespace Hospital.Controllers
                     {
                         _context.Town.Add(model); // Add the new Town
                         _context.SaveChanges(); // Save changes to the database
-                        return RedirectToAction("AdminViewTown"); // Redirect to view towns
+                        return RedirectToAction("AdminAddTown"); // Redirect to view towns
                     }
                     else
                     {
@@ -1027,9 +1029,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Suburb added successfully.";
                 _context.Suburb.Add(suburb);
                 _context.SaveChanges();
-                return RedirectToAction("Index"); // Redirect to a list or index page
+                return RedirectToAction("AdminAddSuburb"); // Redirect to a list or index page
             }
 
             // If model state is not valid, repopulate the dropdown and return the view
@@ -1121,9 +1124,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Treatment Code added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("AdminViewTreatmentCode", "Admin");
+                return RedirectToAction("AdminAddTreatmentCode", "Admin");
             }
             return View(model);
         }
@@ -1202,9 +1206,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Bed added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("AdminViewBed", "Admin");
+                return RedirectToAction("AdminAddBed", "Admin");
             }
             // Repopulate the dropdown in case of validation failure
             ViewBag.WardId = new SelectList(_context.Ward, "WardId", "WardName", model.WardId);
@@ -1282,9 +1287,10 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Ward added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("AdminViewWard", "Admin");
+                return RedirectToAction("AdminAddWard", "Admin");
             }
             return View(model);
         }
