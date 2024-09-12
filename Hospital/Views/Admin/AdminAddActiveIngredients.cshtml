@@ -5,7 +5,7 @@
 }
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
+    <div id="successMessage" class="alert alert-success">
         @TempData["SuccessMessage"]
     </div>
 }
@@ -150,4 +150,3 @@
         }
     });
 </script>
-
