@@ -12,36 +12,33 @@
 }
 
 
-<h1>Nurse Add Patients</h1>
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseViewPatients">View Patients</a>
-</div>
+<h1>Add Patients</h1>
 
 <div class="form-container">
     <form asp-action="NurseAddPatients">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-            <label asp-for="PatientIDNumber" class="control-label"></label>
+            <label asp-for="PatientIDNumber" class="control-label">Patient ID Number</label>
             <input asp-for="PatientIDNumber" class="form-control" />
             <span asp-validation-for="PatientIDNumber" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="PatientName" class="control-label"></label>
+            <label asp-for="PatientName" class="control-label">Patient Name</label>
             <input asp-for="PatientName" class="form-control" />
             <span asp-validation-for="PatientName" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="PatientSurname" class="control-label"></label>
+            <label asp-for="PatientSurname" class="control-label">Patient Surname</label>
             <input asp-for="PatientSurname" class="form-control" />
             <span asp-validation-for="PatientSurname" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="PatientAddress" class="control-label"></label>
+            <label asp-for="PatientAddress" class="control-label">Patient Address</label>
             <input asp-for="PatientAddress" class="form-control" />
             <span asp-validation-for="PatientAddress" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label for="PROVINCES">PROVINCES</label>
+            <label for="PROVINCES">Province</label>
             <select class="form-control" id="province" name="PatientPROVINCES" required>
                 <option value="Western Cape">Western Cape</option>
                 <option value="North West">North West</option>
@@ -55,7 +52,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="TOWNS">TOWNS</label>
+            <label for="TOWNS">City</label>
             <select class="form-control" id="country" name="PatientCITIES/TOWNS" required>
                 <option value="Gqeberha">Gqeberha</option>
                 <option value="Johannesburg">Johannesburg</option>
@@ -70,7 +67,7 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="SUBURB">SUBURB</label>
+            <label for="SUBURB">suburb</label>
             <select class="form-control" id="country" name="PatientSUBURB" required>
                 <option value="Kamagugu">Kamagugu</option>
                 <option value="Essenwood">Essenwood</option>
@@ -147,11 +144,17 @@
             </select>
         </div>
         <div class="form-group button-container">
-            <input type="submit" value="Create" class="btn btn-primary" />
+            <input type="submit" value="Add" class="btn btn-primary" />
         </div>
     </form>
 </div>
-
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatients">View Patients</a>
+</div>
+<br />
+<br />
+<br />
+<br />
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");
