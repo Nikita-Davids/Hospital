@@ -574,7 +574,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("ViewChronicConditions", "Admin");
+                    return RedirectToAction("AdminViewChronicConditions", "Admin");
                 }
                 else
                 {
