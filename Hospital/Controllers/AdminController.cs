@@ -555,6 +555,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Active ingredient added successfully.";
                 // Check for existing ChronicCondition
                 var existingCondition = _context.ChronicCondition
                     .FirstOrDefault(c => c.Icd10Code == model.Icd10Code || c.Diagnosis == model.Diagnosis);
@@ -574,7 +575,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("AdminViewChronicConditions", "Admin");
+                    return RedirectToAction("AdminAddChronicCondition", "Admin");
                 }
                 else
                 {
