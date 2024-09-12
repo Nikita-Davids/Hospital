@@ -285,16 +285,14 @@ namespace Hospital.Controllers
             return View(ingredients);
         }
 
+
+
         [HttpGet]
         public IActionResult AdminAddDosageForms()
         {
             var model = new DosageForm();
             return View(model);
         }
-
-
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -304,6 +302,7 @@ namespace Hospital.Controllers
 
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Dosage Form added successfully.";
                 // Convert the input to lower case for case-insensitive comparison
                 var dosageFormName = model.DosageFormName.Trim().ToLower();
 
@@ -318,7 +317,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("AdminViewDosageForms");
+                    return RedirectToAction("AdminAddDosageForms");
                 }
                 else
                 {
@@ -503,6 +502,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                TempData["SuccessMessage"] = "Hospital added successfully.";
                 // Check if a hospital with the same name or email already exists
                 var existingHospital = _context.DayHospital
                     .FirstOrDefault(h => h.HospitalName == model.HospitalName || h.EmailAddress == model.EmailAddress);
@@ -536,7 +536,7 @@ namespace Hospital.Controllers
                 }
 
                 // Redirect to the success page after successful addition
-                return RedirectToAction("AdminViewHospital", "Admin");
+                return RedirectToAction("AdminAddHospital", "Admin");
             }
 
             // Return the view with the model in case of an error
@@ -555,7 +555,7 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
-                TempData["SuccessMessage"] = "Active ingredient added successfully.";
+                TempData["SuccessMessage"] = "Chronic Condition added successfully.";
                 // Check for existing ChronicCondition
                 var existingCondition = _context.ChronicCondition
                     .FirstOrDefault(c => c.Icd10Code == model.Icd10Code || c.Diagnosis == model.Diagnosis);
