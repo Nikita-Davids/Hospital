@@ -26,5 +26,7 @@ namespace Hospital.Models
 
         public virtual Medication Medication { get; set; }
         public virtual Surgeon Surgeon { get; set; }
+
+        
     }
 }
