@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Hospital.Patients>
 
 @{
-    ViewData["Title"] = "NurseViewPatients";
+    ViewData["Title"] = "View Patients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
@@ -69,10 +69,10 @@
         }
     </tbody>
 </table>
-<p>
-    <a class="btn-link" asp-action="NurseAddPatients">Add Patients</a>
-</p>
 
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseAddPatients">Add Patients</a>
+</div>
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;

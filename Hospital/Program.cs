@@ -37,7 +37,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Pharmacist}/{action=Restock}/{id?}");
+    pattern: "{controller=Nurse}/{action=NurseIndex}/{id?}");
 app.MapRazorPages();
 
 app.Run();
