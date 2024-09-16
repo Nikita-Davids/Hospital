@@ -13,7 +13,7 @@ namespace Hospital.Controllers
     {
         ApplicationDbContext _context = dbContext;
 
-        public IActionResult NurseIndex()
+        public IActionResult NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
