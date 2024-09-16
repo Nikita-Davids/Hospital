@@ -4,6 +4,10 @@
     ViewData["Title"] = "NurseAddPatients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
 @if (TempData["SuccessMessage"] != null)
 {
     <div id="successMessage" class="alert alert-success">

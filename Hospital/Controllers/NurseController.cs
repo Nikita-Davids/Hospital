@@ -1,19 +1,22 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
 using Hospital.ModelViews;
-using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
-
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using System.Text;
+using System.Net.Mail;
+using System.Net;
 namespace Hospital.Controllers
 {
     public class NurseController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
 
-        public IActionResult NurseVitalAlert()
+        public async Task<IActionResult> NurseVitalAlertAsync()
         {
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
@@ -254,6 +257,84 @@ namespace Hospital.Controllers
         }
 
 
+
+
+
+
+        private async Task SendPatientVitalEmail(List<PatientVital> selectedVitals)
+        {
+            // Check if there are any vitals to email about
+            if (selectedVitals == null || !selectedVitals.Any())
+            {
+                Console.WriteLine("No patient vitals selected for email notification.");
+                return;
+            }
+
+            try
+            {
+                // Build the vital details for the email body
+                StringBuilder vitalDetailsBuilder = new StringBuilder("<ul>");
+
+                foreach (var vital in selectedVitals)
+                {
+                    // Add patient vital details to the email body
+                    vitalDetailsBuilder.Append($"<li>Patient ID: {vital.PatientId}, " +
+                                               $"Weight: {vital.Weight} kg, " +
+                                               $"Height: {vital.Height} cm, " +
+                                               $"Temperature: {vital.Tempreture} °C, " +
+                                               $"Blood Pressure: {vital.BloodPressure} mmHg, " +
+                                               $"Pulse: {vital.Pulse} bpm, " +
+                                               $"Respiratory Rate: {vital.Respiratory} breaths/min, " +
+                                               $"Blood Oxygen: {vital.BloodOxygen} %, " +
+                                               $"Blood Glucose Level: {vital.BloodGlucoseLevel} mg/dL, " +
+                                               $"Vital Time: {vital.VitalTime?.ToString(@"hh\:mm")}</li>");
+                }
+
+                vitalDetailsBuilder.Append("</ul>");
+
+                // Define the email message
+                var fromAddress = new MailAddress("kitadavids@gmail.com", "Nurse");
+                var toAddress = new MailAddress("gabrielkojo77@gmail.com", "Surgeon");
+                const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
+
+                var smtpClient = new System.Net.Mail.SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = fromAddress,
+                    Subject = "Northside Hospital - Patient Vital Records",
+                    Body = $@"
+                            <h3>Patient Vital Records Update</h3>
+                            <p>The following patient vitals have been successfully recorded in the system:</p>
+                            {vitalDetailsBuilder}
+                            <p>Thank you for using the hospital's patient management system.</p>",
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(toAddress);
+
+                // Send the email
+                await smtpClient.SendMailAsync(mailMessage);
+
+                Console.WriteLine("Email sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Log email sending errors with more detail
+                Console.WriteLine($"Error occurred while sending email: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+            }
+        }
 
 
 
