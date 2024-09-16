@@ -16,7 +16,7 @@ namespace Hospital.Controllers
     {
         ApplicationDbContext _context = dbContext;
 
-        public async Task<IActionResult> NurseVitalAlertAsync()
+        public IActionResult NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
