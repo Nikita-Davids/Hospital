@@ -236,7 +236,7 @@
 <script>
     function confirmDispense() {
         if (confirm("Are you sure you want to dispense this script?")) {
-            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PatientIDNumber })')
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescriptionId })')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -293,7 +293,7 @@
 
     function confirmDispense() {
         if (confirm("Are you sure you want to dispense this script?")) {
-            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PatientIDNumber })')
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescriptionId })')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -310,3 +310,4 @@
         }
     }
 </script>
+

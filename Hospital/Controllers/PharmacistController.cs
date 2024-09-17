@@ -586,11 +586,11 @@ namespace Hospital.Controllers
         }
 
         // GET: PrescribedScript
-        public IActionResult PrescribedScript(string patientId)
+        public IActionResult PrescribedScript(int PrescriptionId)
         {
             // Retrieve prescription details for the specified patient ID
             var prescriptionDetails = _context.SurgeonPrescription
-                .Where(p => p.PatientIdnumber == patientId) // Filter prescriptions by the patient ID
+                .Where(p => p.PrescriptionId == PrescriptionId) // Filter prescriptions by the patient ID
                 .Select(p => new PrescribedScriptViewModel
                 {
                     // Populate the view model with patient and prescription details
@@ -615,7 +615,7 @@ namespace Hospital.Controllers
 
                     // Retrieve details of medications prescribed to the patient
                     Medications = _context.SurgeonPrescription
-                        .Where(sp => sp.PatientIdnumber == patientId) // Filter medications by the patient ID
+                        .Where(sp => sp.PrescriptionId == PrescriptionId) // Filter medications by the patient ID
                         .Select(sp => new MedicationDetailViewModel
                         {
                             // Populate each medication detail
@@ -638,11 +638,11 @@ namespace Hospital.Controllers
             return View(prescriptionDetails);
         }
         [HttpGet]
-        public async Task<IActionResult> Dispense(string id)
+        public async Task<IActionResult> Dispense(int id)
         {
             // Fetch all prescribed scripts for the given patient ID
             var prescribedScripts = await _context.SurgeonPrescription
-                .Where(ps => ps.PatientIdnumber == id)
+                .Where(ps => ps.PrescriptionId == id)
                 .ToListAsync();
 
             // Check if any prescribed scripts were found

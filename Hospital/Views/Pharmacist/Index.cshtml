@@ -3,19 +3,11 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
-    var displayedPatients = new HashSet<string>(); // To keep track of displayed patients
 }
-
 <head>
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        h1 {
-            text-align: center;
-            color: #08075F;
-            text-decoration: underline;
-        }
-
         .prescription-item {
             border: 4px solid #ccc;
             padding: 15px;
@@ -23,6 +15,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #08075F;
+            text-decoration: underline;
         }
 
         .urgent {
@@ -69,7 +67,7 @@
             // Automatically hide the success message after 3 seconds
             setTimeout(function () {
                 document.getElementById('successPopup').style.display = 'none';
-            }, 10000);
+            }, 3000);
         </script>
     }
 
@@ -78,25 +76,21 @@
 
     @foreach (var prescription in Model)
     {
-        // Check if the patient's ID has already been displayed
-        if (!displayedPatients.Contains(prescription.PatientIDNumber))
-        {
-            <div class="prescription-item @(prescription.Urgent == "Urgent" ? "urgent" : "")">
-                <div class="prescription-details">
-                    <p><b>Patient ID:</b> @prescription.PatientIDNumber</p>
-                    <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
-                    <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
-                    <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
-                </div>
-                <div>
-                    <a href="@Url.Action("PrescribedScript", "Pharmacist", new { patientId = prescription.PatientIDNumber })" class="view-button">View Script</a>
-                </div>
+        <div class="prescription-item @(prescription.Urgent == "Urgent" ? "urgent" : "")">
+            <div class="prescription-details">
+                <p><b>Patient ID:</b> @prescription.PatientIDNumber</p>
+                <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
+                <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
+                <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
             </div>
-
-            // Mark this patient as displayed
-            displayedPatients.Add(prescription.PatientIDNumber);
-        }
+            <div>
+                <!-- Use PrescriptionId instead of PatientIDNumber in the action link -->
+                <a href="@Url.Action("PrescribedScript", "Pharmacist", new { prescriptionId = prescription.PrescriptionId })" class="view-button">View Script</a>
+            </div>
+        </div>
     }
 </body>
 <br />
 <br />
+
+
