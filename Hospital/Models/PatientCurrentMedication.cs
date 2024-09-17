@@ -8,9 +8,9 @@ public partial class PatientCurrentMedication
 {
     [Key]
     public int MedicationId { get; set; }
-
+    [Display(Name = "Patient ID")]
     public string PatientId { get; set; } = null!;
-
+    [Display(Name = "Current Medication")]
     public string CurrentMedication { get; set; } = null!;
 
    //public virtual Patients Patient { get; set; } = null!;

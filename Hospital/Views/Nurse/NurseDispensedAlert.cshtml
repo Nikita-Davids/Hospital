@@ -9,44 +9,6 @@
 <head>
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .prescription-item {
-            border: 2px solid #ccc; /* Removed red border for urgent items */
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 8px;
-        }
-
-        .prescription-details {
-            display: inline-block;
-        }
-
-        .view-button {
-            background-color: #08075F;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-            .view-button:hover {
-                background-color: #FFDE59;
-            }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-        }
-    </style>
 </head>
 
 <body>
@@ -64,8 +26,7 @@
         </script>
     }
 
-
-    <h1><u><b>Nurse Dispensed Alerts</b></u></h1>
+    <h1>Nurse Dispensed Alerts</h1>
     <br>
 
     @foreach (var prescription in Model)
@@ -81,5 +42,42 @@
         </div>
     }
 </body>
+<style>
+    .prescription-item {
+        border: 2px solid #ccc; /* Removed red border for urgent items */
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 8px;
+    }
 
+    .prescription-details {
+        display: inline-block;
+    }
+
+    .view-button {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .view-button:hover {
+            background-color: #FFDE59;
+        }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+    }
+</style>
 

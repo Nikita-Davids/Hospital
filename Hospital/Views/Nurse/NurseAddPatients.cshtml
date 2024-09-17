@@ -4,6 +4,10 @@
     ViewData["Title"] = "NurseAddPatients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
 @if (TempData["SuccessMessage"] != null)
 {
     <div id="successMessage" class="alert alert-success">
@@ -151,10 +155,7 @@
 <div class="button-container">
     <a class="btn-link" asp-action="NurseViewPatients">View Patients</a>
 </div>
-<br />
-<br />
-<br />
-<br />
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");

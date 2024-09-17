@@ -20,9 +20,11 @@
             <!-- Navigation bar with links to other pages -->
             <nav class="topnav" id="myTopnav">
                 <a asp-controller="Surgeon" asp-action="BookingSurgery">Book Surgery</a>
-                <a asp-controller="Surgeon" asp-action="SurgeonViewPatientDetails">View Patient Details</a>
-                <a asp-controller="Surgeon" asp-action="SurgeonAddPatientDetails">Add Patient Details</a>
-                <a asp-controller="Surgeon" asp-action="SurgeonPatientVitals">Patient Vitals</a>
+               a asp-controller="Nurse" asp-action="NurseAddPatients">Add Patients</a>
+                <a asp-controller="Nurse" asp-action="NurseAddPatientsAdministration">Admit Patients</a>
+                <a asp-controller="Nurse" asp-action="NurseDischargePatients">DischargePatients</a>
+                <a asp-controller="Nurse" asp-action="AllPatientDetails">All Patients Details</a>
+                <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonTreatmentCodes">Treatment Codes</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonPrescroption">Prescription</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonIndex">Alerts</a>

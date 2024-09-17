@@ -31,7 +31,7 @@ namespace Hospital
 
         [Required]
         [StringLength(100)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         [Display(Name = "Email Address")]
         public string PatientEmailAddress { get; set; }
 

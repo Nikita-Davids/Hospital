@@ -1,18 +1,14 @@
 ﻿@model IEnumerable<Hospital.Models.DischargedPatient>
 
 @{
-    ViewData["Title"] = "Nurse View Discharges";
+    ViewData["Title"] = "View Discharges";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <!-- Search box -->
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search discharges..." class="form-control mb-3">
-
-<p>
-    <a class="btn-link" asp-action="NurseDischargePatients">Discharge Patient</a>
-</p>
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Discharges..." class="form-control mb-3">
 
 <table class="table" id="dischargeTable">
     <thead>
@@ -43,7 +39,9 @@
         }
     </tbody>
 </table>
-
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseDischargePatients">Discharge Patient</a>
+</div>
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;

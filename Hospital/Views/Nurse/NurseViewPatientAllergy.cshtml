@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Hospital.Models.PatientAllergy>
 
 @{
-    ViewData["Title"] = "NurseViewPatientAllergy";
+    ViewData["Title"] = "View Patient Allergy";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
@@ -9,10 +9,6 @@
 
 <!-- Search box -->
 <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search allergies..." class="form-control mb-3">
-
-<p>
-    <a class="btn-link" asp-action="NurseAddPatientAllergy">Add Patient Allergy</a>
-</p>
 
 <table class="table" id="allergyTable">
     <thead>
@@ -46,6 +42,9 @@
     </tbody>
 </table>
 
+    <div class="button-container">
+        <a class="btn-link" asp-action="NurseAddPatientAllergy">Add Patient Allergy</a>
+    </div>
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;
