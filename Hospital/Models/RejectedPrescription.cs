@@ -10,7 +10,7 @@ namespace Hospital.Models
         public int RejectionId { get; set; }
 
         [Required]
-        public int PrescriptionId { get; set; }
+        public int PrescribedID { get; set; }
 
         [Required]
         public int SurgeonId { get; set; }

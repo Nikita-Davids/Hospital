@@ -1,9 +1,9 @@
 ﻿@using Hospital.ModelViews
 @model IEnumerable<PrescriptionDisplayViewModel>
-
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
+
 <head>
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -13,8 +13,8 @@
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: space-between; /* Distributes space between child elements */
+            align-items: center; /* Aligns items vertically in the center */
         }
 
         h1 {
@@ -28,14 +28,14 @@
         }
 
         .prescription-details {
-            display: inline-block;
+            flex: 1; /* Takes up remaining space */
         }
 
         .view-button {
             background-color: #08075F;
             color: white;
             border: none;
-            padding: 20px 40px;
+            padding: 20px 25px;
             text-decoration: none;
             cursor: pointer;
             font-size: 17px;
@@ -82,14 +82,16 @@
                 <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
                 <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
                 <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
+              
             </div>
+
             <div>
-                <!-- Use PrescriptionId instead of PatientIDNumber in the action link -->
-                <a href="@Url.Action("PrescribedScript", "Pharmacist", new { prescriptionId = prescription.PrescriptionId })" class="view-button">View Script</a>
+                <a href="@Url.Action("PrescribedScript", "Pharmacist", new { PrescribedID = prescription.PrescribedID })" class="view-button">View Script</a>
             </div>
         </div>
     }
 </body>
+
 <br />
 <br />
 

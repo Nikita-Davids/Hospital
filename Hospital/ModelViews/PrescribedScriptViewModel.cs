@@ -7,6 +7,7 @@ namespace Hospital.ViewModels
     {
 
         public int PrescriptionId { get; set; }
+        public int PrescribedID { get; set; }//groupingID
         public int SurgeonId { get; set; }
         public string PatientIDNumber { get; set; }
         public string PatientName { get; set; }

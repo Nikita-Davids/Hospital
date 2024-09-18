@@ -99,74 +99,86 @@ namespace Hospital.Controllers
             return Json(patient);
         }
 
-        // POST method to handle the submission of a prescription
         [HttpPost]
-        public IActionResult AddSurgeonPrescription(SurgeonPrescriptionViewModel model)
+        public IActionResult SurgeonPrescription(SurgeonPrescriptionViewModel model)
         {
-            // Check if the model state is valid
+            // Use the injected ApplicationDbContext
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Process each medication in the prescription
-                    foreach (var med in model.Medications)
+                    if (model.Medications != null && model.Medications.Any())
                     {
-                        // Find the medication in the database
-                        var medication = _context.Medication
-                            .Where(m => m.MedicationName == med.MedicationName &&
-                                        m.DosageForm == med.PrescriptionDosageForm &&
-                                        m.IsDeleted != "Deleted")
-                            .FirstOrDefault();
+                        // Determine the next PrescribedId
+                        int nextPrescribedId = _context.SurgeonPrescription
+                            .OrderByDescending(sp => sp.PrescribedID)
+                            .Select(sp => sp.PrescribedID)
+                            .FirstOrDefault() + 1;
 
-                        // If the medication is found, create a new prescription entry
-                        if (medication != null)
+                        // Get unique medications by MedicationName and DosageForm
+                        var uniqueMedications = model.Medications
+                            .GroupBy(m => new { m.MedicationName, m.PrescriptionDosageForm })
+                            .Select(g => g.First())
+                            .ToList();
+
+                        foreach (var med in uniqueMedications)
                         {
-                            var prescription = new SurgeonPrescription
+                            var medicationItem = _context.Medication
+                                .Where(m => m.MedicationName == med.MedicationName &&
+                                            m.DosageForm == med.PrescriptionDosageForm &&
+                                            m.IsDeleted != "Deleted")
+                                .FirstOrDefault();
+
+                            if (medicationItem != null)
                             {
-                                PatientIdnumber = model.PatientIDNumber,
-                                PatientName = model.PatientName,
-                                PatientSurname = model.PatientSurname,
-                                MedicationId = medication.MedicationId,
-                                MedicationName = med.MedicationName,
-                                PrescriptionDosageForm = med.PrescriptionDosageForm,
-                                SurgeonId = model.SurgeonID,
-                                Quantity = med.Quantity,
-                                Instructions = med.Instructions,
-                                Urgent = model.Urgent,
-                                PrescriptionDate = model.PrescriptionDate,
-                                Dispense = model.Dispense,
-                                // Set DispenseDateTime if Dispense is marked as "Dispense"
-                                DispenseDateTime = model.Dispense == "Dispense" ? DateTime.Now : (DateTime?)null,
-                                PharmacistName = model.PharmacistName,
-                                PharmacistSurname = model.PharmacistSurname,
-                            };
+                                var prescription = new SurgeonPrescription
+                                {
+                                    PatientIdnumber = model.PatientIDNumber,
+                                    PatientName = model.PatientName,
+                                    PatientSurname = model.PatientSurname,
+                                    MedicationId = medicationItem.MedicationId,
+                                    MedicationName = med.MedicationName,
+                                    PrescriptionDosageForm = med.PrescriptionDosageForm,
+                                    SurgeonId = model.SurgeonID,
+                                    Quantity = med.Quantity,
+                                    Instructions = med.Instructions,
+                                    Urgent = model.Urgent,
+                                    PrescriptionDate = model.PrescriptionDate,
+                                    Dispense = model.Dispense,
+                                    DispenseDateTime = model.Dispense == "Dispense" ? DateTime.Now : (DateTime?)null,
+                                    PharmacistName = model.PharmacistName,
+                                    PharmacistSurname = model.PharmacistSurname,
+                                    PrescribedID = nextPrescribedId // Assign the same PrescribedId
+                                };
 
-                            // Add the new prescription to the database
-                            _context.SurgeonPrescription.Add(prescription);
+                                // Add the new prescription to the database
+                                _context.SurgeonPrescription.Add(prescription);
+                            }
+                            else
+                            {
+                                ModelState.AddModelError(string.Empty, $"Medication {med.MedicationName} not found.");
+                            }
                         }
-                        else
-                        {
-                            // Add a model error if the medication is not found
-                            ModelState.AddModelError(string.Empty, $"Medication {med.MedicationName} not found.");
-                        }
+
+                        // Save changes to the database
+                        _context.SaveChanges();
+
+                        return RedirectToAction("Success");
                     }
-
-                    // Save changes to the database
-                    _context.SaveChanges();
-
-                    // Redirect to the success page upon successful submission
-                    return RedirectToAction("Success");
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "At least one medication is required.");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // Handle exceptions and pass the error message to the view
                     ViewBag.ExceptionMessage = ex.Message;
                     return View(model);
                 }
             }
 
-            // If model state is invalid, redisplay the form with validation errors
             return View(model);
         }
+
     }
 }

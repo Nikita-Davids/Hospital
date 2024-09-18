@@ -68,15 +68,29 @@
         }
 </style>
 
-<h1>Rejected Prescription Details</h1>
+<h1><u><b>Rejected Prescription Details</b></u></h1>
 
 <div class="details-container">
-  
+    <div>
+        <b>Prescribed ID:</b> @Model.PrescribedID
+    </div>
     <div>
         <b>Patient ID Number:</b> @Model.PatientIDNumber
     </div>
     <div>
         <b>Patient Name:</b> @Model.PatientName @Model.PatientSurname
+    </div>
+    <div>
+        <b>Medication Name:</b> @Model.MedicationName
+    </div>
+    <div>
+        <b>Dosage Form:</b> @Model.PrescriptionDosageForm
+    </div>
+    <div>
+        <b>Quantity:</b> @Model.Quantity
+    </div>
+    <div>
+        <b>Instructions:</b> @Model.Instructions
     </div>
     <div>
         <b>Urgency:</b> @Model.Urgent
@@ -87,25 +101,10 @@
     <div>
         <b>Prescription Date:</b> @Model.PrescriptionDate?.ToString("dd-MM-yyyy")
     </div>
-
-    <div class="medication-rejected">
-        <h2>Medication Rejected</h2>
-        <div>
-            <b>Medication Name:</b> @Model.MedicationName
-        </div>
-        <div>
-            <b>Dosage Form:</b> @Model.PrescriptionDosageForm
-        </div>
-        <div>
-            <b>Quantity:</b> @Model.Quantity
-        </div>
-        <div>
-            <b>Instructions:</b> @Model.Instructions
-        </div>
+    <div>
+        <b>Dispense Date:</b> @Model.DispenseDateTime?.ToString("dd-MM-yyyy HH:mm")
     </div>
-
     <hr />
-
     <div>
         <b>Rejection Reason:</b> @Model.RejectionReason
     </div>
@@ -120,4 +119,4 @@
     </div>
 </div>
 
-<a href="@Url.Action("ViewRejectScript", "Pharmacist")" class="btn-primary">Back to Rejected Prescriptions List</a>
+<a href="@Url.Action("ViewRejectedScript", "Pharmacist")" class="btn btn-primary">Back to Rejected Prescriptions List</a>

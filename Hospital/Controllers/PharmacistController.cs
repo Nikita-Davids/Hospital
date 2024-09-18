@@ -36,33 +36,39 @@ namespace Hospital.Controllers
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
 
-            // Retrieve all prescriptions where the dispense status is "Not Dispense"
-            var prescriptions = _context.SurgeonPrescription
-                .Where(p => p.Dispense == "Not Dispense") // Filter prescriptions based on the Dispense field
-                .Select(p => new PrescriptionDisplayViewModel
+            // Use _context to access the database
+            var groupedPrescriptions = _context.SurgeonPrescription
+                .Where(p => p.Dispense == "Not Dispense")
+                .GroupBy(p => p.PrescribedID)
+                .Select(g => new PrescriptionDisplayViewModel
                 {
-                    PrescriptionId = p.PrescriptionId, // Ensure this is included for uniqueness
-                    PatientIDNumber = p.PatientIdnumber,
-                    PatientName = p.PatientName,
-                    PatientSurname = p.PatientSurname,
-                    PrescriptionDate = p.PrescriptionDate,
+                    PrescribedID = g.Key,
+                    PatientIDNumber = g.FirstOrDefault().PatientIdnumber,
+                    PatientName = g.FirstOrDefault().PatientName,
+                    PatientSurname = g.FirstOrDefault().PatientSurname,
+                    PrescriptionDate = g.FirstOrDefault().PrescriptionDate,
 
+                    // Retrieve surgeon's name and surname using the surgeon's ID
                     SurgeonName = _context.Surgeons
-                        .Where(s => s.SurgeonId == p.SurgeonId)
+                        .Where(s => s.SurgeonId == g.FirstOrDefault().SurgeonId)
                         .Select(s => s.Name)
                         .FirstOrDefault(),
                     SurgeonSurname = _context.Surgeons
-                        .Where(s => s.SurgeonId == p.SurgeonId)
+                        .Where(s => s.SurgeonId == g.FirstOrDefault().SurgeonId)
                         .Select(s => s.Surname)
                         .FirstOrDefault(),
 
-                    Urgent = p.Urgent
+                    // Map the Urgent field from the prescription
+                    Urgent = g.FirstOrDefault().Urgent,
+
+                    // Count the number of medications
+                    MedicationCount = g.Count()
                 })
                 .OrderByDescending(p => p.PrescriptionDate)
                 .ToList();
 
-            // Pass the list of prescriptions to the view
-            return View(prescriptions);
+            // Pass the list of grouped prescriptions to the view
+            return View(groupedPrescriptions);
         }
 
         public IActionResult ViewInfo()
@@ -585,15 +591,16 @@ namespace Hospital.Controllers
             return View(_context.Patients.ToList());
         }
 
-        // GET: PrescribedScript
-        public IActionResult PrescribedScript(int PrescriptionId)
+        // Prescribed script based on PrescriptionId
+        public IActionResult PrescribedScript(int PrescribedID)
         {
-            // Retrieve prescription details for the specified patient ID
+            // Retrieve prescription details for the specified PrescriptionId
             var prescriptionDetails = _context.SurgeonPrescription
-                .Where(p => p.PrescriptionId == PrescriptionId) // Filter prescriptions by the patient ID
+                .Where(p => p.PrescribedID == PrescribedID) // Filter prescriptions by the PrescriptionId
                 .Select(p => new PrescribedScriptViewModel
                 {
                     // Populate the view model with patient and prescription details
+                    PrescribedID = p.PrescribedID,
                     PatientIDNumber = p.PatientIdnumber,
                     PatientName = p.PatientName,
                     PatientSurname = p.PatientSurname,
@@ -613,9 +620,9 @@ namespace Hospital.Controllers
                     PrescriptionId = p.PrescriptionId,
                     SurgeonId = p.SurgeonId,
 
-                    // Retrieve details of medications prescribed to the patient
+                    // Retrieve details of medications prescribed for this prescription
                     Medications = _context.SurgeonPrescription
-                        .Where(sp => sp.PrescriptionId == PrescriptionId) // Filter medications by the patient ID
+                        .Where(sp => sp.PrescribedID == PrescribedID) // Filter medications by the PrescriptionId
                         .Select(sp => new MedicationDetailViewModel
                         {
                             // Populate each medication detail
@@ -637,12 +644,13 @@ namespace Hospital.Controllers
             // Pass the prescription details to the view
             return View(prescriptionDetails);
         }
+
         [HttpGet]
         public async Task<IActionResult> Dispense(int id)
         {
-            // Fetch all prescribed scripts for the given patient ID
+            // Fetch all prescribed scripts for the given patient ID using _context
             var prescribedScripts = await _context.SurgeonPrescription
-                .Where(ps => ps.PrescriptionId == id)
+                .Where(ps => ps.PrescribedID == id)
                 .ToListAsync();
 
             // Check if any prescribed scripts were found
@@ -690,14 +698,9 @@ namespace Hospital.Controllers
                     // Update the Dispense field to "Dispense"
                     script.Dispense = "Dispense";
 
-                    // Check and log the pharmacist name and surname
+                    // Update pharmacist name and surname
                     var pharmacistName = DisplayNameAndSurname.passUserName ?? "Unknown Name";
                     var pharmacistSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname";
-
-                    Console.WriteLine($"Updating pharmacist name to: {pharmacistName}");
-                    Console.WriteLine($"Updating pharmacist surname to: {pharmacistSurname}");
-
-                    // Update name and surname
                     script.PharmacistName = pharmacistName;
                     script.PharmacistSurname = pharmacistSurname;
 
@@ -716,7 +719,7 @@ namespace Hospital.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (consider using a logging framework for real applications)
+                // Log the error
                 Console.WriteLine($"Error dispensing medication: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
 
@@ -729,20 +732,21 @@ namespace Hospital.Controllers
         }
 
 
+
         [HttpPost]
-        public IActionResult Reject(int prescriptionId, int surgeonId, string rejectionReason)
+        public IActionResult Reject(int PrescribedID, int surgeonId, string rejectionReason)
         {
             try
             {
                 // Validate form values
-                if (prescriptionId <= 0 || surgeonId <= 0 || string.IsNullOrEmpty(rejectionReason))
+                if (PrescribedID <= 0 || surgeonId <= 0 || string.IsNullOrEmpty(rejectionReason))
                 {
                     return Json(new { success = false, message = "Invalid data." });
                 }
 
-                // Check if the PrescriptionId and SurgeonId exist in the database
+                // Check if the PrescribedID and SurgeonId exist in the database
                 var prescription = _context.SurgeonPrescription
-                    .FirstOrDefault(sp => sp.PrescriptionId == prescriptionId && sp.SurgeonId == surgeonId);
+                    .FirstOrDefault(sp => sp.PrescribedID == PrescribedID && sp.SurgeonId == surgeonId);
 
                 if (prescription == null)
                 {
@@ -762,7 +766,7 @@ namespace Hospital.Controllers
                 // Create a new RejectedPrescription entity
                 var rejectedPrescription = new RejectedPrescription
                 {
-                    PrescriptionId = prescriptionId,
+                    PrescribedID = PrescribedID,
                     SurgeonId = surgeonId,
                     RejectionReason = rejectionReason,
                     Status = "Pending",
@@ -777,7 +781,7 @@ namespace Hospital.Controllers
                 _context.SaveChanges();
 
                 // Return a successful response with redirect URL
-                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectScript", "Pharmacist") });
+                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectedScript", "Pharmacist") });
             }
             catch (Exception ex)
             {
@@ -789,6 +793,7 @@ namespace Hospital.Controllers
                 return Json(new { success = false, message = errorMessage });
             }
         }
+
 
         public IActionResult ViewMedicationDispensed()
         {
@@ -824,17 +829,17 @@ namespace Hospital.Controllers
             return View(sp);
         }
 
-        public IActionResult DetailsRejectedScript(int prescriptionId)
+        public IActionResult DetailsRejectedScript(int PrescribedID)
         {
             // Query to join the SurgeonPrescriptions and RejectedPrescription tables
-            // Filter by the provided prescriptionId
+            // Filter by the provided PrescribedID
             var rejectedPrescription = (from sp in _context.SurgeonPrescription
                                         join rp in _context.RejectedPrescription
-                                        on sp.PrescriptionId equals rp.PrescriptionId
-                                        where sp.PrescriptionId == prescriptionId
+                                        on sp.PrescriptionId equals rp.PrescribedID
+                                        where sp.PrescriptionId == PrescribedID
                                         select new RejectedPrescriptionViewModel
                                         {
-                                            PrescriptionId = sp.PrescriptionId,
+                                            PrescribedID = sp.PrescribedID,
                                             PatientIDNumber = sp.PatientIdnumber,
                                             PatientName = sp.PatientName,
                                             PatientSurname = sp.PatientSurname,
@@ -864,17 +869,17 @@ namespace Hospital.Controllers
         }
 
 
-        public IActionResult ViewRejectScript()
+        public IActionResult ViewRejectedScript()
         {
             // Query to join the SurgeonPrescriptions and RejectedPrescription tables
             // Filter for prescriptions where the Dispense status is "Rejected"
             var rejectedPrescriptions = from sp in _context.SurgeonPrescription
                                         join rp in _context.RejectedPrescription
-                                        on sp.PrescriptionId equals rp.PrescriptionId
+                                        on sp.PrescribedID equals rp.PrescribedID
                                         where sp.Dispense == "Rejected"
                                         select new RejectedPrescriptionViewModel
                                         {
-                                            PrescriptionId = sp.PrescriptionId,
+                                            PrescribedID = sp.PrescribedID,
                                             PatientIDNumber = sp.PatientIdnumber,
                                             PatientName = sp.PatientName,
                                             PatientSurname = sp.PatientSurname,
@@ -889,6 +894,7 @@ namespace Hospital.Controllers
                                         };
 
             // Convert the query result to a list and pass it to the view
+            // This allows the view to render a list of rejected prescriptions
             return View(rejectedPrescriptions.ToList());
         }
 
@@ -905,27 +911,6 @@ namespace Hospital.Controllers
             return Json(medicationId);
         }
 
-        public IActionResult Restock()
-        {
-            // Retrieve medications and dosage forms from the database
-            var medications = _context.Medication
-                .Where(m => m.IsDeleted != "Deleted")
-                .OrderBy(m => m.MedicationName)
-                .Select(m => new
-                {
-                    m.MedicationName,
-                    m.DosageForm
-                })
-                .ToList();
-
-            // Prepare data for ViewBag
-            ViewBag.Medications = medications.Select(m => m.MedicationName).Distinct().ToList();
-            ViewBag.DosageForms = medications
-                .GroupBy(m => m.MedicationName)
-                .ToDictionary(g => g.Key, g => g.Select(m => m.DosageForm).Distinct().ToList());
-
-            return View();
-        }
 
         [HttpPost]
         public IActionResult Restock(Restock restock)

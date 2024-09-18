@@ -48,5 +48,9 @@ namespace Hospital.Models
         public virtual ICollection<Restock> Restocks { get; set; }
         public virtual ICollection<Stock> Stocks { get; set; }
         public virtual ICollection<SurgeonPrescription> SurgeonPrescriptions { get; set; }
+
+
     }
+
+
 }

@@ -12,6 +12,9 @@ namespace Hospital.ModelViews
         public string SurgeonName { get; set; }
         public string SurgeonSurname { get; set; }
         public string Urgent { get; set; }
+       public int PrescribedID { get; set; }//groupingID
+
+        public int MedicationCount { get; set; }
     }
 
 }

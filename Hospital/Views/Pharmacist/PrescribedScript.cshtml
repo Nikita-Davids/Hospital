@@ -165,7 +165,8 @@
         <p><strong>Patient Name:</strong> @Model.PatientName @Model.PatientSurname</p>
         <p><strong>Surgeon Name:</strong> @Model.SurgeonName @Model.SurgeonSurname</p>
         <p><strong>Prescription Date:</strong> @Model.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
-       
+        <p><strong>Surgeon ID ID:</strong> @Model.SurgeonId</p>
+        <p><strong>Prescribed ID:</strong> @Model.PrescribedID</p>
     </div>
 
     <h6>Medication to dispense:</h6>
@@ -214,7 +215,7 @@
         <span class="close" onclick="closeRejectModal()">&times;</span>
         <h2>Reject Prescription</h2>
         <form id="rejectForm" method="post" action="@Url.Action("Reject", "Pharmacist")">
-            <input type="hidden" id="PrescriptionId" name="PrescriptionId" value="@Model.PrescriptionId" />
+            <input type="hidden" id="PrescribedID" name="PrescribedID" value="@Model.PrescribedID" />
             <input type="hidden" id="SurgeonId" name="SurgeonId" value="@Model.SurgeonId" />
             <p><strong>Surgeon Name:</strong> <span id="SurgeonName"></span></p>
             <p><strong>Surgeon Surname:</strong> <span id="SurgeonSurname"></span></p>
@@ -230,13 +231,11 @@
     </div>
 </div>
 
-</div>
-
 
 <script>
     function confirmDispense() {
         if (confirm("Are you sure you want to dispense this script?")) {
-            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescriptionId })')
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescribedID })')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -293,12 +292,12 @@
 
     function confirmDispense() {
         if (confirm("Are you sure you want to dispense this script?")) {
-            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescriptionId })')
+            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescribedID })')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert(data.message); // Success message
-                        location.href = '@Url.Action("Index", "Pharmacist")'; // Redirect to the index page or another page
+                        location.href = '@Url.Action("Index", "Pharmacist")'; // Redirect to index
                     } else {
                         alert(data.message); // Error message
                     }

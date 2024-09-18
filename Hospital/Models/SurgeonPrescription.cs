@@ -1,4 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Hospital.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+#nullable disable
 
 namespace Hospital.Models
 {
@@ -6,6 +11,8 @@ namespace Hospital.Models
     {
         [Key]
         public int PrescriptionId { get; set; }
+
+        public int PrescribedID { get; set; }
         public string PatientIdnumber { get; set; }
         public string PatientName { get; set; }
         public string PatientSurname { get; set; }
@@ -26,7 +33,5 @@ namespace Hospital.Models
 
         public virtual Medication Medication { get; set; }
         public virtual Surgeon Surgeon { get; set; }
-
-        
     }
 }
