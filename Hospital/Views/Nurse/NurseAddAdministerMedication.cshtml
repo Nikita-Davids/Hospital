@@ -1,0 +1,79 @@
+﻿@model Hospital.Models.AdministerMedication
+
+@{
+    ViewData["Title"] = "Administer Medication";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="NurseAddAdministerMedication">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Pre-filled fields with Model Values -->
+            <div class="form-group">
+                <label asp-for="Patient_Id" class="control-label">Patient ID</label>
+                <input asp-for="Patient_Id" class="form-control" value="@ViewBag.PatientId" />
+                <span asp-validation-for="Patient_Id" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AdministerMedicationTime" class="control-label">Administer Medication Time</label>
+                <input asp-for="AdministerMedicationTime" class="form-control" />
+                <span asp-validation-for="AdministerMedicationTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ScriptDetails" class="control-label">Script Details</label>
+                <input asp-for="ScriptDetails" class="form-control" value="@ViewBag.ScriptDetails" />
+                <span asp-validation-for="ScriptDetails" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MedicationId" class="control-label">Medication ID</label>
+                <input asp-for="MedicationId" class="form-control" value="@ViewBag.MedicationId" />
+                <span asp-validation-for="MedicationId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label">Quantity</label>
+                <input asp-for="Quantity" class="form-control" value="@ViewBag.Quantity" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DosageFormName" class="control-label">Dosage Form Name</label>
+                <input asp-for="DosageFormName" class="form-control" value="@ViewBag.DosageForm" />
+                <span asp-validation-for="DosageFormName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Administer" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewAdministerMedication">View Administered Medication</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            successMessage.style.display = "block";
+            setTimeout(function () {
+                successMessage.style.display = "none";
+            }, 3000);
+        }
+    });
+</script>
