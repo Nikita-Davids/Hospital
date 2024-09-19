@@ -880,6 +880,14 @@ namespace Hospital.Controllers
             // Redirect back to the NurseDispensedAlert page after updating
             return RedirectToAction("NurseDispensedAlert");
         }
+
+        public IActionResult NurseViewAdminsterMedication()
+        {
+            // Fetch all DischargedPatient entries
+            var administerMedication = _context.AdministerMedication.ToList();
+            return View(administerMedication);
+        }
+
     }
 }
 
