@@ -71,7 +71,69 @@ namespace Hospital.Controllers
             }
             return View(model);
         }
-        public IActionResult NurseViewDischarges()
+
+        // GET: Nurse/EditDischargedPatient/5
+        public async Task<IActionResult> NurseEditDischargedPatient(int id)
+        {
+            // Fetch the discharged patient record from the database
+            var dischargedPatient = await _context.DischargedPatients.FindAsync(id);
+            if (dischargedPatient == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag for dropdown list, if needed (e.g., for selecting patients)
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", dischargedPatient.PatientId);
+
+            return View(dischargedPatient);
+        }
+
+        // POST: Nurse/EditDischargedPatient/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditDischargedPatient(int id, DischargedPatient model)
+        {
+            if (id != model.DischargedPatients)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Update the discharged patient record
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DischargedPatientExists(model.DischargedPatients))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("NurseViewDischargedPatients");
+            }
+
+            // Repopulate ViewBag for dropdown list in case of a validation failure
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientIDNumber", model.PatientId);
+
+            return View(model);
+        }
+
+        // Check if a discharged patient record exists
+        private bool DischargedPatientExists(int id)
+        {
+            return _context.DischargedPatients.Any(e => e.DischargedPatients == id);
+        }
+
+
+        public IActionResult NurseViewDischargedPatients()
         {
             // Fetch all DischargedPatient entries
             var dischargedPatients = _context.DischargedPatients.ToList();
