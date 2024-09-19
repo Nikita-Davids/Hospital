@@ -10,12 +10,14 @@ using MailKit.Security;
 using System.Text;
 using System.Net.Mail;
 using System.Net;
+using Hospital.ViewModels;
 namespace Hospital.Controllers
 {
     public class NurseController(ApplicationDbContext dbContext) : Controller
     {
         ApplicationDbContext _context = dbContext;
 
+     
         public IActionResult NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
@@ -810,13 +812,6 @@ namespace Hospital.Controllers
         }
 
      
-
-
-
-
-
-
-
 
 
 
