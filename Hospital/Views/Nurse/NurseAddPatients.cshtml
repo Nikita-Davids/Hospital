@@ -1,7 +1,7 @@
 ﻿@model Hospital.Patients
 
 @{
-    ViewData["Title"] = "NurseAddPatients";
+    ViewData["Title"] = "Add Patients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 @section Scripts {
@@ -22,7 +22,7 @@
     <form asp-action="NurseAddPatients">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-            <label asp-for="PatientIDNumber" class="control-label">Patient ID Number</label>
+            <label asp-for="PatientIDNumber" class="control-label">Patient ID</label>
             <input asp-for="PatientIDNumber" class="form-control" />
             <span asp-validation-for="PatientIDNumber" class="text-danger"></span>
         </div>

@@ -881,7 +881,75 @@ namespace Hospital.Controllers
             return RedirectToAction("NurseDispensedAlert");
         }
 
-        public IActionResult NurseViewAdminsterMedication()
+
+
+
+
+
+
+
+
+
+        // GET: Nurse/NurseAddAdministerMedication
+        public IActionResult NurseAddAdministerMedication(string patientId, string patientName, string medicationName, string dosageForm, int quantity)
+        {
+            // If patient data is provided, populate the form fields using ViewBag
+            if (!string.IsNullOrEmpty(patientId))
+            {
+                ViewBag.PatientId = patientId;
+                ViewBag.PatientName = patientName;
+                ViewBag.ScriptDetails = medicationName; // Populate ScriptDetails with the Medication Name
+                ViewBag.DosageForm = dosageForm;
+                ViewBag.Quantity = quantity;
+            }
+
+            // Optionally, you could fetch additional data here from the database if needed
+            // For example: Fetch a full list of medications for dropdown
+            // ViewBag.Medications = new SelectList(_context.Medications, "MedicationId", "MedicationName");
+
+            return View();
+        }
+
+        // POST: Nurse/NurseAddAdministerMedication
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddAdministerMedication(AdministerMedication model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Save the new medication administration record to the database
+                    _context.Add(model);
+                    await _context.SaveChangesAsync();
+
+                    // Display a success message
+                    TempData["SuccessMessage"] = "Medication administered successfully.";
+
+                    return RedirectToAction("NurseViewAdministerMedication"); // Redirect to the list of administered medications
+                }
+                catch (Exception ex)
+                {
+                    // Log the error
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
+                }
+            }
+
+            // If there is a validation error or an exception, repopulate the form with the submitted values
+            ViewBag.PatientId = model.Patient_Id;
+            ViewBag.ScriptDetails = model.ScriptDetails; // Populate with the medication name
+            ViewBag.DosageForm = model.DosageFormName;
+            ViewBag.Quantity = model.Quantity;
+
+            return View(model); // Return the form view with validation messages
+        }
+
+
+
+
+
+        public IActionResult NurseViewAdministerMedication()
         {
             // Fetch all DischargedPatient entries
             var administerMedication = _context.AdministerMedication.ToList();

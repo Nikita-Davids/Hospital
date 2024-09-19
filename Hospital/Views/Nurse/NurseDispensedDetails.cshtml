@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Nurse Dispensed Details";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
-
 }
 
 <h1>Nurse Dispensed Details</h1>
@@ -22,6 +21,18 @@
         <input type="hidden" name="prescriptionId" value="@Model.PrescriptionId" />
         <button type="submit" class="receive-button">Receive</button>
     </form>
+</div>
+
+<!-- When the "Administer Medication" button is clicked, redirect to the form with pre-filled values -->
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseAddAdministerMedication"
+       asp-route-patientId="@Model.PatientIdnumber"
+       asp-route-patientName="@Model.PatientName"
+       asp-route-patientSurname="@Model.PatientSurname"
+       asp-route-medicationName="@Model.MedicationName"
+       asp-route-dosageForm="@Model.PrescriptionDosageForm"
+       asp-route-quantity="@Model.Quantity"
+       asp-route-prescriptionId="@Model.PrescriptionId">Administer Medication</a>
 </div>
 
 <a href="@Url.Action("NurseDispensedAlert", "Nurse")" class="view-button">Back to Alerts</a>
