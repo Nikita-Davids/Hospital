@@ -1,7 +1,7 @@
 ﻿@model Hospital.Models.DischargedPatient
 
 @{
-    ViewData["Title"] = "NurseDischargePatients";
+    ViewData["Title"] = "Discharge Patients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 @if (TempData["SuccessMessage"] != null)
@@ -11,7 +11,7 @@
     </div>
 }
 
-<h1>Discharge Patients</h1>
+<h1>@ViewData["Title"]</h1>
 
 <div class="form-container">
     <form asp-action="NurseDischargePatients" method="post">

@@ -1,11 +1,11 @@
 ﻿@model Hospital.Models.PatientVital
 
 @{
-    ViewData["Title"] = "NurseEditPatientVital";
+    ViewData["Title"] = "Edit Patient Vitals";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>Edit Patient Vital</h1>
+<h1>@ViewData["Title"]</h1>
 
 <div class="form-container">
     <form asp-action="NurseEditPatientVital">
@@ -68,5 +68,5 @@
 </div>
 
 <div class="button-container">
-    <a class="btn-link" asp-action="NurseViewPatientVital">View Patient Vital</a>
+    <a class="btn-link" asp-action="NurseViewPatientVital">View Patient Vitals</a>
 </div>

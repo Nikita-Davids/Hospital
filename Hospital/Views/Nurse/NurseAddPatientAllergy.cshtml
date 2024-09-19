@@ -1,7 +1,7 @@
 ﻿@model Hospital.Models.PatientAllergy
 
 @{
-    ViewData["Title"] = "NurseAddPatientAllergy";
+    ViewData["Title"] = "Add Patient Allergy";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 
 }
@@ -12,8 +12,7 @@
     </div>
 }
 
-<h1>Add Patient Allergy</h1>
-
+<h1>@ViewData["Title"]</h1>
 
 <div class="form-container">
         <form asp-action="NurseAddPatientAllergy">
