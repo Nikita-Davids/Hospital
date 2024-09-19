@@ -913,6 +913,7 @@ namespace Hospital.Controllers
                     sp.PatientName,
                     sp.PatientSurname,
                     sp.MedicationName,
+                    sp.MedicationId,
                     sp.PrescriptionDosageForm,
                     sp.Quantity
                 })
@@ -953,7 +954,7 @@ namespace Hospital.Controllers
 
 
         // GET: Nurse/NurseAddAdministerMedication
-        public IActionResult NurseAddAdministerMedication(string patientId, string patientName, string medicationName, string dosageForm, int quantity)
+        public IActionResult NurseAddAdministerMedication(string patientId, string patientName, string medicationName,int medicationId, string dosageForm, int quantity)
         {
             // If patient data is provided, populate the form fields using ViewBag
             if (!string.IsNullOrEmpty(patientId))
@@ -961,6 +962,7 @@ namespace Hospital.Controllers
                 ViewBag.PatientId = patientId;
                 ViewBag.PatientName = patientName;
                 ViewBag.ScriptDetails = medicationName; // Populate ScriptDetails with the Medication Name
+                ViewBag.MedicationId = medicationId;
                 ViewBag.DosageForm = dosageForm;
                 ViewBag.Quantity = quantity;
             }
@@ -988,7 +990,7 @@ namespace Hospital.Controllers
                     // Display a success message
                     TempData["SuccessMessage"] = "Medication administered successfully.";
 
-                    return RedirectToAction("NurseViewAdministerMedication"); // Redirect to the list of administered medications
+                    return RedirectToAction("NurseAddAdministerMedication"); // Redirect to the list of administered medications
                 }
                 catch (Exception ex)
                 {
@@ -1001,6 +1003,7 @@ namespace Hospital.Controllers
             // If there is a validation error or an exception, repopulate the form with the submitted values
             ViewBag.PatientId = model.Patient_Id;
             ViewBag.ScriptDetails = model.ScriptDetails; // Populate with the medication name
+            ViewBag.MedicationId = model.MedicationId;
             ViewBag.DosageForm = model.DosageFormName;
             ViewBag.Quantity = model.Quantity;
 
