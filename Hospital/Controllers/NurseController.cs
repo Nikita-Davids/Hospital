@@ -75,8 +75,11 @@ namespace Hospital.Controllers
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
 
-            // Retrieve all patient vital records
-            var patientVitals = _context.PatientVital
+            // Retrieve patient vitals that are out of range
+            var outOfRangeVitals = _context.PatientVital
+                .Where(v => v.Tempreture > 37 || v.Tempreture < 34 || // Temperature out of range
+                            v.Pulse > 100 || v.Pulse < 60 || // Pulse out of range
+                            v.BloodOxygen < 95) // Blood oxygen out of range
                 .Select(v => new PatientVital
                 {
                     PatientVitalId = v.PatientVitalId,
@@ -94,9 +97,11 @@ namespace Hospital.Controllers
                 .OrderByDescending(v => v.VitalTime)
                 .ToList();
 
-            // Pass the list of patient vitals to the view
-            return View(patientVitals);
+            // Pass the filtered list of patient vitals to the view
+            return View(outOfRangeVitals);
         }
+
+
 
         public IActionResult NurseDischargePatients()
         {
