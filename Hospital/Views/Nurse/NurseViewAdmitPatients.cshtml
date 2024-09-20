@@ -1,0 +1,53 @@
+﻿@model IEnumerable<Hospital.Models.PatientsAdministration>
+
+@{
+    ViewData["Title"] = "NurseViewAdmitPatients";
+}
+
+<h1>NurseViewAdmitPatients</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientWard)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientBed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateAssigned)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientWard)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientBed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateAssigned)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PatientsAdministration1">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PatientsAdministration1">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PatientsAdministration1">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

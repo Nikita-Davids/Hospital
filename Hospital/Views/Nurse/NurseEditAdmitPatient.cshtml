@@ -1,0 +1,46 @@
+﻿@model Hospital.Models.PatientsAdministration
+
+@{
+    ViewData["Title"] = "NurseEditAdmitPatient";
+}
+
+<h1>NurseEditAdmitPatient</h1>
+
+<h4>PatientsAdministration</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="NurseEditAdmitPatient">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PatientsAdministration1" />
+            <div class="form-group">
+                <label asp-for="PatientId" class="control-label"></label>
+                <input asp-for="PatientId" class="form-control" />
+                <span asp-validation-for="PatientId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientWard" class="control-label"></label>
+                <input asp-for="PatientWard" class="form-control" />
+                <span asp-validation-for="PatientWard" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientBed" class="control-label"></label>
+                <input asp-for="PatientBed" class="form-control" />
+                <span asp-validation-for="PatientBed" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateAssigned" class="control-label"></label>
+                <input asp-for="DateAssigned" class="form-control" />
+                <span asp-validation-for="DateAssigned" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
