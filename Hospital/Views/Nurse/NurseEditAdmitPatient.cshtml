@@ -1,13 +1,12 @@
 ﻿@model Hospital.Models.PatientsAdministration
 
 @{
-    ViewData["Title"] = "NurseEditAdmitPatient";
+    ViewData["Title"] = "Edit Admitted Patient";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>NurseEditAdmitPatient</h1>
+<h1>@ViewData["Title"]</h1>
 
-<h4>PatientsAdministration</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="NurseEditAdmitPatient">
@@ -15,7 +14,7 @@
             <input type="hidden" asp-for="PatientsAdministration1" />
             <div class="form-group">
                 <label asp-for="PatientId" class="control-label"></label>
-                <input asp-for="PatientId" class="form-control" />
+                <input asp-for="PatientId" class="form-control" readonly />
                 <span asp-validation-for="PatientId" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -41,6 +40,6 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="NurseViewAdmitPatients">View Admitted Patients</a>
 </div>
 

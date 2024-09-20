@@ -1,14 +1,12 @@
 ﻿@model IEnumerable<Hospital.Models.PatientsAdministration>
 
 @{
-    ViewData["Title"] = "NurseViewAdmitPatients";
+    ViewData["Title"] = "View Admitted Patients";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>NurseViewAdmitPatients</h1>
+<h1>@ViewData["Title"]</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -43,11 +41,12 @@
                 @Html.DisplayFor(modelItem => item.DateAssigned)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.PatientsAdministration1">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.PatientsAdministration1">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.PatientsAdministration1">Delete</a>
+                    <a asp-action="NurseEditAdmitPatient" asp-route-id="@item.PatientsAdministration1">Edit</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseAdmitPatient">Admit Patient</a>
+</div>

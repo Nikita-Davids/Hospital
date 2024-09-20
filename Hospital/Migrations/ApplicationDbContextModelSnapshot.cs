@@ -478,16 +478,19 @@ namespace Hospital.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientsAdministration1"));
 
-                    b.Property<string>("PatientBed")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("DateAssigned")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PatientBed")
+                        .HasColumnType("int");
 
                     b.Property<string>("PatientId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PatientWard")
-                        .HasColumnType("int");
+                    b.Property<string>("PatientWard")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PatientsAdministration1");
 

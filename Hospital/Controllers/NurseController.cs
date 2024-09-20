@@ -1062,15 +1062,145 @@ namespace Hospital.Controllers
             return View(model); // Return the form view with validation messages
         }
 
-
-
-
-
         public IActionResult NurseViewAdministerMedication()
         {
             // Fetch all DischargedPatient entries
             var administerMedication = _context.AdministerMedication.ToList();
             return View(administerMedication);
+        }
+
+
+
+
+
+        // GET: Nurse/AddPatientsAdministration
+        [HttpGet]
+        public IActionResult NurseAdmitPatient()
+        {
+            // Populate ViewBag with dropdown list of wards
+            ViewBag.WardName = new SelectList(_context.Ward, "WardName", "WardName"); // Use WardName for both value and display
+
+            // Populate ViewBag with dropdown lists for patients
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            return View(new PatientsAdministration());
+        }
+
+        // POST: Nurse/AddPatientsAdministration
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult NurseAdmitPatient(PatientsAdministration model)
+        {
+            if (ModelState.IsValid)
+            {
+                TempData["SuccessMessage"] = "Patient administration added successfully.";
+
+                // Check if a patient administration record with the same patient and bed already exists
+                var existingAdmin = _context.PatientsAdministration
+                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                          pa.PatientBed == model.PatientBed);
+
+                if (existingAdmin == null)
+                {
+                    // Create a new PatientsAdministration entity
+                    var patientsAdmin = new PatientsAdministration
+                    {
+                        PatientId = model.PatientId,
+                        PatientWard = model.PatientWard,
+                        PatientBed = model.PatientBed,
+                        DateAssigned = model.DateAssigned
+                    };
+
+                    // Add the PatientsAdministration entity to the context
+                    _context.PatientsAdministration.Add(patientsAdmin);
+                    _context.SaveChanges(); // Save changes
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("NurseAddPatientsAdministration");
+                }
+                else
+                {
+                    // If the administration record for this patient and bed already exists, return an error message
+                    ModelState.AddModelError("", "This patient is already assigned to the specified bed.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+        // GET: Nurse/ViewPatientsAdministration
+        public async Task<IActionResult> NurseViewAdmitPatients()
+        {
+            var patientsAdmin = await _context.PatientsAdministration.ToListAsync();
+            return View(patientsAdmin);
+        }
+        // GET: Nurse/EditPatientsAdministration/5
+        public async Task<IActionResult> NurseEditAdmitPatient(int id)
+        {
+            // Retrieve the patient administration record from the database using the provided ID
+            var patientsAdmin = await _context.PatientsAdministration.FirstOrDefaultAsync(m => m.PatientsAdministration1 == id);
+
+            // Check if the patient administration exists. If not, return a 404 Not Found response.
+            if (patientsAdmin == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientsAdmin.PatientId);
+
+            // Return the view with the patient administration data to be edited
+            return View(patientsAdmin);
+        }
+
+        // POST: Nurse/EditPatientsAdministration/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditAdmitPatient(int id, [Bind("PatientsAdministration1,PatientId,PatientWard,PatientBed,DateAssigned")] PatientsAdministration patientsAdmin)
+        {
+            if (id != patientsAdmin.PatientsAdministration1)
+            {
+                return NotFound();
+            }
+
+            // Check if a similar administration record exists for the same patient and bed (excluding current entry)
+            if (_context.PatientsAdministration.Any(pa => pa.PatientId == patientsAdmin.PatientId && pa.PatientBed == patientsAdmin.PatientBed && pa.PatientsAdministration1 != id))
+            {
+                ModelState.AddModelError("PatientBed", "This patient is already assigned to the specified bed.");
+                ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientsAdmin.PatientId);
+                return View(patientsAdmin);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(patientsAdmin);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PatientsAdministrationExists(patientsAdmin.PatientsAdministration1))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return RedirectToAction(nameof(NurseViewAdmitPatients));
+            }
+
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientsAdmin.PatientId);
+            return View(patientsAdmin);
+        }
+
+        // Helper method to check if a patient administration record exists in the database
+        private bool PatientsAdministrationExists(int id)
+        {
+            return _context.PatientsAdministration.Any(e => e.PatientsAdministration1 == id);
         }
 
     }
