@@ -498,7 +498,7 @@ namespace Hospital.Controllers
 
                 // Define the email message
                 var fromAddress = new MailAddress("kitadavids@gmail.com", "Stock Management");
-                var toAddress = new MailAddress("robertobooysen11@gmail.com", "Admin");
+                var toAddress = new MailAddress("kitadavids@gmail.com", "Admin");
                 const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
 
                 var smtpClient = new System.Net.Mail.SmtpClient

@@ -70,7 +70,7 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-        public IActionResult NurseVitalAlert()
+        public async Task<IActionResult> NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
             ViewBag.UserName = TempData["UserName"];
@@ -97,9 +97,21 @@ namespace Hospital.Controllers
                 .OrderByDescending(v => v.VitalTime)
                 .ToList();
 
+            // Check if there are out of range vitals
+            if (outOfRangeVitals.Any())
+            {
+                // Send email alert for the out of range vitals
+                await SendPatientVitalEmail(outOfRangeVitals);
+            }
+            else
+            {
+                Console.WriteLine("No out-of-range vitals found.");
+            }
+
             // Pass the filtered list of patient vitals to the view
             return View(outOfRangeVitals);
         }
+
 
 
 
@@ -1107,7 +1119,7 @@ namespace Hospital.Controllers
                         PatientId = model.PatientId,
                         PatientWard = model.PatientWard,
                         PatientBed = model.PatientBed,
-                        DateAssigned = model.DateAssigned
+                       DateAssigned = model.DateAssigned
                     };
 
                     // Add the PatientsAdministration entity to the context
