@@ -7,6 +7,7 @@ namespace Hospital
     {
         [Key]
         [StringLength(13)]
+        [Display(Name = "Patient ID")]
         public string PatientIDNumber { get; set; }
 
         [Required]

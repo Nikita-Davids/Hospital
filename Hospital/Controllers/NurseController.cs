@@ -17,7 +17,59 @@ namespace Hospital.Controllers
     {
         ApplicationDbContext _context = dbContext;
 
-     
+        public async Task<IActionResult> PatientOverview(string patientId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                return BadRequest("Patient ID is required.");
+            }
+
+            // Fetch patient details
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientIDNumber == patientId);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch vitals
+            var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
+
+            // Fetch allergies
+            var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
+
+            // Fetch current medications
+            var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
+
+            // Fetch medical conditions
+            var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
+
+            var model = new PatientOverviewViewModel
+            {
+                PatientIDNumber = patient.PatientIDNumber,
+                PatientName = patient.PatientName,
+                PatientSurname = patient.PatientSurname,
+                PatientAddress = patient.PatientAddress,
+                PatientContactNumber = patient.PatientContactNumber,
+                PatientEmailAddress = patient.PatientEmailAddress,
+                PatientDateOfBirth = patient.PatientDateOfBirth,
+                PatientGender = patient.PatientGender,
+                Weight = vitals?.Weight,
+                Height = vitals?.Height,
+                Temperature = vitals?.Tempreture,
+                BloodPressure = vitals?.BloodPressure,
+                Pulse = vitals?.Pulse,
+                Respiratory = vitals?.Respiratory,
+                BloodOxygen = vitals?.BloodOxygen,
+                BloodGlucoseLevel = vitals?.BloodGlucoseLevel,
+                VitalTime = vitals?.VitalTime,
+                Allergies = allergies,
+                CurrentMedications = currentMedications,
+                MedicalConditions = medicalConditions
+            };
+
+            return View(model);
+        }
+
         public IActionResult NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData

@@ -14,6 +14,9 @@
     <thead>
         <tr>
             <th class="col-weight">
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th class="col-weight">
                 @Html.DisplayNameFor(model => model.Weight)
             </th>
             <th class="col-height">
@@ -49,6 +52,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td class="col-weight">
+                    @Html.DisplayFor(modelItem => item.PatientId)
+                </td>
                 <td class="col-weight">
                     @Html.DisplayFor(modelItem => item.Weight)
                 </td>
