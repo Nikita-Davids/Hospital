@@ -911,6 +911,25 @@ namespace Hospital.Controllers
             return Json(medicationId);
         }
 
+        [HttpGet]
+        public IActionResult Restock()
+        {
+            var medications = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .OrderBy(m => m.MedicationName)
+                .Select(m => m.MedicationName)
+                .Distinct()
+                .ToList();
+
+            // Use the correct ViewBag key
+            ViewBag.Medication = new SelectList(medications); // Singular
+
+            return View();
+        }
+
+
+
+
 
         [HttpPost]
         public IActionResult Restock(Restock restock)
