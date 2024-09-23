@@ -917,12 +917,22 @@ namespace Hospital.Controllers
             var medications = _context.Medication
                 .Where(m => m.IsDeleted != "Deleted")
                 .OrderBy(m => m.MedicationName)
-                .Select(m => m.MedicationName)
-                .Distinct()
-                .ToList();
+                .Select(m => new SelectListItem
+                {
+                    Value = m.MedicationName,
+                    Text = m.MedicationName
+                }).ToList();
 
-            // Use the correct ViewBag key
-            ViewBag.Medication = new SelectList(medications); // Singular
+            ViewBag.Medication = medications; // Correctly set ViewBag for medications
+
+            // Fetch and group dosage forms by medication name
+            var dosageForms = _context.Medication
+                .Where(m => m.IsDeleted != "Deleted")
+                .GroupBy(m => m.MedicationName)
+                .ToDictionary(g => g.Key, g => g.Select(m => m.DosageForm).Distinct().ToList());
+
+            // Pass dosage forms to the view
+            ViewBag.DosageForms = dosageForms;
 
             return View();
         }
@@ -931,56 +941,54 @@ namespace Hospital.Controllers
 
 
 
-        [HttpPost]
-        public IActionResult Restock(Restock restock)
+       [HttpPost]
+public IActionResult Restock(Restock restock)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(restock.MedicationName) || string.IsNullOrEmpty(restock.DosageForm) || restock.QuantityReceived == 0 || restock.RestockDate == null || restock.MedicationId == 0)
         {
-            try
-            {
-                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.RestockDate == null || restock.MedicationId == 0)
-                {
-                    ViewBag.Error = "Please enter all fields";
-                    return View();
-                }
-                else
-                {
-                    Restock r = new Restock()
-                    {
-                        MedicationName = restock.MedicationName,
-                        DosageForm = restock.DosageForm,
-                        QuantityReceived = restock.QuantityReceived,
-                        RestockDate = restock.RestockDate,
-                        MedicationId = restock.MedicationId
-                    };
-                    _context.Restock.Add(r);
-                    // Find the stock entry for the medication
-                    var stockEntry = _context.Stock
-                        .FirstOrDefault(s => s.MedicationId == r.MedicationId);
-
-                    if (stockEntry != null)
-                    {
-                        // Medication exists in Stock table, update stock quantity
-                        stockEntry.StockOnHand += r.QuantityReceived;
-                    }
-                    else
-                    {
-                        // Medication does not exist in Stock table, add new entry
-                        _context.Stock.Add(new Stock
-                        {
-                            MedicationId = r.MedicationId ?? 0,
-                            StockOnHand = r.QuantityReceived
-                        });
-                    }
-                    _context.SaveChanges();
-
-                    return RedirectToAction("ViewRestock");
-                }
-            }
-            catch
-            {
-                ViewBag.Error = "Restock already in the database";
-                return View();
-            }
+            ViewBag.Error = "Please enter all fields";
+            return View();
         }
+
+        Restock newRestock = new Restock
+        {
+            MedicationName = restock.MedicationName,
+            DosageForm = restock.DosageForm,
+            QuantityReceived = restock.QuantityReceived,
+            RestockDate = restock.RestockDate,
+            MedicationId = restock.MedicationId
+        };
+
+        _context.Restock.Add(newRestock);
+
+        var stockEntry = _context.Stock
+            .FirstOrDefault(s => s.MedicationId == restock.MedicationId);
+
+        if (stockEntry != null)
+        {
+            stockEntry.StockOnHand += restock.QuantityReceived;
+        }
+        else
+        {
+            _context.Stock.Add(new Stock
+            {
+                MedicationId = restock.MedicationId ?? 0,
+                StockOnHand = restock.QuantityReceived
+            });
+        }
+
+        _context.SaveChanges();
+
+        return RedirectToAction("ViewRestock");
+    }
+    catch (Exception ex)
+    {
+        ViewBag.Error = "An error occurred: " + ex.Message;
+        return View();
+    }
+}
 
 
         // GET: Restock
@@ -1053,7 +1061,7 @@ namespace Hospital.Controllers
         {
             try
             {
-                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.MedicationId == 0)
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived <= 0 || restock.MedicationId <= 0)
                 {
                     ViewBag.Error = "Please enter all fields";
                     return View(restock);
@@ -1074,6 +1082,14 @@ namespace Hospital.Controllers
                     existingRestock.QuantityReceived = restock.QuantityReceived;
                     existingRestock.MedicationId = restock.MedicationId;
 
+                    // Update stock on hand
+                    var stock = _context.Stock.FirstOrDefault(s => s.MedicationId == restock.MedicationId);
+                    if (stock != null)
+                    {
+                        // Adjust stock on hand based on the quantity received
+                        stock.StockOnHand += restock.QuantityReceived; // or stock.StockOnHand -= restock.QuantityReceived for decreasing
+                    }
+
                     // Save changes to the database using _context
                     _context.SaveChanges();
 
@@ -1086,6 +1102,7 @@ namespace Hospital.Controllers
                 return View(restock);
             }
         }
+
 
 
     }

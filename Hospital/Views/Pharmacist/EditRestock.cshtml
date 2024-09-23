@@ -4,13 +4,72 @@
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
 
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    h4 {
+        color: #08075F;
+        font-weight: bold;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        float: left;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            border: none;
+        }
+
+    .form-border {
+        border: 2px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+
+    .form-control {
+        border-radius: 5px;
+    }
+
+    .btn-primary {
+        background-color: #08075F;
+        border: none;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #FFDE59;
+        }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-danger {
+        color: red;
+    }
+</style>
+
 <h1>Edit Restock</h1>
 
-<h4>Restock</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="EditRestock">
+    <div class="col-md-6 offset-md-3 form-border">
+        <form asp-action="EditRestock" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <input asp-for="RestockId" type="hidden" />
@@ -41,21 +100,25 @@
                 <span asp-validation-for="QuantityReceived" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+          @*   <div class="form-group">
                 <label asp-for="MedicationId" class="control-label"></label>
                 <input asp-for="MedicationId" class="form-control" id="medicationIdTextbox" readonly />
+            </div> *@
+            <br />
+
+
+            <div class="form-group text-right">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            <div class="form-group text-center">
+                <a class="btn-link" asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<br />
+<br />
 
 @section Scripts {
     <script type="text/javascript">
@@ -112,7 +175,4 @@
         });
     </script>
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
 }

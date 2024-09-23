@@ -41,14 +41,14 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-group">
-                    <label asp-for="MedicationName" class="control-label"></label>
+                    <label asp-for="MedicationName" class="control-label">Medication Name:</label>
                     <select asp-for="MedicationName" class="form-control" asp-items="ViewBag.Medication" id="medicationDropdown">
                         <option value="">Select Medication</option>
                     </select>
                     <span asp-validation-for="MedicationName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="DosageForm" class="control-label"></label>
+                    <label asp-for="DosageForm" class="control-label">Dosage Form:</label>
                     <select asp-for="DosageForm" class="form-control" id="dosageFormDropdown">
                         <option value="">Select Dosage Form</option>
                     </select>
@@ -56,13 +56,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="QuantityReceived" class="control-label"></label>
+                    <label asp-for="QuantityReceived" class="control-label">Quantity Received</label>
                     <input asp-for="QuantityReceived" class="form-control" />
                     <span asp-validation-for="QuantityReceived" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="RestockDate" class="control-label"></label>
+                    <label asp-for="RestockDate" class="control-label">Restock Date</label>
                     <input asp-for="RestockDate" class="form-control" />
                     <span asp-validation-for="RestockDate" class="text-danger"></span>
                 </div>
