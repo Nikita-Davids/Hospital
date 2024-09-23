@@ -42,20 +42,20 @@
         }
 
     .btn-back {
-        background-color: red; /* Red color for the back button */
+        background-color: red;
         color: white;
         border: none;
         padding: 5px 10px;
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
-        position: absolute; /* Position it relative to the container */
-        top: 20px; /* Adjust vertical position */
-        left: 20px; /* Adjust horizontal position */
+        position: absolute;
+        top: 20px;
+        left: 20px;
     }
 
         .btn-back:hover {
-            background-color: darkred; /* Darker red on hover */
+            background-color: darkred;
         }
 
     .search-container {
@@ -68,7 +68,7 @@
         display: flex;
         align-items: center;
         width: 100%;
-        max-width: 620px; /* Adjust the max-width as needed */
+        max-width: 620px;
     }
 
     .form-control {
@@ -94,9 +94,15 @@
         .table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
+    .separator {
+        border: none;
+        height: 1px;
+        background-color: #ddd;
+        margin: 10px 0;
+    }
 </style>
 
-<!-- Container for the back button and header -->
 <div style="position: relative; text-align: center; margin-bottom: 20px;">
     <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
     <h1>View Ordered Stock</h1>
@@ -117,19 +123,40 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Order Stock Date</th>
             <th>Medication</th>
             <th>Quantity Ordered</th>
-            <th>Order Stock Date</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var dateGroup in Model.GroupBy(m => m.OrderStockDate.Date).OrderByDescending(g => g.Key))
         {
+            // Display the date header for the group only once
+            var firstItem = dateGroup.First();
             <tr>
-                <td>@item.MedicationName</td>
-                <td>@item.QuantityOrdered</td>
-                <td>@item.OrderStockDate.ToShortDateString()</td>
+                <td>@firstItem.OrderStockDate.ToShortDateString()</td>
+                <td>@firstItem.MedicationName</td>
+                <td>@firstItem.QuantityOrdered</td>
+            </tr>
+
+            // Display remaining items for the same date
+            foreach (var item in dateGroup.Skip(1))
+            {
+                <tr>
+                    <td></td> <!-- Empty cell for date -->
+                    <td>@item.MedicationName</td>
+                    <td>@item.QuantityOrdered</td>
+                </tr>
+            }
+
+            // Add a separator line after each date group
+            <tr>
+                <td colspan="3">
+                    <hr class="separator" />
+                </td>
             </tr>
         }
     </tbody>
 </table>
+<br />
+<br />
