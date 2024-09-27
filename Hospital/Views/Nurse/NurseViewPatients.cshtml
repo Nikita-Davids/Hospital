@@ -69,10 +69,10 @@
                     @Html.DisplayFor(modelItem => item.PatientGender)
                 </td>
                 <td class="col-action">
-                    <a class="btn-link" asp-action="NurseEditPatients" asp-route-id="@item.PatientIDNumber">Edit</a>
-                    <a href="@Url.Action("PatientOverview", "Nurse", new { patientId = item.PatientIDNumber })" class="btn btn-primary">View Patient Overview</a>
+                    <a class="btn-link" asp-action="NurseEditPatients" asp-route-id="@item.PatientIDNumber" style="margin-bottom: 10px; display: inline-block;">Edit</a>
+                    <a class="btn-link" asp-action="PatientOverview" asp-controller="Nurse" asp-route-patientId="@item.PatientIDNumber" style="margin-top: 10px; display: inline-block;">Patient Overview</a>
+                </td>
 
-                 </td>
             </tr>
         }
     </tbody>
