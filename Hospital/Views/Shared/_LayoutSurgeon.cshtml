@@ -6,7 +6,7 @@
     <title>@ViewData["Title"] - Hospital</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/ONT400_Hospital_Draft1.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AppliedProjects.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -15,27 +15,31 @@
             <!--( Canva,2023)-->
             <img src="~/images/NorthsideLogo.png" alt="Logo" class="logo">
         </div>
-
         <div class="text-center">
             <!-- Navigation bar with links to other pages -->
-            <nav class="topnav" id="myTopnav">
+            <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
                 <a asp-controller="Surgeon" asp-action="BookingSurgery">Book Surgery</a>
-               a asp-controller="Nurse" asp-action="NurseAddPatients">Add Patients</a>
-                <a asp-controller="Nurse" asp-action="NurseAddPatientsAdministration">Admit Patients</a>
-                <a asp-controller="Nurse" asp-action="NurseDischargePatients">DischargePatients</a>
-                <a asp-controller="Nurse" asp-action="AllPatientDetails">All Patients Details</a>
-                <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
+                <a asp-controller="Surgeon" asp-action="SurgeoneAddPatients">Add Patients</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddPatientVital">Patient Vitals</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddCurrentMedication">Patient Current Medication</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddMedicalCondition">Patient Medical Condition</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddPatientAllergy">Patient Allergy</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAdmitPatient">Admit Patients</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddAdministerMedication">Administer Medication</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonDischargePatients">Discharge Patients</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonTreatmentCodes">Treatment Codes</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonPrescroption">Prescription</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonIndex">Alerts</a>
-                <a asp-controller="Admin" asp-action="AdminLogin">Logout</a>
+                <a asp-controller="Other" asp-action="OtherLogin">Logout</a>
             </nav>
         </div>
+
         <style>
             /*(W3Schools,2023)*/
             /* Hiding navbar */
-            .navbar {
-                visibility: hidden;
+            /* Custom styles for hiding the navbar */
+            .navbar-hidden {
+                display: none;
             }
 
             body {
@@ -50,30 +54,30 @@
                 background-color: #FFDE59;
                 overflow: auto;
             }
-            /*(W3Schools,2023)*/
-            /* Navigation links */
-            .topnav a {
-                float: left;
-                padding: 10px;
-                color: #08075F;
-                text-decoration: none;
-                font-size: 17px;
-                width: 16.666%; /* Four equal-width links. If you have two links, use 50%, and 33.33% for three links, etc.. */
-                text-align: center; /* If you want the text to be centered */
-            }
+                /*(W3Schools,2023)*/
+                /* Navigation links */
+                .topnav a {
+                    float: left;
+                    padding: 10px;
+                    color: #08075F;
+                    text-decoration: none;
+                    font-size: 17px;
+                    width: 16.666%; /* Four equal-width links. If you have two links, use 50%, and 33.33% for three links, etc.. */
+                    text-align: center; /* If you want the text to be centered */
+                }
 
-            /* Add a background color on mouse-over */
-            .topnav a:hover {
-                background-color: #08075F;
-                padding: 10px;
-                color: white; /* Change the text color to white on hover */
-            }
+                    /* Add a background color on mouse-over */
+                    .topnav a:hover {
+                        background-color: #08075F;
+                        padding: 10px;
+                        color: white; /* Change the text color to white on hover */
+                    }
 
 
-            /* Style the current/active link */
-            .topnav a.active {
-                background-color: white;
-            }
+                    /* Style the current/active link */
+                    .topnav a.active {
+                        background-color: white;
+                    }
             /*(W3Schools,2023)*/
             /* Adjust the size of the icon using FontAwesome classes */
             .dropbtn .fa-user {
@@ -92,17 +96,10 @@
                 height: 300px;
             }
 
-            h1 {
-                text-align: center;
-                color: #08075F;
-                font-weight: bold;
-                text-decoration: underline;
-            }
             .item {
                 display: flex;
                 justify-content: flex-start; /* Move the image to the left of the paragraph */
             }
-            
             /*(W3Schools,2023)*/
             .description {
                 flex: 2;
@@ -118,13 +115,16 @@
                 text-align: center;
             }
 
-            /* Reduce spacing around icons */
-            .column img {
-                width: 5%;
-                margin: 0; /* Remove any margin */
-            }
+                /* Reduce spacing around icons */
+                .column img {
+                    width: 5%;
+                    margin: 0; /* Remove any margin */
+                }
 
             footer {
+                position: fixed;
+                width: 100%;
+                bottom: 0;
                 background-color: #FFDE59;
                 color: #08075F;
                 padding: 5px;
@@ -160,26 +160,96 @@
                         color: #08075F;
                     }
 
-            .form-container {
-                width: 600px;
-                background-color: #08075F;
-                backdrop-filter: blur(10px);
-                box-shadow: 0 0 40px rgba(8,7,16,0.16);
-                border-radius: 0px;
-                padding: 50px 35px;
+
+            h1 {
+                text-align: center;
+                color: #08075F;
+                font-weight: bold;
+                text-decoration: underline;
             }
 
-                .form-container button {
-                    padding: 10px 60px;
-                    font-size: 16px;
+            .btn-link {
+                background-color: #08075F;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                text-decoration: none;
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+                .btn-link:hover {
                     background-color: #FFDE59;
                     color: #08075F;
-                    border: none;
-                    cursor: pointer;
-                    font-weight: bold;
-                    transition: background-color 0.3s ease;
-                    margin-left: auto; /* Move the button to the right */
                 }
+
+            .form-container {
+                border: 1px solid #ccc;
+                padding: 20px;
+                border-radius: 8px;
+                background-color: #f9f9f9;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                max-width: 600px;
+                margin: 20px auto;
+            }
+
+            .button-container {
+                text-align: right;
+                margin-top: 20px;
+            }
+
+            .btn-primary {
+                padding: 10px 60px;
+                font-size: 16px;
+                background-color: #08075F;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-weight: bold;
+                transition: background-color 0.3s ease;
+            }
+
+                .btn-primary:hover {
+                    background-color: #FFDE59;
+                    color: #08075F;
+                }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            input.form-control {
+                width: 100%;
+            }
+
+            \.table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .table th, .table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .table th {
+                background-color: #f2f2f2;
+            }
+
+            .table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+            /* Ensure all columns have the same width */
+            .col-name {
+                width: 20%;
+            }
+
+            .col-action {
+                width: 20%;
+                text-align: center;
+            }
         </style>
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -196,14 +266,16 @@
             @RenderBody()
         </main>
     </div>
-
-  
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+<br />
+<br />
+<br />
+<br />
+<br />
 <footer>
     <p style="text-align: center">2024, Northside. All rights reserved.</p>
 </footer>
+@RenderSection("Scripts", required: false)
+
+ 

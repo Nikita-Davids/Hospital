@@ -17,58 +17,6 @@ namespace Hospital.Controllers
     {
         ApplicationDbContext _context = dbContext;
 
-        //public async Task<IActionResult> PatientOverview(string patientId)
-        //{
-        //    if (string.IsNullOrEmpty(patientId))
-        //    {
-        //        return BadRequest("Patient ID is required.");
-        //    }
-
-        //    // Fetch patient details
-        //    var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientIDNumber == patientId);
-        //    if (patient == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    // Fetch vitals
-        //    var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
-
-        //    // Fetch allergies
-        //    var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
-
-        //    // Fetch current medications
-        //    var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
-
-        //    // Fetch medical conditions
-        //    var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
-
-        //    var model = new PatientOverviewViewModel
-        //    {
-        //        PatientIDNumber = patient.PatientIDNumber,
-        //        PatientName = patient.PatientName,
-        //        PatientSurname = patient.PatientSurname,
-        //        PatientAddress = patient.PatientAddress,
-        //        PatientContactNumber = patient.PatientContactNumber,
-        //        PatientEmailAddress = patient.PatientEmailAddress,
-        //        PatientDateOfBirth = patient.PatientDateOfBirth,
-        //        PatientGender = patient.PatientGender,
-        //        Weight = vitals?.Weight,
-        //        Height = vitals?.Height,
-        //        Temperature = vitals?.Tempreture,
-        //        BloodPressure = vitals?.BloodPressure,
-        //        Pulse = vitals?.Pulse,
-        //        Respiratory = vitals?.Respiratory,
-        //        BloodOxygen = vitals?.BloodOxygen,
-        //        BloodGlucoseLevel = vitals?.BloodGlucoseLevel,
-        //        VitalTime = vitals?.VitalTime,
-        //        Allergies = allergies,
-        //        CurrentMedications = currentMedications,
-        //        MedicalConditions = medicalConditions
-        //    };
-
-        //    return View(model);
-        //}
         public async Task<IActionResult> PatientOverview(string patientId)
         {
             if (string.IsNullOrEmpty(patientId))
@@ -936,76 +884,6 @@ namespace Hospital.Controllers
         }
 
      
-
-
-
-        public async Task SendPatientVitalsEmail(List<PatientVital> recordedVitals)
-        {
-            try
-            {
-                // Build the vitals details for the email body
-                string vitalsDetails = "<ul>";
-
-                foreach (var item in recordedVitals)
-                {
-                    // Retrieve the patient's information based on the PatientId
-                    var patient = await _context.Patients
-                        .Where(p => p.PatientIDNumber == item.PatientId)
-                        .Select(p => new { p.PatientIDNumber, p.PatientName, p.PatientSurname })
-                        .FirstOrDefaultAsync();
-
-                    // Add patient's name and recorded vitals to the email body
-                    if (patient != null)
-                    {
-                        vitalsDetails += $"<li>Patient: {patient.PatientName} {patient.PatientSurname} (ID: {patient.PatientIDNumber}), " +
-                                         $"Weight: {item.Weight} kg, " +
-                                         $"Height: {item.Height} cm, " +
-                                         $"Temperature: {item.Tempreture}°C, " +
-                                         $"Blood Pressure: {item.BloodPressure} mmHg, " +
-                                         $"Pulse: {item.Pulse} bpm, " +
-                                         $"Respiratory Rate: {item.Respiratory} breaths/min, " +
-                                         $"Blood Oxygen: {item.BloodOxygen}%, " +
-                                         $"Blood Glucose Level: {item.BloodGlucoseLevel} mg/dL, " +
-                                         $"Time Recorded: {item.VitalTime?.ToString(@"hh\:mm")}</li>";
-                    }
-                }
-
-                vitalsDetails += "</ul>";
-
-                // Define email details
-                var emailMessage = new MimeMessage
-                {
-                    From = { new MailboxAddress("Hospital Vitals Monitoring", "noreply@hospital.com") },
-                    To = { new MailboxAddress("Surgeon", "gabrielkojo77@gmail.com") }, // Recipients email
-                    Subject = "Patient Vitals Recorded",
-                    Body = new BodyBuilder
-                    {
-                        HtmlBody = $@"
-                        <h3>Patient Vitals Recorded</h3>
-                        <p>The following vitals have been recorded in the system:</p>
-                        {vitalsDetails}
-                        <p>Thank you for using the hospital's patient monitoring system.</p>"
-                    }.ToMessageBody()
-                };
-
-                // Send the email
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    // Connect to the SMTP server
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("kitadavids1@gmail.com", "nhjj efnx mjpv okee");
-                    await client.SendAsync(emailMessage);
-                    await client.DisconnectAsync(true);
-                }
-
-                Console.WriteLine("Email sent successfully.");
-            }
-            catch (Exception ex)
-            {
-                // Log email sending errors
-                Console.WriteLine($"Error occurred while sending email: {ex.Message}");
-            }
-        }
         public IActionResult NurseDispensedAlert()
         {
 
@@ -1136,6 +1014,63 @@ namespace Hospital.Controllers
             return View(administerMedication);
         }
 
+        public async Task<IActionResult> NurseEditAdministerMedication(int id)
+        {
+            // Fetch the administer medication record from the database
+            var administerMedication = await _context.AdministerMedication.FindAsync(id);
+            if (administerMedication == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag for dropdown list, if applicable
+            // Assuming you want to show a dropdown for MedicationId, if applicable
+            ViewBag.MedicationId = new SelectList(await _context.Medication.ToListAsync(), "MedicationId", "MedicationName", administerMedication.MedicationId);
+
+            return View(administerMedication);
+        }
+
+        // POST: Nurse/EditAdministerMedication/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseEditAdministerMedication(int id, AdministerMedication model)
+        {
+            if (id != model.AdministerMedication_Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(model);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AdministerMedicationExists(model.AdministerMedication_Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("NurseViewAdministerMedication");
+            }
+
+            // Populate ViewBag for dropdown list again, if applicable
+            ViewBag.MedicationId = new SelectList(await _context.Medication.ToListAsync(), "MedicationId", "MedicationName", model.MedicationId);
+
+            return View(model);
+        }
+
+        private bool AdministerMedicationExists(int id)
+        {
+            return _context.AdministerMedication.Any(e => e.AdministerMedication_Id == id);
+        }
 
 
 
