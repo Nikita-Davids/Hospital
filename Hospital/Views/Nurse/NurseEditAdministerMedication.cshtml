@@ -1,0 +1,56 @@
+﻿@model Hospital.Models.AdministerMedication
+
+@{
+    ViewData["Title"] = "NurseEditAdministerMedication";
+}
+
+<h1>NurseEditAdministerMedication</h1>
+
+<h4>AdministerMedication</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="NurseEditAdministerMedication">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="AdministerMedication_Id" />
+            <div class="form-group">
+                <label asp-for="Patient_Id" class="control-label"></label>
+                <input asp-for="Patient_Id" class="form-control" />
+                <span asp-validation-for="Patient_Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdministerMedicationTime" class="control-label"></label>
+                <input asp-for="AdministerMedicationTime" class="form-control" />
+                <span asp-validation-for="AdministerMedicationTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScriptDetails" class="control-label"></label>
+                <input asp-for="ScriptDetails" class="form-control" />
+                <span asp-validation-for="ScriptDetails" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MedicationId" class="control-label"></label>
+                <input asp-for="MedicationId" class="form-control" />
+                <span asp-validation-for="MedicationId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DosageFormName" class="control-label"></label>
+                <input asp-for="DosageFormName" class="form-control" />
+                <span asp-validation-for="DosageFormName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

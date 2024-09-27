@@ -1,0 +1,95 @@
+﻿@model Hospital.Models.PatientVital
+
+@{
+    ViewData["Title"] = "Add Patient Vitals";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="form-container">
+    <form asp-action="SurgeonAddPatientVital">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="PatientId" class="control-label">Patient ID</label>
+            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Weight" class="control-label"></label>
+            <input asp-for="Weight" class="form-control" />
+            <span asp-validation-for="Weight" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Height" class="control-label"></label>
+            <input asp-for="Height" class="form-control" />
+            <span asp-validation-for="Height" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Tempreture" class="control-label"></label>
+            <input asp-for="Tempreture" class="form-control" />
+            <span asp-validation-for="Tempreture" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="BloodPressure" class="control-label">Blood Pressure</label>
+            <input asp-for="BloodPressure" class="form-control" />
+            <span asp-validation-for="BloodPressure" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Pulse" class="control-label"></label>
+            <input asp-for="Pulse" class="form-control" />
+            <span asp-validation-for="Pulse" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Respiratory" class="control-label"></label>
+            <input asp-for="Respiratory" class="form-control" />
+            <span asp-validation-for="Respiratory" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="BloodOxygen" class="control-label">Blood Oxygen</label>
+            <input asp-for="BloodOxygen" class="form-control" />
+            <span asp-validation-for="BloodOxygen" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="BloodGlucoseLevel" class="control-label">Blood Glucose Level</label>
+            <input asp-for="BloodGlucoseLevel" class="form-control" />
+            <span asp-validation-for="BloodGlucoseLevel" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="VitalTime" class="control-label">Vital Time</label>
+            <input asp-for="VitalTime" class="form-control" type="time" />
+            <span asp-validation-for="VitalTime" class="text-danger"></span>
+        </div>
+        <div class="form-group button-container">
+            <input type="submit" value="Add" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonAddPatientAllergy">Back</a>
+</div>
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonViewPatientVital">View Patient Vital</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            // Ensure that the success message is visible
+            successMessage.style.display = "block";
+            console.log("Success message is visible");
+
+            // Hide the success message after 3 seconds
+            setTimeout(function () {
+                successMessage.style.display = "none";
+                console.log("Success message hidden");
+            }, 3000); // Hide message after 3 seconds
+        }
+    });
+</script>

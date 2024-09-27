@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Hospital.Patients>
+
+@{
+    ViewData["Title"] = "View Patients";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<!-- Search box -->
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for patients.." class="form-control mb-3">
+
+<table class="table" id="patientsTable">
+    <thead>
+        <tr>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientIDNumber)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientName)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientSurname)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientContactNumber)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientEmailAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientDateOfBirth)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientGender)
+            </th>
+            <th class="col-action"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientIDNumber)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientSurname)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientContactNumber)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientDateOfBirth)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientGender)
+                </td>
+                <td class="col-action">
+                    <a class="btn-link" asp-action="SurgeonEditPatients" asp-route-id="@item.PatientIDNumber" style="margin-bottom: 10px; display: inline-block;">Edit</a>
+                    <a class="btn-link" asp-action="SurgeonPatientOverview" asp-controller="Surgeon" asp-route-patientId="@item.PatientIDNumber" style="margin-top: 10px; display: inline-block;">Patient Overview</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonAddPatients">Add Patients</a>
+</div>
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("patientsTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
+            tr[i].style.display = "none"; // Hide the row initially
+            td = tr[i].getElementsByTagName("td");
+
+            for (j = 0; j < td.length; j++) { // Loop through columns
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show the row if a match is found
+                        break; // Stop searching the rest of the columns in this row
+                    }
+                }
+            }
+        }
+    }
+</script>

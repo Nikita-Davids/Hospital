@@ -1,0 +1,62 @@
+﻿@model Hospital.Patients
+
+@{
+    ViewData["Title"] = "Edit Patient";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="form-container">
+    <form asp-action="SurgeonEditPatients">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="PatientIDNumber" />
+        <div class="form-group">
+            <label asp-for="PatientName" class="control-label"></label>
+            <input asp-for="PatientName" class="form-control" />
+            <span asp-validation-for="PatientName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientSurname" class="control-label"></label>
+            <input asp-for="PatientSurname" class="form-control" />
+            <span asp-validation-for="PatientSurname" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientAddress" class="control-label"></label>
+            <input asp-for="PatientAddress" class="form-control" />
+            <span asp-validation-for="PatientAddress" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientContactNumber" class="control-label"></label>
+            <input asp-for="PatientContactNumber" class="form-control" />
+            <span asp-validation-for="PatientContactNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientEmailAddress" class="control-label"></label>
+            <input asp-for="PatientEmailAddress" class="form-control" />
+            <span asp-validation-for="PatientEmailAddress" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientDateOfBirth" class="control-label"></label>
+            <input asp-for="PatientDateOfBirth" class="form-control" />
+            <span asp-validation-for="PatientDateOfBirth" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PatientGender" class="control-label"></label>
+            <select asp-for="PatientGender" class="form-control">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+        <div class="form-group button-container">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonViewPatients">View Patients</a>
+</div>
+
+

@@ -1,0 +1,93 @@
+﻿@model IEnumerable<Hospital.Models.AdministerMedication>
+
+@{
+    ViewData["Title"] = "Administer Medication";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<!-- Search box -->
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for patients.." class="form-control mb-3">
+
+<table class="table" id="AdministerMedicationTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Patient_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AdministerMedicationTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ScriptDetails)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MedicationId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DosageFormName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Patient_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AdministerMedicationTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ScriptDetails)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MedicationId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DosageFormName)
+            </td>
+            <td>
+                    <a asp-action="SurgeonEditAdministerMedication" asp-route-id="@item.AdministerMedication_Id">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonAddAdministerMedication">Administer Medication</a>
+</div>
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("AdministerMedicationTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
+            tr[i].style.display = "none"; // Hide the row initially
+            td = tr[i].getElementsByTagName("td");
+
+            for (j = 0; j < td.length; j++) { // Loop through columns
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show the row if a match is found
+                        break; // Stop searching the rest of the columns in this row
+                    }
+                }
+            }
+        }
+    }
+</script>

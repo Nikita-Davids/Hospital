@@ -1,0 +1,56 @@
+﻿@model Hospital.Models.PatientCurrentMedication
+
+@{
+    ViewData["Title"] = "Add Current Medication";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h1>@ViewData["Title"]</h1>
+
+    <div class="form-container">
+        <form asp-action="SurgeonAddCurrentMedication">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+            <label asp-for="PatientId" class="control-label">Patient</label>
+            <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+            </div>
+            <div class="form-group">
+            <label asp-for="CurrentMedication" class="control-label">Current Medication</label>
+                <input asp-for="CurrentMedication" class="form-control" />
+                <span asp-validation-for="CurrentMedication" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="button-container">
+        <a class="btn-link" asp-action="SurgeonAddMedicalCondition">Next</a>
+    </div>
+    <div class="button-container">
+        <a class="btn-link" asp-action="SurgeonViewPatientCurrentMedication">View Current Medication</a>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            // Ensure that the success message is visible
+            successMessage.style.display = "block";
+            console.log("Success message is visible");
+
+            // Hide the success message after 3 seconds
+            setTimeout(function () {
+                successMessage.style.display = "none";
+                console.log("Success message hidden");
+            }, 3000); // Hide message after 3 seconds
+        }
+    });
+</script>
