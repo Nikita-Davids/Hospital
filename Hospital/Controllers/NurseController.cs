@@ -465,16 +465,17 @@ namespace Hospital.Controllers
                 foreach (var vital in selectedVitals)
                 {
                     // Add patient vital details to the email body
-                    vitalDetailsBuilder.Append($"<li>Patient ID: {vital.PatientId}, " +
-                                               $"Weight: {vital.Weight} kg, " +
-                                               $"Height: {vital.Height} cm, " +
-                                               $"Temperature: {vital.Tempreture} °C, " +
-                                               $"Blood Pressure: {vital.BloodPressure} mmHg, " +
-                                               $"Pulse: {vital.Pulse} bpm, " +
-                                               $"Respiratory Rate: {vital.Respiratory} breaths/min, " +
-                                               $"Blood Oxygen: {vital.BloodOxygen} %, " +
-                                               $"Blood Glucose Level: {vital.BloodGlucoseLevel} mg/dL, " +
-                                               $"Vital Time: {vital.VitalTime?.ToString(@"hh\:mm")}</li>");
+                    vitalDetailsBuilder.Append($"<li>Patient ID: {vital.PatientId}<br />" +
+                                                $"Weight: {vital.Weight} kg<br />" +
+                                                $"Height: {vital.Height} cm<br />" +
+                                                $"Temperature: {vital.Tempreture} °C<br />" +
+                                                $"Blood Pressure: {vital.BloodPressure} mmHg<br />" +
+                                                $"Pulse: {vital.Pulse} bpm<br />" +
+                                                $"Respiratory Rate: {vital.Respiratory} breaths/min<br />" +
+                                                $"Blood Oxygen: {vital.BloodOxygen} %<br />" +
+                                                $"Blood Glucose Level: {vital.BloodGlucoseLevel} mg/dL<br />" +
+                                                $"Vital Time: {vital.VitalTime?.ToString(@"hh\:mm")}<br /></li>");
+
                 }
 
                 vitalDetailsBuilder.Append("</ul>");
@@ -497,12 +498,12 @@ namespace Hospital.Controllers
                 var mailMessage = new MailMessage
                 {
                     From = fromAddress,
-                    Subject = "Northside Hospital - Patient Vital Records",
+                    Subject = "Northside Hospital - Patient Vital Alert",
                     Body = $@"
-                            <h3>Patient Vital Records Update</h3>
-                            <p>The following patient vitals have been successfully recorded in the system:</p>
+                            <h3>Patient Vitals Alert</h3>
+                            <p>The following patient vitals require your IMMEDIATE ATTENTION:</p>
                             {vitalDetailsBuilder}
-                            <p>Thank you for using the hospital's patient management system.</p>",
+                            <p>please attend to the matter ASAP</p>",
                     IsBodyHtml = true
                 };
                 mailMessage.To.Add(toAddress);
