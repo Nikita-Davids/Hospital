@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Patient Overview";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -14,49 +14,70 @@
     <p><b>Address:</b> @Model.PatientAddress</p>
     <p><b>Contact:</b> @Model.PatientContactNumber</p>
     <p><b>Email:</b> @Model.PatientEmailAddress</p>
-    <p><b>Date of Birth:</b> @Model.PatientDateOfBirth.ToShortDateString()</p>
+    <p><b>Date of Birth:</b> @(Model.PatientDateOfBirth.ToShortDateString())</p>
     <p><b>Gender:</b> @Model.PatientGender</p>
 </div>
 
 <div>
     <h2>Vital Signs</h2>
-    <p><b>Weight:</b> @Model.Weight kg</p>
-    <p><b>Height:</b> @Model.Height cm</p>
-    <p><b>Temperature:</b> @Model.Temperature °C</p>
-    <p><b>Blood Pressure:</b> @Model.BloodPressure mmHg</p>
-    <p><b>Pulse:</b> @Model.Pulse bpm</p>
-    <p><b>Respiratory Rate:</b> @Model.Respiratory breaths/min</p>
-    <p><b>Blood Oxygen:</b> @Model.BloodOxygen %</p>
-    <p><b>Blood Glucose Level:</b> @Model.BloodGlucoseLevel mg/dL</p>
-    <p><b>Vital Time:</b> @Model.VitalTime?.ToString(@"hh\:mm")</p>
+    <p><b>Weight:</b> @(Model.Weight?.ToString() ?? "N/A") kg</p>
+    <p><b>Height:</b> @(Model.Height?.ToString() ?? "N/A") cm</p>
+    <p><b>Temperature:</b> @(Model.Temperature?.ToString() ?? "N/A") °C</p>
+    <p><b>Blood Pressure:</b> @(Model.BloodPressure?.ToString() ?? "N/A") mmHg</p>
+    <p><b>Pulse:</b> @(Model.Pulse?.ToString() ?? "N/A") bpm</p>
+    <p><b>Respiratory Rate:</b> @(Model.Respiratory?.ToString() ?? "N/A") breaths/min</p>
+    <p><b>Blood Oxygen:</b> @(Model.BloodOxygen?.ToString() ?? "N/A") %</p>
+    <p><b>Blood Glucose Level:</b> @(Model.BloodGlucoseLevel?.ToString() ?? "N/A") mg/dL</p>
+    <p><b>Vital Time:</b> @(Model.VitalTime?.ToString(@"hh\:mm") ?? "N/A")</p>
 </div>
 
 <div>
     <h2>Allergies</h2>
-    <ul>
-        @foreach (var allergy in Model.Allergies)
-        {
-            <li>@allergy.Allergy</li>
-        }
-    </ul>
+    @if (Model.Allergies?.Any() == true)
+    {
+        <ul>
+            @foreach (var allergy in Model.Allergies)
+            {
+                <li>@allergy.Allergy</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>None reported</p>
+    }
 </div>
 
 <div>
     <h2>Current Medications</h2>
-    <ul>
-        @foreach (var medication in Model.CurrentMedications)
-        {
-            <li>@medication.CurrentMedication</li>
-        }
-    </ul>
+    @if (Model.CurrentMedications?.Any() == true)
+    {
+        <ul>
+            @foreach (var medication in Model.CurrentMedications)
+            {
+                <li>@medication.CurrentMedication</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>None reported</p>
+    }
 </div>
 
 <div>
     <h2>Medical Conditions</h2>
-    <ul>
-        @foreach (var condition in Model.MedicalConditions)
-        {
-            <li>@condition.MedicalCondition</li>
-        }
-    </ul>
+    @if (Model.MedicalConditions?.Any() == true)
+    {
+        <ul>
+            @foreach (var condition in Model.MedicalConditions)
+            {
+                <li>@condition.MedicalCondition</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>None reported</p>
+    }
 </div>

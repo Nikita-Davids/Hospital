@@ -70,7 +70,9 @@
                 </td>
                 <td class="col-action">
                     <a class="btn-link" asp-action="NurseEditPatients" asp-route-id="@item.PatientIDNumber">Edit</a>
-                </td>
+                    <a href="@Url.Action("PatientOverview", "Nurse", new { patientId = item.PatientIDNumber })" class="btn btn-primary">View Patient Overview</a>
+
+                 </td>
             </tr>
         }
     </tbody>
