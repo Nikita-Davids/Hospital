@@ -1,5 +1,204 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<Hospital.Patients>
+
 @{
+   
+    Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        text-decoration: underline;
+    }
+    \.table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .table th {
+        background-color: #f2f2f2;
+    }
+
+    .table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    /* Ensure all columns have the same width */
+    .col-name {
+        width: 20%;
+    }
+
+    .col-action {
+        width: 20%;
+        text-align: center;
+        h1
+
+    {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto;
+    }
+
+    .button-container {
+        text-align: right;
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        padding: 10px 60px;
+        font-size: 16px;
+        background-color: #08075F;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    input.form-control {
+        width: 100%;
+    }
+</style>
+
+<h1>Patient Details</h1>
+
+<!-- Search box -->
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for patients.." class="form-control mb-3">
+
+<table class="table" id="patientsTable">
+    <thead>
+        <tr>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientIDNumber)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientName)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientSurname)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientContactNumber)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientEmailAddress)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientDateOfBirth)
+            </th>
+            <th class="col-name">
+                @Html.DisplayNameFor(model => model.First().PatientGender)
+            </th>
+            <th class="col-action"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientIDNumber)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientName)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientSurname)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientContactNumber)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientDateOfBirth)
+                </td>
+                <td class="col-name">
+                    @Html.DisplayFor(modelItem => item.PatientGender)
+                </td>
+                <td class="col-action">
+                   
+                    <a class="btn-link" asp-action="PharmacistPatientOverview" asp-controller="Pharmacist" asp-route-patientId="@item.PatientIDNumber" style="margin-top: 10px; display: inline-block;">Patient Overview</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<br />
+
+
+
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("patientsTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
+            tr[i].style.display = "none"; // Hide the row initially
+            td = tr[i].getElementsByTagName("td");
+
+            for (j = 0; j < td.length; j++) { // Loop through columns
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show the row if a match is found
+                        break; // Stop searching the rest of the columns in this row
+                    }
+                }
+            }
+        }
+    }
+</script>

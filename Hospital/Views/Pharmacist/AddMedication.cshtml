@@ -96,6 +96,12 @@
 </style>
 
 <h1>Add Medication</h1>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
 <hr />
 <div class="box">
@@ -262,5 +268,17 @@
             // Initialize the state of remove buttons on page load
             updateRemoveButtons();
         });
+
+
+            document.addEventListener("DOMContentLoaded", function () {
+                var successMessage = document.getElementById("successMessage");
+                if (successMessage) {
+                    successMessage.style.display = "block";
+                    setTimeout(function () {
+                        successMessage.style.display = "none";
+                    }, 3000);
+                }
+            });
+
     </script>
 }

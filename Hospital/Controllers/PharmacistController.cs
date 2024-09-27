@@ -1102,6 +1102,65 @@ public IActionResult Restock(Restock restock)
                 return View(restock);
             }
         }
+        public async Task<IActionResult> PharmacistViewPatientDetails()
+        {
+            var patients = await _context.Patients.ToListAsync();
+            return View(patients);
+        }
+
+        public async Task<IActionResult> PharmacistPatientOverview(string patientId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                return BadRequest("Patient ID is required.");
+            }
+
+            // Fetch patient details
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientIDNumber == patientId);
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch vitals (allow null if not found)
+            var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
+
+            // Fetch allergies (empty list if not found)
+            var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
+
+            // Fetch current medications (empty list if not found)
+            var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
+
+            // Fetch medical conditions (empty list if not found)
+            var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
+
+            // Construct the model with vitals and other details (using null-coalescing operator where necessary)
+            var model = new PatientOverviewViewModel
+            {
+                PatientIDNumber = patient.PatientIDNumber,
+                PatientName = patient.PatientName,
+                PatientSurname = patient.PatientSurname,
+                PatientAddress = patient.PatientAddress,
+                PatientContactNumber = patient.PatientContactNumber,
+                PatientEmailAddress = patient.PatientEmailAddress,
+                PatientDateOfBirth = patient.PatientDateOfBirth,
+                PatientGender = patient.PatientGender,
+                Weight = vitals?.Weight ?? null, // Allow null if vitals are not found
+                Height = vitals?.Height ?? null,
+                Temperature = vitals?.Tempreture ?? null,
+                BloodPressure = vitals?.BloodPressure ?? null,
+                Pulse = vitals?.Pulse ?? null,
+                Respiratory = vitals?.Respiratory ?? null,
+                BloodOxygen = vitals?.BloodOxygen ?? null,
+                BloodGlucoseLevel = vitals?.BloodGlucoseLevel ?? null,
+                VitalTime = vitals?.VitalTime ?? null,
+                Allergies = allergies, // Will be an empty list if none are found
+                CurrentMedications = currentMedications, // Empty list if none found
+                MedicalConditions = medicalConditions // Empty list if none found
+            };
+
+            return View(model);
+        }
 
 
 
