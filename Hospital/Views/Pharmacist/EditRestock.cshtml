@@ -3,7 +3,22 @@
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
-
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            successMessage.style.display = "block";
+            setTimeout(function () {
+                successMessage.style.display = "none";
+            }, 3000);
+        }
+    });
 <style>
     h1 {
         text-align: center;

@@ -98,7 +98,7 @@ namespace Hospital.Controllers
                     Value = name,
                     Text = name
                 }).ToList();
-
+          
             return View();
         }
 
@@ -167,7 +167,7 @@ namespace Hospital.Controllers
                 // Add the medication to the database
                 _context.Medication.Add(medication);
                 _context.SaveChanges();
-
+                TempData["SuccessMessage"] = "Medication added successfully.";
                 return RedirectToAction("ViewAddMedication");
             }
 
@@ -269,7 +269,7 @@ namespace Hospital.Controllers
                 : string.Empty;
 
             _context.SaveChanges();
-
+            TempData["SuccessMessage"] = "Medication successfully Edited.";
             return RedirectToAction("ViewAddMedication");
         }
 
@@ -980,8 +980,8 @@ public IActionResult Restock(Restock restock)
         }
 
         _context.SaveChanges();
-
-        return RedirectToAction("ViewRestock");
+                TempData["SuccessMessage"] = "Restock of medication successfully added.";
+                return RedirectToAction("Restock");
     }
     catch (Exception ex)
     {
@@ -1092,7 +1092,7 @@ public IActionResult Restock(Restock restock)
 
                     // Save changes to the database using _context
                     _context.SaveChanges();
-
+                    TempData["SuccessMessage"] = "Restock of medication successfully Edited.";
                     return RedirectToAction("ViewRestock");
                 }
             }
