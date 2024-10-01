@@ -212,13 +212,36 @@ namespace Hospital.Controllers
             var dischargedPatients = _context.DischargedPatients.ToList();
             return View(dischargedPatients);
         }
-       
 
 
+        [HttpGet]
+        public JsonResult GetTownsByProvince(int provinceId)
+        {
+            var towns = _context.Town.Where(t => t.ProvinceId == provinceId).Select(t => new { t.TownId, t.TownName }).ToList();
+            return Json(towns);
+        }
+
+        [HttpGet]
+        public JsonResult GetSuburbsByTown(int townId)
+        {
+            var suburbs = _context.Suburb.Where(s => s.TownId == townId).Select(s => new { s.SuburbId, s.SuburbName }).ToList();
+            return Json(suburbs);
+        }
+
+        [HttpGet]
+        public JsonResult GetPostalCodeBySuburb(int suburbId)
+        {
+            var postalCode = _context.Suburb.Where(s => s.SuburbId == suburbId).Select(s => s.SuburbPostalCode).FirstOrDefault();
+            return Json(postalCode);
+        }
 
         // GET: Nurse/AddPatient
         public IActionResult NurseAddPatients()
         {
+            var provinces = _context.Province.ToList();
+
+            // Pass the provinces to the ViewBag
+            ViewBag.Provinces = provinces;
             return View();
         }
 
@@ -229,11 +252,24 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Fetch the names from the database based on the selected IDs
+                var province = _context.Province.FirstOrDefault(p => p.ProvinceId == int.Parse(Request.Form["ProvinceId"]));
+                var town = _context.Town.FirstOrDefault(t => t.TownId == int.Parse(Request.Form["TownId"]));
+                var suburb = _context.Suburb.FirstOrDefault(s => s.SuburbId == int.Parse(Request.Form["SuburbId"]));
+                var postalCode = Request.Form["PostalCode"];
+
+                // Concatenate the address components with commas as a delimiter
+                model.PatientAddress = $"{model.PatientAddress}, {province?.ProvinceName}, {town?.TownName}, {suburb?.SuburbName}, {postalCode}".Trim(',').Replace(",,", ",");
+
+
+
                 TempData["SuccessMessage"] = "Patient added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("NurseAddPatients");
             }
+           
+            ViewBag.Provinces = _context.Province.ToList(); // Ensure provinces are loaded in case of an error
             return View(model);
         }
 

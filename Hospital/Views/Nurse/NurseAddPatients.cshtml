@@ -4,9 +4,6 @@
     ViewData["Title"] = "Add Patients";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -14,7 +11,6 @@
         @TempData["SuccessMessage"]
     </div>
 }
-
 
 <h1>@ViewData["Title"]</h1>
 
@@ -42,87 +38,33 @@
             <span asp-validation-for="PatientAddress" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label for="PROVINCES">Province</label>
-            <select class="form-control" id="province" name="PatientPROVINCES" required>
-                <option value="Western Cape">Western Cape</option>
-                <option value="North West">North West</option>
-                <option value="Eastern Cape">Eastern Cape</option>
-                <option value="Gauteng">Gauteng</option>
-                <option value="Free State">Free State</option>
-                <option value="Limpopo">Limpopo</option>
-                <option value="Mpumalanga">Mpumalanga</option>
-                <option value="Northern Cape">Northern Cape</option>
-                <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+            <label for="Province">Province</label>
+            <select class="form-control" id="provinceDropdown" name="ProvinceId" required>
+                <option value="">Select Province</option>
+                @foreach (var province in ViewBag.Provinces)
+                {
+                    <option value="@province.ProvinceId">@province.ProvinceName</option>
+                }
             </select>
         </div>
+
         <div class="form-group">
-            <label for="TOWNS">City</label>
-            <select class="form-control" id="country" name="PatientCITIES/TOWNS" required>
-                <option value="Gqeberha">Gqeberha</option>
-                <option value="Johannesburg">Johannesburg</option>
-                <option value="Bhisho">Bhisho</option>
-                <option value="Polokwane">Polokwane</option>
-                <option value="Bloemfontein">Bloemfontein</option>
-                <option value="Mbombela">Mbombela</option>
-                <option value="Mahikeng">Mahikeng</option>
-                <option value="Cape Town">Cape Town</option>
-                <option value="Pietermarizburg">Pietermarizburg</option>
-                <option value="Durban">Durban</option>
+            <label for="Town">Town/City</label>
+            <select class="form-control" id="townDropdown" name="TownId" required>
+                <option value="">Select Town</option>
             </select>
         </div>
+
         <div class="form-group">
-            <label for="SUBURB">suburb</label>
-            <select class="form-control" id="country" name="PatientSUBURB" required>
-                <option value="Kamagugu">Kamagugu</option>
-                <option value="Essenwood">Essenwood</option>
-                <option value="Bridgemead">Bridgemead</option>
-                <option value="Kenville">Kenville</option>
-                <option value="Humewood">Humewood</option>
-                <option value="Cato Manor">Cato Manor</option>
-                <option value="Algoa Park">Algoa Park</option>
-                <option value="Musgrave">Musgrave</option>
-                <option value="Barberton">Barberton</option>
-                <option value="Bluff">Bluff</option>
-                <option value="Cotswold">Cotswold</option>
-                <option value="Glenmore">Glenmore</option>
-                <option value="Riverside">Riverside</option>
-                <option value="Lorraine">Lorraine</option>
-                <option value="Kwamashu">Kwamashu</option>
-                <option value="Inanda">Inanda</option>
-                <option value="Struandale">Struandale</option>
-                <option value="Valencia Park">Valencia Park</option>
-                <option value="Tongaat">Tongaat</option>
-                <option value="Greyville">Greyville</option>
-                <option value="Malabar">Malabar</option>
-                <option value="Summerstrand">Summerstrand</option>
+            <label for="Suburb">Suburb</label>
+            <select class="form-control" id="suburbDropdown" name="SuburbId" required>
+                <option value="">Select Suburb</option>
             </select>
         </div>
+
         <div class="form-group">
             <label for="PostalCode">Postal Code</label>
-            <select class="form-control" id="PostalCode" name="PatientPostalCode" required>
-                <option value="1200">1200</option>
-                <option value="4001">4001</option>
-                <option value="6025">6025</option>
-                <option value="4051">4051</option>
-                <option value="6001">6001</option>
-                <option value="4091">4091</option>
-                <option value="6001">6001</option>
-                <option value="4001">4001</option>
-                <option value="1300">1300</option>
-                <option value="4052">4052</option>
-                <option value="6045">6045</option>
-                <option value="4001">4001</option>
-                <option value="1226">1226</option>
-                <option value="6070">6070</option>
-                <option value="4359">4359</option>
-                <option value="4309">4309</option>
-                <option value="6001">6001</option>
-                <option value="1201">1201</option>
-                <option value="4399">4399</option>
-                <option value="4001">4001</option>
-                <option value="6020">6020</option>
-                <option value="6001">6001</option>
-            </select>
+            <input type="text" class="form-control" id="postalCodeInput" name="PostalCode" readonly />
         </div>
         <div class="form-group">
             <label asp-for="PatientContactNumber" class="control-label"></label>
@@ -156,7 +98,9 @@
     <a class="btn-link" asp-action="NurseViewPatients">View Patients</a>
 </div>
 
-<script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");
         if (successMessage) {
@@ -172,3 +116,50 @@
         }
     });
 </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Load towns when a province is selected
+            $('#provinceDropdown').change(function () {
+                var provinceId = $(this).val();
+                if (provinceId) {
+                    $.getJSON('@Url.Action("GetTownsByProvince")', { provinceId: provinceId }, function (data) {
+                        $('#townDropdown').empty().append('<option value="">Select Town</option>');
+                        $.each(data, function (index, item) {
+                            $('#townDropdown').append('<option value="' + item.townId + '">' + item.townName + '</option>');
+                        });
+                    });
+                } else {
+                    $('#townDropdown').empty().append('<option value="">Select Town</option>');
+                }
+            });
+
+            // Load suburbs when a town is selected
+            $('#townDropdown').change(function () {
+                var townId = $(this).val();
+                if (townId) {
+                    $.getJSON('@Url.Action("GetSuburbsByTown")', { townId: townId }, function (data) {
+                        $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
+                        $.each(data, function (index, item) {
+                            $('#suburbDropdown').append('<option value="' + item.suburbId + '">' + item.suburbName + '</option>');
+                        });
+                    });
+                } else {
+                    $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
+                }
+            });
+
+            // Load postal code when a suburb is selected
+            $('#suburbDropdown').change(function () {
+                var suburbId = $(this).val();
+                if (suburbId) {
+                    $.getJSON('@Url.Action("GetPostalCodeBySuburb")', { suburbId: suburbId }, function (data) {
+                        $('#postalCodeInput').val(data);
+                    });
+                } else {
+                    $('#postalCodeInput').val('');
+                }
+            });
+        });
+    </script>
+}
