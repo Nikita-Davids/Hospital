@@ -6,7 +6,9 @@ namespace Hospital
     public class Patients
     {
         [Key]
-        [StringLength(13)]
+        [Required]
+        [StringLength(13, ErrorMessage = "Patient ID cannot be longer than 13 digits.")]
+        [RegularExpression(@"^\d{1,13}$", ErrorMessage = "Patient ID must be numeric and 13 digits.")]
         [Display(Name = "Patient ID")]
         public string PatientIDNumber { get; set; }
 

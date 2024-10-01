@@ -20,7 +20,7 @@
         <div class="form-group">
             <label asp-for="PatientIDNumber" class="control-label">Patient ID</label>
             <input asp-for="PatientIDNumber" class="form-control" />
-            <span asp-validation-for="PatientIDNumber" class="text-danger"></span>
+            <span asp-validation-for="PatientIDNumber" class="text-danger" id="patientIDError"></span>
         </div>
         <div class="form-group">
             <label asp-for="PatientName" class="control-label">Patient Name</label>
@@ -116,6 +116,28 @@
         }
     });
 </script>
+<script>
+    document.getElementById("PatientIDNumber").addEventListener("input", function () {
+        var input = this.value;
+        var errorMessage = document.getElementById("patientIDError");
+
+        // Remove any non-numeric characters (optional)
+        this.value = this.value.replace(/\D/g, '');
+
+        if (input.length > 13) {
+            // Truncate input to 13 characters if it exceeds the limit
+            this.value = input.slice(0, 13);
+            errorMessage.textContent = "Patient ID cannot be longer than 13 digits.";
+        } else if (input.length < 13 && input.length > 0) {
+            // Display message if it's less than 13 digits but not empty
+            errorMessage.textContent = "Patient ID must be exactly 13 digits.";
+        } else {
+            // Clear error message when input is empty or exactly 13 digits
+            errorMessage.textContent = "";
+        }
+    });
+</script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
