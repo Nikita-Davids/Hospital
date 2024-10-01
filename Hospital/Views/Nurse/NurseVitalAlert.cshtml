@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Hospital.Models.PatientVital>
+﻿ @model IEnumerable<Hospital.Models.PatientVital>
 
 @{
     ViewData["Title"] = "Vital Alerts";
@@ -58,6 +58,11 @@
             <div>
                 <a href="@Url.Action("NurseViewPatientVital", "Nurse", new { vitalId = vital.PatientVitalId })" class="view-button">View Vital</a>
             </div>
+            <!-- Button to send email alert for this specific patient -->
+            <form asp-action="SendVitalEmail" method="post">
+                <input type="hidden" name="patientId" value="@vital.PatientId" />
+                <button type="submit" class="btn btn-primary">Email Surgeon</button>
+            </form>
         </div>
     }
 

@@ -507,8 +507,7 @@ namespace Hospital.Controllers
                 }
             }
         }
-
-
+     
 
 
         // GET: Nurse/AddPatientAllergy
