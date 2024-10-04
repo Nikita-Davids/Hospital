@@ -85,10 +85,8 @@
 
 <h1>Edit Restock</h1>
 
-<h4>Restock</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="row justify-content-center">
+    <div class="col-md-6 form-border">
         <form asp-action="EditRestock">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -119,24 +117,21 @@
                 <input asp-for="QuantityReceived" class="form-control" />
                 <span asp-validation-for="QuantityReceived" class="text-danger"></span>
             </div>
+  <br />
 
-            <div class="form-group">
-                <label asp-for="MedicationId" class="control-label"></label>
-                <input asp-for="MedicationId" class="form-control" id="medicationIdTextbox" readonly />
+            <div class="form-group text-right">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            <div class="form-group text-center">
+                <a class="btn btn-link" asp-controller="Pharmacist" asp-action="ViewRestock">Back to List</a>
             </div>
         </form>
     </div>
 </div>
-<br>
 <br />
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<br />
 
 @section Scripts {
     <script type="text/javascript">
@@ -197,4 +192,3 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-
