@@ -1057,6 +1057,7 @@ namespace Hospital.Controllers
 
             return View(restock);
         }
+
         [HttpPost]
         public IActionResult EditRestock(Restock restock)
         {
