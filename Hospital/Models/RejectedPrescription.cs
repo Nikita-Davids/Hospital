@@ -7,6 +7,7 @@ namespace Hospital.Models
     public class RejectedPrescription
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RejectionId { get; set; }
 
         [Required]
@@ -30,12 +31,8 @@ namespace Hospital.Models
 
         public string PharmacistSurname { get; set; }
 
-        //Navigation properties
-       [ForeignKey("PrescriptionId")]
-        public virtual SurgeonPrescription SurgeonPrescription { get; set; }
-
         [ForeignKey("SurgeonId")]
         public virtual Surgeon Surgeon { get; set; }
     }
 }
-//
+

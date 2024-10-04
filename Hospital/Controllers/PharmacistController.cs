@@ -781,7 +781,7 @@ namespace Hospital.Controllers
                 _context.SaveChanges();
 
                 // Return a successful response with redirect URL
-                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectedScript", "Pharmacist") });
+                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectScript", "Pharmacist") });
             }
             catch (Exception ex)
             {
@@ -1196,18 +1196,36 @@ namespace Hospital.Controllers
             return View(patientViewModel);
         }
 
-        public IActionResult ViewRejectScript()
+        public async Task<IActionResult> ViewRejectScript()
         {
-            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
-            var RejectedMedications = _context.SurgeonPrescription
-                .Where(sp => sp.Dispense == "Rejected")
-                .ToList();
+            // Query to join the SurgeonPrescriptions and RejectedPrescription tables
+            // Filter for prescriptions where the Dispense status is "Rejected"
+            var rejectedPrescriptions = await (from sp in _context.SurgeonPrescription
+                                               join rp in _context.RejectedPrescription // Make sure this is the correct DbSet name
+                                               on sp.PrescribedID equals rp.PrescribedID
+                                               where sp.Dispense == "Rejected"
+                                               select new RejectedPrescriptionViewModel
+                                               {
+                                                   PrescribedID = sp.PrescribedID,
+                                                   PatientIDNumber = sp.PatientIdnumber,
+                                                   PatientName = sp.PatientName,
+                                                   PatientSurname = sp.PatientSurname,
+                                                   MedicationName = sp.MedicationName,
+                                                   PrescriptionDosageForm = sp.PrescriptionDosageForm,
+                                                   Quantity = sp.Quantity,
+                                                   RejectionReason = rp.RejectionReason,
+                                                   RejectionDate = rp.RejectionDate,
+                                                   PharmacistName = rp.PharmacistName,
+                                                   PharmacistSurname = rp.PharmacistSurname,
+                                                   Status = rp.Status
+                                               }).ToListAsync(); // Use ToListAsync for async operation
 
-            // Pass the list of dispensed medications to the view for display
-            return View(RejectedMedications);
+            // Pass the list to the view for rendering
+            return View(rejectedPrescriptions);
         }
     }
 }
+
 
 
 
