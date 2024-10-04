@@ -2,6 +2,8 @@
 
 @{
     Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 }
 
 <style>
@@ -9,7 +11,7 @@
         border: 1px solid #ccc;
         padding: 20px;
         margin: 40px auto;
-        width: 60%; /* Adjusted width for better appearance */
+        width: 60%; /* Adjusted width to 80% for better appearance */
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         background-color: #f9f9f9; /* Added background color for better contrast */
     }
@@ -22,8 +24,8 @@
         width: 100%; /* Ensured that input fields take full width of the container */
     }
 
-    .btn-primary {
-        padding: 10px 20px;
+    button {
+        padding: 9px 50px;
         font-size: 16px;
         background-color: #08075F;
         color: white;
@@ -31,18 +33,13 @@
         cursor: pointer;
         font-weight: bold;
         transition: background-color 0.3s ease;
-        float: right;
-        margin-top: 10px;
+        float: right; /* Move the button to the right */
     }
 
-        .btn-primary:hover {
+        button:hover {
             background-color: #FFDE59;
             color: #08075F;
         }
-
-    .btn-danger {
-        margin-top: 10px; /* Added margin-top to align buttons correctly */
-    }
 </style>
 
 <h1>Surgeon Prescription</h1>
@@ -187,44 +184,43 @@
 
             // Add new medication group
             $('.add-medication').click(function () {
-                var newIndex = $('#medication-container .medication-group').length;
+                var newIndex = $('#medication-container .medication-group').length; // Calculate new index
                 var newGroup = `
-                                            <div class="medication-group">
-                                                <div class="form-group">
-                                                    <label for="Medications_${newIndex}__MedicationName" class="control-label">Medication Name:</label>
-                                                    <select name="Medications[${newIndex}].MedicationName" class="form-control medication-select">
-                                                        <option value="">Select Medication</option>
+                        <div class="medication-group">
+                            <div class="form-group">
+                                <label for="Medications_${newIndex}__MedicationName" class="control-label">Medication Name:</label>
+                                <select name="Medications[${newIndex}].MedicationName" class="form-control medication-select">
+                                    <option value="">Select Medication</option>
         @foreach (var medication in ViewBag.Medications)
         {
-                                                                        <option value="@medication.Value">@medication.Text</option>
+                                            <option value="@medication.Value">@medication.Text</option>
         }
-                                                    </select>
-                                                    <span class="text-danger"></span>
-                                                </div>
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
 
-                                                <div class="form-group">
-                                                    <label for="Medications_${newIndex}__PrescriptionDosageForm" class="control-label">Dosage Form:</label>
-                                                    <select name="Medications[${newIndex}].PrescriptionDosageForm" class="form-control dosage-form-select">
-                                                        <option value="">Select Dosage Form</option>
-                                                    </select>
-                                                    <span class="text-danger"></span>
-                                                </div>
+                            <div class="form-group">
+                                <label for="Medications_${newIndex}__PrescriptionDosageForm" class="control-label">Dosage Form:</label>
+                                <select name="Medications[${newIndex}].PrescriptionDosageForm" class="form-control dosage-form-select">
+                                    <option value="">Select Dosage Form</option>
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
 
-                                                <div class="form-group">
-                                                    <label for="Medications_${newIndex}__Quantity" class="control-label">Quantity:</label>
-                                                    <input name="Medications[${newIndex}].Quantity" class="form-control" />
-                                                    <span class="text-danger"></span>
-                                                </div>
+                            <div class="form-group">
+                                <label for="Medications_${newIndex}__Quantity" class="control-label">Quantity:</label>
+                                <input name="Medications[${newIndex}].Quantity" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
 
-                                                <div class="form-group">
-                                                    <label for="Medications_${newIndex}__Instructions" class="control-label">Instructions:</label>
-                                                    <input name="Medications[${newIndex}].Instructions" class="form-control" />
-                                                    <span class="text-danger"></span>
-                                                </div>
+                            <div class="form-group">
+                                <label for="Medications_${newIndex}__Instructions" class="control-label">Instructions:</label>
+                                <input name="Medications[${newIndex}].Instructions" class="form-control" />
+                                <span class="text-danger"></span>
+                            </div>
 
-                                                <button type="button" class="btn btn-danger remove-medication">Remove</button>
-                                            </div>
-                                        `;
+                            <button type="button" class="btn btn-danger remove-medication">Remove</button>
+                        </div>`;
                 $('#medication-container').append(newGroup);
             });
 
@@ -263,4 +259,5 @@
             });
         });
     </script>
+
 }

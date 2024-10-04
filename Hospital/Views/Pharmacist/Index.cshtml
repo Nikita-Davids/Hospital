@@ -8,19 +8,27 @@
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
         .prescription-item {
             border: 4px solid #ccc;
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
-            justify-content: space-between; /* Distributes space between child elements */
-            align-items: center; /* Aligns items vertically in the center */
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Ensure elements wrap on smaller screens */
         }
 
         h1 {
             text-align: center;
             color: #08075F;
             text-decoration: underline;
+            font-size: 2em; /* Responsive font size */
         }
 
         .urgent {
@@ -28,22 +36,26 @@
         }
 
         .prescription-details {
-            flex: 1; /* Takes up remaining space */
+            flex: 1;
+            margin-right: 20px;
+            font-size: 1em; /* Default font size */
         }
 
         .view-button {
             background-color: #08075F;
             color: white;
             border: none;
-            padding: 20px 25px;
+            padding: 15px 20px;
             text-decoration: none;
             cursor: pointer;
-            font-size: 17px;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
         }
 
-            .view-button:hover {
-                background-color: #FFDE59;
-            }
+        .view-button:hover {
+            background-color: #FFDE59;
+            color: black;
+        }
 
         .alert-success {
             background-color: #d4edda;
@@ -52,6 +64,45 @@
             margin-bottom: 15px;
             border: 1px solid #c3e6cb;
             border-radius: 4px;
+        }
+
+        /* Responsive design */
+         .screen and (max-width: 768px) {
+            h1 {
+                font-size: 1.5em; /* Smaller font size on tablet screens */
+            }
+
+            .prescription-item {
+                flex-direction: column; /* Stack items vertically on smaller screens */
+                align-items: flex-start; /* Align items to the start */
+            }
+
+            .prescription-details {
+                margin-right: 0;
+                margin-bottom: 15px;
+                font-size: 0.9em; /* Slightly smaller font on smaller screens */
+            }
+
+            .view-button {
+                width: 100%; /* Make button take full width on small screens */
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+
+        .screen and (max-width: 480px) {
+            h1 {
+                font-size: 1.2em; /* Smaller font size on mobile screens */
+            }
+
+            .prescription-item {
+                padding: 10px;
+            }
+
+            .view-button {
+                padding: 10px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
@@ -82,7 +133,6 @@
                 <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
                 <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
                 <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
-              
             </div>
 
             <div>
@@ -91,8 +141,3 @@
         </div>
     }
 </body>
-
-<br />
-<br />
-
-

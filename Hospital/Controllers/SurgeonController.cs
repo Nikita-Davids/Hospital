@@ -103,11 +103,12 @@ namespace Hospital.Controllers
         [HttpPost]
         public IActionResult SurgeonPrescription(SurgeonPrescriptionViewModel model)
         {
-            // Use the injected ApplicationDbContext
+            // Check if the model state is valid
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Ensure that there are medications to process
                     if (model.Medications != null && model.Medications.Any())
                     {
                         // Determine the next PrescribedId
@@ -157,6 +158,7 @@ namespace Hospital.Controllers
                             }
                             else
                             {
+                                // Add a model error if the medication is not found
                                 ModelState.AddModelError(string.Empty, $"Medication {med.MedicationName} not found.");
                             }
                         }
@@ -164,22 +166,27 @@ namespace Hospital.Controllers
                         // Save changes to the database
                         _context.SaveChanges();
 
+                        // Redirect to the success page upon successful submission
                         return RedirectToAction("Success");
                     }
                     else
                     {
+                        // Add a model error if no medications are provided
                         ModelState.AddModelError(string.Empty, "At least one medication is required.");
                     }
                 }
                 catch (Exception ex)
                 {
+                    // Handle exceptions and pass the error message to the view
                     ViewBag.ExceptionMessage = ex.Message;
                     return View(model);
                 }
             }
 
+            // If model state is invalid, redisplay the form with validation errors
             return View(model);
         }
+
         public async Task<IActionResult> SurgeonPatientOverview(string patientId)
         {
             if (string.IsNullOrEmpty(patientId))

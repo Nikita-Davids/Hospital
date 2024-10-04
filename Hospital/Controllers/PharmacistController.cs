@@ -98,7 +98,7 @@ namespace Hospital.Controllers
                     Value = name,
                     Text = name
                 }).ToList();
-          
+
             return View();
         }
 
@@ -941,54 +941,54 @@ namespace Hospital.Controllers
 
 
 
-       [HttpPost]
-public IActionResult Restock(Restock restock)
-{
-    try
-    {
-        if (string.IsNullOrEmpty(restock.MedicationName) || string.IsNullOrEmpty(restock.DosageForm) || restock.QuantityReceived == 0 || restock.RestockDate == null || restock.MedicationId == 0)
+        [HttpPost]
+        public IActionResult Restock(Restock restock)
         {
-            ViewBag.Error = "Please enter all fields";
-            return View();
-        }
-
-        Restock newRestock = new Restock
-        {
-            MedicationName = restock.MedicationName,
-            DosageForm = restock.DosageForm,
-            QuantityReceived = restock.QuantityReceived,
-            RestockDate = restock.RestockDate,
-            MedicationId = restock.MedicationId
-        };
-
-        _context.Restock.Add(newRestock);
-
-        var stockEntry = _context.Stock
-            .FirstOrDefault(s => s.MedicationId == restock.MedicationId);
-
-        if (stockEntry != null)
-        {
-            stockEntry.StockOnHand += restock.QuantityReceived;
-        }
-        else
-        {
-            _context.Stock.Add(new Stock
+            try
             {
-                MedicationId = restock.MedicationId ?? 0,
-                StockOnHand = restock.QuantityReceived
-            });
-        }
+                if (string.IsNullOrEmpty(restock.MedicationName) || string.IsNullOrEmpty(restock.DosageForm) || restock.QuantityReceived == 0 || restock.RestockDate == null || restock.MedicationId == 0)
+                {
+                    ViewBag.Error = "Please enter all fields";
+                    return View();
+                }
 
-        _context.SaveChanges();
+                Restock newRestock = new Restock
+                {
+                    MedicationName = restock.MedicationName,
+                    DosageForm = restock.DosageForm,
+                    QuantityReceived = restock.QuantityReceived,
+                    RestockDate = restock.RestockDate,
+                    MedicationId = restock.MedicationId
+                };
+
+                _context.Restock.Add(newRestock);
+
+                var stockEntry = _context.Stock
+                    .FirstOrDefault(s => s.MedicationId == restock.MedicationId);
+
+                if (stockEntry != null)
+                {
+                    stockEntry.StockOnHand += restock.QuantityReceived;
+                }
+                else
+                {
+                    _context.Stock.Add(new Stock
+                    {
+                        MedicationId = restock.MedicationId ?? 0,
+                        StockOnHand = restock.QuantityReceived
+                    });
+                }
+
+                _context.SaveChanges();
                 TempData["SuccessMessage"] = "Restock of medication successfully added.";
                 return RedirectToAction("Restock");
-    }
-    catch (Exception ex)
-    {
-        ViewBag.Error = "An error occurred: " + ex.Message;
-        return View();
-    }
-}
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "An error occurred: " + ex.Message;
+                return View();
+            }
+        }
 
 
         // GET: Restock
@@ -1162,12 +1162,42 @@ public IActionResult Restock(Restock restock)
             return View(model);
         }
 
+        public IActionResult ViewSpecificPatientDetails(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
 
+            // Find the patient by PatientIDNumber
+            var patient = _context.Patients
+                .FirstOrDefault(p => p.PatientIDNumber == id);
 
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            // Map the patient entity to the ViewModel
+            var patientViewModel = new PatientOverviewViewModel
+            {
+                PatientIDNumber = patient.PatientIDNumber,
+                PatientName = patient.PatientName,
+                PatientSurname = patient.PatientSurname,
+                PatientAddress = patient.PatientAddress,
+                PatientContactNumber = patient.PatientContactNumber,
+                PatientEmailAddress = patient.PatientEmailAddress,
+                PatientDateOfBirth = patient.PatientDateOfBirth,
+                PatientGender = patient.PatientGender,
+                // Add other necessary properties here
+            };
+
+            // Pass the ViewModel to the view
+            return View(patientViewModel);
+        }
     }
 }
 
-    
 
 
 
@@ -1175,7 +1205,11 @@ public IActionResult Restock(Restock restock)
 
 
 
-    
+
+
+
+
+
 
 
 
