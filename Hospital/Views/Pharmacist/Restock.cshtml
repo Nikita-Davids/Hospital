@@ -3,6 +3,7 @@
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
+
 <style>
     h1 {
         text-align: center;
@@ -20,7 +21,7 @@
         cursor: pointer;
         font-weight: bold;
         transition: background-color 0.3s ease;
-        float:right;
+        float: right;
     }
 
         .btn-primary:hover {
@@ -45,15 +46,26 @@
     .button-container {
         text-align: right; /* Aligns button container to the right */
     }
+
+    .alert-success {
+        margin-top: 20px;
+    }
 </style>
-<h1>RestockTest</h1>
+
+<h1>Restock Medication</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert" id="successMessage">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
 <hr />
 
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div class="border p-4 rounded" style="border-color: #007bff;">
-            <!-- Add border with padding and rounded corners -->
             <form asp-action="Restock">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -64,6 +76,7 @@
                     </select>
                     <span asp-validation-for="MedicationName" class="text-danger"></span>
                 </div>
+
                 <div class="form-group">
                     <label asp-for="DosageForm" class="control-label">Dosage Form:</label>
                     <select asp-for="DosageForm" class="form-control" id="dosageFormDropdown">
@@ -88,29 +101,37 @@
                     <input asp-for="MedicationId" type="hidden" id="medicationIdTextbox" />
                 </div>
                 <br />
-            
 
                 <div class="form-group">
                     <input type="submit" value="Restock" class="btn btn-primary" />
-                    <br />
-                    <br />
-                 
                 </div>
+                <br />
+                <br />
             </form>
         </div>
     </div>
 </div>
+
+
+<br />
 <div class="button-container">
     <a class="btn-link" asp-action="ViewRestock">View Restocked Medication</a>
 </div>
 <br />
 <br />
-<br />
-<br />
-
 
 @section Scripts {
     <script type="text/javascript">
+        // Automatically hide the success message after 3 seconds
+        window.onload = function () {
+            var successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                setTimeout(function () {
+                    successMessage.style.display = 'none';
+                }, 3000); // 3000 milliseconds = 3 seconds
+            }
+        };
+
         // JavaScript to update DosageForm dropdown based on selected MedicationName
         document.getElementById('medicationDropdown').addEventListener('change', function () {
             var selectedMedication = this.value;
@@ -135,7 +156,7 @@
 
             if (selectedMedication && selectedDosageForm) {
                 $.ajax({
-                    url: '@Url.Action("GetMedicationId", "Pharmacist")', // Update with correct controller name
+                    url: '@Url.Action("GetMedicationId", "Pharmacist")', // Update with the correct controller name
                     type: 'GET',
                     data: { medicationName: selectedMedication, dosageForm: selectedDosageForm },
                     success: function (data) {
@@ -152,4 +173,3 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-<br />
