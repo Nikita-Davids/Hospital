@@ -202,7 +202,7 @@
     </table>
 
     <div class="button-container">
-        <button onclick="location.href='@Url.Action("ViewSpecificPatientDetails", "Pharmacist", new { id = Model.PatientIDNumber })'" class="btn btn-warning">View Patient Details</button>
+        <button onclick="location.href='@Url.Action("ViewSpecificPatientDetails", "Pharmacist", new { patientId = Model.PatientIDNumber })'" class="btn btn-warning">View Patient Details</button>
         <button onclick="confirmDispense()" class="btn btn-success">Dispense</button>
         <button onclick="showRejectModal()" class="btn btn-danger">Reject</button>
         <button onclick="location.href='@Url.Action("Index", "Pharmacist")'" class="btn btn-primary">Back</button>

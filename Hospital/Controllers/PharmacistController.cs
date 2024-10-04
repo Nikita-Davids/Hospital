@@ -14,6 +14,7 @@ using MailKit.Net.Smtp;
 using System.Text;
 using System.Net.Mail;
 using System.Net;
+using Hospital.Migrations;
 
 namespace Hospital.Controllers
 {
@@ -992,6 +993,7 @@ namespace Hospital.Controllers
 
 
         // GET: Restock
+        // Action method for displaying the list of restocks, with optional search functionality
         public IActionResult ViewRestock(string searchQuery)
         {
             // Initialize the queryable collection of restocks
@@ -1028,7 +1030,7 @@ namespace Hospital.Controllers
         [HttpGet]
         public IActionResult EditRestock(int id)
         {
-            // Find the existing Restock by ID using _context
+            // Find the existing Restock by ID
             var restock = _context.Restock.Find(id);
 
             if (restock == null)
@@ -1055,20 +1057,19 @@ namespace Hospital.Controllers
 
             return View(restock);
         }
-
         [HttpPost]
         public IActionResult EditRestock(Restock restock)
         {
             try
             {
-                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived <= 0 || restock.MedicationId <= 0)
+                if (restock.MedicationName == null || restock.DosageForm == null || restock.QuantityReceived == 0 || restock.MedicationId == 0)
                 {
                     ViewBag.Error = "Please enter all fields";
                     return View(restock);
                 }
                 else
                 {
-                    // Find the existing Restock by ID using _context
+                    // Fetch the existing restock entry
                     var existingRestock = _context.Restock.Find(restock.RestockId);
 
                     if (existingRestock == null)
@@ -1076,23 +1077,35 @@ namespace Hospital.Controllers
                         return NotFound();
                     }
 
+                    // Fetch the current stock for this medication
+                    var stock = _context.Stock.FirstOrDefault(s => s.MedicationId == restock.MedicationId);
+
+                    if (stock == null)
+                    {
+                        // If no stock exists, create a new stock entry
+                        stock = new Stock
+                        {
+                            MedicationId = restock.MedicationId.Value, // Cast it to int
+                            StockOnHand = 0 // Initialize stock if it doesn't exist
+                        };
+                        _context.Stock.Add(stock);
+                    }
+
+                    // Calculate the difference in the QuantityReceived
+                    int quantityDifference = restock.QuantityReceived - existingRestock.QuantityReceived;
+
+                    // Update the stock based on the difference
+                    stock.StockOnHand += quantityDifference;
+
                     // Update the existing restock entry
                     existingRestock.MedicationName = restock.MedicationName;
                     existingRestock.DosageForm = restock.DosageForm;
                     existingRestock.QuantityReceived = restock.QuantityReceived;
                     existingRestock.MedicationId = restock.MedicationId;
 
-                    // Update stock on hand
-                    var stock = _context.Stock.FirstOrDefault(s => s.MedicationId == restock.MedicationId);
-                    if (stock != null)
-                    {
-                        // Adjust stock on hand based on the quantity received
-                        stock.StockOnHand += restock.QuantityReceived; // or stock.StockOnHand -= restock.QuantityReceived for decreasing
-                    }
-
-                    // Save changes to the database using _context
+                    // Save the changes to the restock and stock
                     _context.SaveChanges();
-                    TempData["SuccessMessage"] = "Restock of medication successfully Edited.";
+
                     return RedirectToAction("ViewRestock");
                 }
             }
@@ -1101,7 +1114,9 @@ namespace Hospital.Controllers
                 ViewBag.Error = "Error updating the restock entry";
                 return View(restock);
             }
-        }
+        
+    }
+
         public async Task<IActionResult> PharmacistViewPatientDetails()
         {
             var patients = await _context.Patients.ToListAsync();
@@ -1162,24 +1177,34 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-        public IActionResult ViewSpecificPatientDetails(string id)
+        public async Task<IActionResult> ViewSpecificPatientDetails(string patientId)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(patientId))
             {
-                return NotFound();
+                return BadRequest("Patient ID is required.");
             }
 
-            // Find the patient by PatientIDNumber
-            var patient = _context.Patients
-                .FirstOrDefault(p => p.PatientIDNumber == id);
-
+            // Fetch patient details
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientIDNumber == patientId);
             if (patient == null)
             {
                 return NotFound();
             }
 
-            // Map the patient entity to the ViewModel
-            var patientViewModel = new PatientOverviewViewModel
+            // Fetch vitals (allow null if not found)
+            var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
+
+            // Fetch allergies (empty list if not found)
+            var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
+
+            // Fetch current medications (empty list if not found)
+            var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
+
+            // Fetch medical conditions (empty list if not found)
+            var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
+
+            // Construct the model with vitals and other details (using null-coalescing operator where necessary)
+            var model = new PatientOverviewViewModel
             {
                 PatientIDNumber = patient.PatientIDNumber,
                 PatientName = patient.PatientName,
@@ -1189,11 +1214,21 @@ namespace Hospital.Controllers
                 PatientEmailAddress = patient.PatientEmailAddress,
                 PatientDateOfBirth = patient.PatientDateOfBirth,
                 PatientGender = patient.PatientGender,
-                // Add other necessary properties here
+                Weight = vitals?.Weight ?? null, // Allow null if vitals are not found
+                Height = vitals?.Height ?? null,
+                Temperature = vitals?.Tempreture ?? null,
+                BloodPressure = vitals?.BloodPressure ?? null,
+                Pulse = vitals?.Pulse ?? null,
+                Respiratory = vitals?.Respiratory ?? null,
+                BloodOxygen = vitals?.BloodOxygen ?? null,
+                BloodGlucoseLevel = vitals?.BloodGlucoseLevel ?? null,
+                VitalTime = vitals?.VitalTime ?? null,
+                Allergies = allergies, // Will be an empty list if none are found
+                CurrentMedications = currentMedications, // Empty list if none found
+                MedicalConditions = medicalConditions // Empty list if none found
             };
 
-            // Pass the ViewModel to the view
-            return View(patientViewModel);
+            return View(model);
         }
 
         public async Task<IActionResult> ViewRejectScript()

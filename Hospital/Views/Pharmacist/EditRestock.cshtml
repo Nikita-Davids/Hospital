@@ -3,12 +3,14 @@
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
 }
+
 @if (TempData["SuccessMessage"] != null)
 {
     <div id="successMessage" class="alert alert-success">
         @TempData["SuccessMessage"]
     </div>
 }
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");
@@ -19,7 +21,8 @@
             }, 3000);
         }
     });
-    </script>
+</script>
+
 <style>
     h1 {
         text-align: center;
@@ -78,15 +81,15 @@
     .text-danger {
         color: red;
     }
-
 </style>
 
 <h1>Edit Restock</h1>
 
+<h4>Restock</h4>
 <hr />
 <div class="row">
-    <div class="col-md-6 offset-md-3 form-border">
-        <form asp-action="EditRestock" method="post">
+    <div class="col-md-4">
+        <form asp-action="EditRestock">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <input asp-for="RestockId" type="hidden" />
@@ -117,25 +120,23 @@
                 <span asp-validation-for="QuantityReceived" class="text-danger"></span>
             </div>
 
-          @*   <div class="form-group">
+            <div class="form-group">
                 <label asp-for="MedicationId" class="control-label"></label>
                 <input asp-for="MedicationId" class="form-control" id="medicationIdTextbox" readonly />
-            </div> *@
-            <br />
-
-
-            <div class="form-group text-right">
-                <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
 
-            <div class="form-group text-center">
-                <a class="btn-link" asp-action="Index">Back to List</a>
+            <div class="form-group">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
-                                   
+<br>
 <br />
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
 
 @section Scripts {
     <script type="text/javascript">
@@ -192,4 +193,8 @@
         });
     </script>
 
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
