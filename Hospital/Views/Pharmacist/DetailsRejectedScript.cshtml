@@ -5,118 +5,135 @@
 }
 
 <style>
+    /* Applying different fonts to headings */
     h1 {
+        text-align: center;
+        color: #08075F;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 40px;
+        font-family: 'Arial', sans-serif; /* Change to your desired font */
+    }
+
+    h4 {
         text-align: center;
         color: #08075F;
         font-weight: bold;
         text-decoration: underline;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+       
     }
 
-    .details-container {
-        border: 2px solid #08075F;
-        border-radius: 10px;
-        padding: 25px;
-        max-width: 700px;
-        margin: 30px auto;
-        background-color: #f9f9f9;
-        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-    }
-
-        .details-container div {
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-
-        .details-container b {
-            color: #08075F;
-            font-size: 18px;
-        }
-
-    .medication-rejected {
-        background-color: #FFCDD2;
-        border: 2px solid #D32F2F;
-        padding: 15px;
+    .form-container {
+        border: 1px solid #ddd;
         border-radius: 8px;
-        margin-bottom: 25px;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #f9f9f9;
     }
 
-        .medication-rejected h2 {
-            color: #D32F2F;
-            text-align: center;
-            margin-bottom: 15px;
+    .form-group {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+        .form-group:last-child {
+            border-bottom: none;
         }
 
-    .btn-primary {
+        .form-group dt {
+            font-weight: bold; /* Keep dt bold */
+        }
+
+        .form-group dd {
+            margin-left: 0;
+            font-weight: normal; /* Change dd to less bold */
+            color: #333; /* Optional: Change color to make it distinct */
+        }
+
+    .btn-action {
         background-color: #08075F;
         color: white;
         border: none;
-        padding: 10px 20px;
+        padding: 5px 10px;
         text-decoration: none;
         cursor: pointer;
-        font-size: 18px;
-        border-radius: 5px;
-        display: block;
-        width: fit-content;
-        margin: 30px auto 0;
+        font-size: 13px;
     }
 
-        .btn-primary:hover {
+        .btn-action:hover {
             background-color: #FFDE59;
             color: #08075F;
         }
 </style>
 
-<h1><u><b>Rejected Prescription Details</b></u></h1>
+<h1>Rejected Prescription Details</h1>
 
-<div class="details-container">
-    <div>
-        <b>Prescribed ID:</b> @Model.PrescribedID
-    </div>
-    <div>
-        <b>Patient ID Number:</b> @Model.PatientIDNumber
-    </div>
-    <div>
-        <b>Patient Name:</b> @Model.PatientName @Model.PatientSurname
-    </div>
-    <div>
-        <b>Medication Name:</b> @Model.MedicationName
-    </div>
-    <div>
-        <b>Dosage Form:</b> @Model.PrescriptionDosageForm
-    </div>
-    <div>
-        <b>Quantity:</b> @Model.Quantity
-    </div>
-    <div>
-        <b>Instructions:</b> @Model.Instructions
-    </div>
-    <div>
-        <b>Urgency:</b> @Model.Urgent
-    </div>
-    <div>
-        <b>Surgeon ID:</b> @Model.SurgeonID
-    </div>
-    <div>
-        <b>Prescription Date:</b> @Model.PrescriptionDate?.ToString("dd-MM-yyyy")
-    </div>
-    <div>
-        <b>Dispense Date:</b> @Model.DispenseDateTime?.ToString("dd-MM-yyyy HH:mm")
-    </div>
+<div class="form-container">
+    <h4>Details:</h4>
+    <dl class="form-group">
+        <dt>Patient ID Number:</dt>
+        <dd>@Model.PatientIDNumber</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Patient Name:</dt>
+        <dd>@Model.PatientName @Model.PatientSurname</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Medication Name:</dt>
+        <dd>@Model.MedicationName</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Dosage Form:</dt>
+        <dd>@Model.PrescriptionDosageForm</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Quantity:</dt>
+        <dd>@Model.Quantity</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Instructions:</dt>
+        <dd>@Model.Instructions</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Urgency:</dt>
+        <dd>@Model.Urgent</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Surgeon ID:</dt>
+        <dd>@Model.SurgeonID</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Prescription Date:</dt>
+        <dd>@Model.PrescriptionDate?.ToString("dd-MM-yyyy")</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Dispense Date:</dt>
+        <dd>@Model.DispenseDateTime?.ToString("dd-MM-yyyy HH:mm")</dd>
+    </dl>
     <hr />
-    <div>
-        <b>Rejection Reason:</b> @Model.RejectionReason
-    </div>
-    <div>
-        <b>Rejection Date:</b> @Model.RejectionDate.ToString("dd-MM-yyyy HH:mm")
-    </div>
-    <div>
-        <b>Pharmacist:</b> @Model.PharmacistName @Model.PharmacistSurname
-    </div>
-    <div>
-        <b>Status:</b> @Model.Status
+    <dl class="form-group">
+        <dt>Rejection Reason:</dt>
+        <dd>@Model.RejectionReason</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Rejection Date:</dt>
+        <dd>@Model.RejectionDate.ToString("dd-MM-yyyy HH:mm")</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Pharmacist:</dt>
+        <dd>@Model.PharmacistName @Model.PharmacistSurname</dd>
+    </dl>
+    <dl class="form-group">
+        <dt>Status:</dt>
+        <dd>@Model.Status</dd>
+    </dl>
+    <div class="form-group">
+        <a asp-action="ViewRejectScript" class="btn-action">Return</a>
     </div>
 </div>
 
-<a href="@Url.Action("ViewRejectedScript", "Pharmacist")" class="btn btn-primary">Back to Rejected Prescriptions List</a>
+<br />
+<br />

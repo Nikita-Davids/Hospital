@@ -1,58 +1,138 @@
-﻿@model IEnumerable<dynamic>
-
-@{
-    ViewData["Title"] = "View Rejected Prescriptions";
-}
-
-<h1><u><b>Rejected Prescriptions</b></u></h1>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Prescribed ID</th>
-            <th>Patient ID</th>
-            <th>Patient Name</th>
-            <th>Patient Surname</th>
-            <th>Medication Name</th>
-            <th>Dosage Form</th>
-            <th>Quantity</th>
-            <th>Rejection Date</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.PrescribedID</td>
-                <td>@item.PatientIDNumber</td>
-                <td>@item.PatientName</td>
-                <td>@item.PatientSurname</td>
-                <td>@item.MedicationName</td>
-                <td>@item.PrescriptionDosageForm</td>
-                <td>@item.Quantity</td>
-                <td>@item.RejectionDate.ToString("dd-MM-yyyy")</td>
-                <td>@item.Status</td>
-                <td>
-                    <a href="@Url.Action("DetailsRejectedScript", "Pharmacist", new { PrescribedID = item.PrescribedID })" class="btn btn-info">View Details</a>
-                </td>
-
-            </tr>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    @{
+        Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
+    }
+    <style>
+        /* Hide the default navbar */
+        .navbar {
+            visibility: hidden;
         }
-    </tbody>
-</table>
 
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            background-color: #f8f9fa; /* Light gray background */
+        }
 
-<a href="@Url.Action("Index", "Pharmacist")" class="btn btn-primary">Back to Pharmacist Portal</a>
+        h1 {
+            text-align: center;
+            color: #08075F;
+            
+            text-decoration: underline;
+        }
 
-<style>
-    .table {
-        width: 100%;
-        margin-top: 20px;
-    }
+        /* Style the table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-    .btn {
-        margin-top: 20px;
-    }
-</style>
+            .table th, .table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            .table th {
+                background-color: #f2f2f2;
+                text-align: left;
+            }
+
+            .table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+        .btn {
+            background-color: #08075F;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 0; /* Ensures sharp edges */
+        }
+
+            .btn:hover {
+                background-color: #FFDE59;
+                color: #08075F;
+                border: 1px solid #08075F;
+            }
+
+        /* Back to Pharmacist Portal button */
+        .back-btn {
+            display: block;
+            margin: 30px auto;
+            background-color: #08075F;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 13px;
+            text-align: center;
+            border-radius: 0; /* Ensures sharp edges */
+        }
+
+            .back-btn:hover {
+                background-color: #FFDE59;
+                color: #08075F;
+            }
+
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Optional header content -->
+    </header>
+
+    <div class="container">
+        <h1><u><b>Rejected Prescriptions</b></u></h1>
+
+        <!-- Table displaying data -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Prescribed ID</th>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Patient Surname</th>
+                    <th>Medication Name</th>
+                    <th>Dosage Form</th>
+                    <th>Quantity</th>
+                    <th>Rejection Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.PrescribedID</td>
+                        <td>@item.PatientIDNumber</td>
+                        <td>@item.PatientName</td>
+                        <td>@item.PatientSurname</td>
+                        <td>@item.MedicationName</td>
+                        <td>@item.PrescriptionDosageForm</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.RejectionDate.ToString("dd-MM-yyyy")</td>
+                        <td>@item.Status</td>
+                        <td>
+                            <a href="@Url.Action("DetailsRejectedScript", "Pharmacist", new { PrescribedID = item.PrescribedID })" class="btn">View Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <br />
+        <br />
+
+        <footer>
+            <p style="text-align: center">2024, Northside. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -9,7 +9,6 @@
         text-align: center;
         color: #08075F;
         font-weight: bold;
-        text-align: center;
     }
 
     h4 {
@@ -17,7 +16,7 @@
         color: #08075F;
         font-weight: bold;
         text-decoration: underline;
-        text-align: center;
+        margin-bottom: 20px;
     }
 
     .form-container {
@@ -40,11 +39,12 @@
         }
 
         .form-group dt {
-            font-weight: bold;
+            font-weight: bold; /* Keep dt bold */
         }
 
         .form-group dd {
             margin-left: 0;
+            font-weight: normal; /* Make dd normal weight */
         }
 
     .btn-action {
@@ -62,7 +62,6 @@
             color: #08075F;
         }
 </style>
-
 
 <div class="form-container">
     <h4>Dispensed Script:</h4>
@@ -121,9 +120,9 @@
             <dd>@Html.DisplayFor(model => model.PharmacistSurname)</dd>
         </dl>
         <div class="form-group">
-          
-            <a asp-action="Index" class="btn-action">Back to List</a>
+            <a asp-action="ViewMedicationDispensed" class="btn-action">Return</a>
         </div>
+    </dl>
 </div>
 <br />
 <br />
