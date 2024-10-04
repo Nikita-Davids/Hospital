@@ -110,6 +110,24 @@
     .align-right {
         text-align: right; /* Aligns the button to the right within its container */
     }
+
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .button-container {
+        text-align: right; /* Aligns button container to the right */
+    }
 </style>
 
 <h1>Add Medication</h1>
@@ -194,10 +212,17 @@
                 <div class="form-group align-right">
                     <input type="submit" value="Add Medication" class="button" />
                 </div>
+
             </form>
+        
         </div>
     </div>
 </div>
+<div class="button-container">
+    <a class="btn-link" asp-action="ViewAddMedication">View All Medciation Added</a>
+</div>
+<br />
+<br />
 <br />
 
 @section Scripts {

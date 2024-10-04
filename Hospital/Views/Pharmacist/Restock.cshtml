@@ -28,6 +28,23 @@
             color: #08075F;
         }
 
+    .btn-link {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+        }
+
+    .button-container {
+        text-align: right; /* Aligns button container to the right */
+    }
 </style>
 <h1>RestockTest</h1>
 
@@ -83,6 +100,11 @@
         </div>
     </div>
 </div>
+<div class="button-container">
+    <a class="btn-link" asp-action="ViewRestcok">View Restcoked Medication</a>
+</div>
+<br />
+<br />
 <br />
 <br />
 

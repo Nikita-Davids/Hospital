@@ -5,13 +5,12 @@
 }
 
 <style>
-
     h1 {
         text-align: center;
         color: #08075F;
-        
         text-decoration: underline;
     }
+
     .btn {
         background-color: #08075F;
         color: white;
@@ -20,6 +19,8 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 20px;
+        flex: 1; /* Make buttons take equal space */
+        text-align: center; /* Center text within the button */
     }
 
         /* Add hover effect */
@@ -27,26 +28,25 @@
             background-color: #FFDE59;
         }
 
-    .btn-spacing {
-        margin-right: 30px; /* Adjust the spacing between buttons */
-    }
-
-    /* Specific spacing for the "View Medication Dispensed" button */
-    .btn-last {
-        margin-left: 30px; /* Add spacing before the last button */
+    /* Flex container for buttons */
+    .button-container {
+        display: flex;
+        justify-content: space-between; /* Distribute buttons with space between */
+        flex-wrap: nowrap; /* Prevent wrapping to the next line */
+        gap: 20px; /* Adjust spacing between buttons */
     }
 </style>
 
 <body>
-    
     <h1><u><b>View Information</b></u></h1>
     <br>
     <!-- Buttons in a centered container -->
-    <div class="item" style="text-align: center;">
-        <a asp-action="ViewRestock" class="btn btn-spacing">View Restock of Medication</a>
-        <a asp-action="ViewAddMedication" class="btn btn-spacing">View Added Medication</a>
-        <a asp-action="ViewOrderedStock" class="btn btn-spacing">View Ordered Stock</a>
-        <a asp-action="ViewMedicationDispensed" class="btn btn-last">View Medication Dispensed</a>
+    <div class="button-container">
+        <a asp-action="ViewRestock" class="btn">View Restock of Medication</a>
+        <a asp-action="ViewAddMedication" class="btn">View Added Medication</a>
+        <a asp-action="ViewOrderedStock" class="btn">View Ordered Stock</a>
+        <a asp-action="ViewMedicationDispensed" class="btn">View Medication Dispensed</a>
+        <a asp-action="ViewRejectScript" class="btn">View Rejected Scripts</a>
     </div>
     <br />
     <br />

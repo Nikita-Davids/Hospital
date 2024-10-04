@@ -168,7 +168,7 @@ namespace Hospital.Controllers
                 _context.Medication.Add(medication);
                 _context.SaveChanges();
                 TempData["SuccessMessage"] = "Medication added successfully.";
-                return RedirectToAction("ViewAddMedication");
+                return RedirectToAction("AddMedication");
             }
 
             // Re-populate ViewBag data for validation errors
@@ -1194,6 +1194,17 @@ namespace Hospital.Controllers
 
             // Pass the ViewModel to the view
             return View(patientViewModel);
+        }
+
+        public IActionResult ViewRejectScript()
+        {
+            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+            var RejectedMedications = _context.SurgeonPrescription
+                .Where(sp => sp.Dispense == "Rejected")
+                .ToList();
+
+            // Pass the list of dispensed medications to the view for display
+            return View(RejectedMedications);
         }
     }
 }
