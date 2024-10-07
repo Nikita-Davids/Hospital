@@ -1019,7 +1019,8 @@ namespace Hospital.Controllers
             }
 
             // Execute the query and retrieve the filtered list of restocks
-            var restocks = query.ToList();
+            // Sort the restocks by RestockDate descending
+            var restocks = query.OrderByDescending(r => r.RestockDate).ToList();
 
             // Pass the searchQuery to the view using ViewData for display or future use
             ViewData["SearchQuery"] = searchQuery;
@@ -1027,6 +1028,7 @@ namespace Hospital.Controllers
             // Return the view, passing the filtered list of restocks
             return View(restocks);
         }
+
         [HttpGet]
         public IActionResult EditRestock(int id)
         {
@@ -1107,6 +1109,9 @@ namespace Hospital.Controllers
                     // Save the changes to the restock and stock
                     _context.SaveChanges();
 
+                    // Set the success message in TempData
+                    TempData["SuccessMessage"] = "Successfully edited the restock entry.";
+
                     return RedirectToAction("ViewRestock");
                 }
             }
@@ -1115,8 +1120,8 @@ namespace Hospital.Controllers
                 ViewBag.Error = "Error updating the restock entry";
                 return View(restock);
             }
-        
-    }
+        }
+
 
         public async Task<IActionResult> PharmacistViewPatientDetails()
         {

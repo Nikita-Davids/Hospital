@@ -5,7 +5,6 @@
 }
 
 <style>
-    /* Hide the default navbar */
     .navbar {
         visibility: hidden;
     }
@@ -14,7 +13,7 @@
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
         font-weight: bold;
-        background-color: #f8f9fa; /* Light gray background */
+        background-color: #f8f9fa;
     }
 
     h1 {
@@ -39,12 +38,12 @@
         background-color: #08075F;
         color: white;
         border: none;
-        padding: 10px 15px;
+        padding: 8px 20px;
         font-size: 14px;
-        text-align: center;
         cursor: pointer;
-        border-radius: 5px; /* Slightly rounded corners */
-        width: 100%; /* Full-width button */
+        border-radius: 5px;
+        float: right;
+        width: auto;
     }
 
         .btn:hover {
@@ -53,24 +52,20 @@
             border: 1px solid #08075F;
         }
 
-    /* Back to Pharmacist Portal button */
-    .back-btn {
-        display: block;
-        margin: 30px auto;
+    .btn-link {
         background-color: #08075F;
         color: white;
         border: none;
-        padding: 10px 15px;
-        font-size: 14px;
-        text-align: center;
+        padding: 5px 10px;
+        text-decoration: none;
         cursor: pointer;
-        border-radius: 5px; /* Slightly rounded corners */
-        width: 100%; /* Full-width button */
+        font-size: 13px;
+        float: left;
     }
 
-        .back-btn:hover {
+        .btn-link:hover {
             background-color: #FFDE59;
-            color: #08075F;
+            border: none;
         }
 
     .alert {
@@ -80,20 +75,19 @@
 
 <h1>Edit Restock</h1>
 
+<!-- Success message moved here -->
+<div id="successMessage" class="alert alert-success" style="display:none;">
+    @TempData["SuccessMessage"]
+</div>
+
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="form-container">
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">
-                    @TempData["SuccessMessage"]
-                </div>
-            }
-
-            <form asp-action="EditRestock">
+            <form id="restockForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <input asp-for="RestockId" type="hidden" />
+                <input asp-for="MedicationId" type="hidden" id="medicationIdTextbox" />
 
                 <div class="form-group">
                     <label asp-for="MedicationName" class="control-label"></label>
@@ -122,33 +116,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="MedicationId" class="control-label"></label>
-                    <input asp-for="MedicationId" class="form-control" id="medicationIdTextbox" readonly />
+                    <button type="submit" class="btn">Save Changes</button>
+                    <br />
+                    <br />
+                    <div class="form-group text-center">
+                        <a class="btn-link" asp-controller="Pharmacist" asp-action="ViewRestock">Back to List</a>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <input type="submit" value="Save Changes" class="btn" />
-                </div>
+                <br />
             </form>
         </div>
     </div>
 </div>
 
-<div class="text-center mt-3">
-    <a asp-action="Index" class="back-btn">Back to List</a>
-</div>
+<br />
+<br />
 
 @section Scripts {
     <script type="text/javascript">
-        // Set the MedicationName dropdown to the saved value
         document.getElementById('medicationDropdown').value = '@Model.MedicationName';
 
-        // Function to populate the dosage form dropdown
         function populateDosageForms(medicationName) {
             var dosageForms = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.DosageForms));
             var dosageFormDropdown = document.getElementById('dosageFormDropdown');
 
-            dosageFormDropdown.innerHTML = '<option value="">Select Dosage Form</option>'; // Reset DosageForm dropdown
+            dosageFormDropdown.innerHTML = '<option value="">Select Dosage Form</option>';
 
             if (medicationName && dosageForms[medicationName]) {
                 dosageForms[medicationName].forEach(function (dosageForm) {
@@ -158,28 +150,24 @@
                     dosageFormDropdown.appendChild(option);
                 });
 
-                // Set the DosageForm dropdown to the saved value if it matches the current selection
                 dosageFormDropdown.value = '@Model.DosageForm';
             }
         }
 
-        // Initial population of the DosageForm dropdown
         var selectedMedication = document.getElementById('medicationDropdown').value;
         populateDosageForms(selectedMedication);
 
-        // Update DosageForm dropdown when MedicationName changes
         document.getElementById('medicationDropdown').addEventListener('change', function () {
             selectedMedication = this.value;
             populateDosageForms(selectedMedication);
         });
 
-        // Update MedicationId textbox based on selected MedicationName and DosageForm
         document.getElementById('dosageFormDropdown').addEventListener('change', function () {
             var selectedDosageForm = this.value;
 
             if (selectedMedication && selectedDosageForm) {
                 $.ajax({
-                    url: '@Url.Action("GetMedicationId", "Pharmacist")', // Update with correct controller name
+                    url: '@Url.Action("GetMedicationId", "Pharmacist")',
                     type: 'GET',
                     data: { medicationName: selectedMedication, dosageForm: selectedDosageForm },
                     success: function (data) {
@@ -190,6 +178,24 @@
                     }
                 });
             }
+        });
+
+        $('#restockForm').on('submit', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '@Url.Action("EditRestock", "Pharmacist")',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    $('#successMessage').fadeIn().delay(3000).fadeOut(function () {
+                        window.location.href = '@Url.Action("ViewRestock", "Pharmacist")';
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', status, error);
+                }
+            });
         });
     </script>
 }
