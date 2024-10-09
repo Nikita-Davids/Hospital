@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿@* <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -194,6 +194,127 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
+<footer>
+    <p style="text-align: center">2024, Northside. All rights reserved.</p>
+</footer>
+</html>
+ *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AppliedProjects</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ONT400_Hospital_Draft1.styles.css" asp-append-version="true" />
+    <style>
+        /* Hide the default navbar */
+        .navbar {
+            visibility: hidden;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+        }
+
+        /* Style the navigation menu */
+        .topnav {
+            width: 100%;
+            background-color: #FFDE59;
+            overflow: hidden;
+            white-space: nowrap; /* Prevent wrapping of nav items */
+        }
+
+            /* Navigation links */
+            .topnav a {
+                display: inline-block;
+                padding: 10px;
+                color: #08075F;
+                text-decoration: none;
+                font-size: 14px; /* Adjust font size for better fit */
+                text-align: center;
+                width: 14.285%; /* Seven links, equal width. Adjust percentage if number of links changes */
+                box-sizing: border-box; /* Include padding in width calculation */
+            }
+
+                /* Add a background color on mouse-over */
+                .topnav a:hover {
+                    background-color: #08075F;
+                    color: white; /* Change the text color to white on hover */
+                }
+
+                /* Style the current/active link */
+                .topnav a.active {
+                    background-color: white;
+                    color: #08075F; /* Ensure active link text color is visible */
+                }
+
+        /* Center the logo */
+        .logo-container {
+            text-align: center;
+            margin-top: 20px; /* Adjust the margin as needed for vertical positioning */
+        }
+
+        .logo {
+            width: 500px; /* Adjust the width and height as needed for your logo */
+            height: 300px;
+        }
+
+        footer {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            background-color: #FFDE59;
+            color: #08075F;
+            padding: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Centered logo above the navigation bar -->
+        <div class="logo-container">
+            <!--( Canva,2023)-->
+            <img src="~/images/NorthsideLogo.png" alt="Logo" class="logo">
+        </div>
+
+        <div class="text-center">
+            <!-- Navigation bar with links to other pages -->
+            <nav class="topnav" id="myTopnav">
+                <a asp-controller="Pharmacist" asp-action="Index">Alerts</a>
+                <a asp-controller="Pharmacist" asp-action="PharmacistViewPatientDetails">Patient Details</a>
+                <a asp-controller="Pharmacist" asp-action="StockManagement">Stock Levels</a>
+                <a asp-controller="Pharmacist" asp-action="AddMedication">Add Medication</a>
+                <a asp-controller="Pharmacist" asp-action="Restock">Restock</a>
+                <a asp-controller="Pharmacist" asp-action="ViewInfo">View Info</a>
+                <a asp-controller="Other" asp-action="OtherLogin">Logout</a>
+            </nav>
+        </div>
+
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
 <footer>
     <p style="text-align: center">2024, Northside. All rights reserved.</p>
 </footer>

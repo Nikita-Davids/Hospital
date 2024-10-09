@@ -322,7 +322,10 @@ namespace Hospital.Controllers
         public IActionResult ViewAddMedication()
         {
             // Retrieve all medication records from the database using _context
-            List<Medication> medications = _context.Medication.ToList();
+            // Sort the medications from the latest input to the oldest
+            List<Medication> medications = _context.Medication
+                .OrderByDescending(m => m.MedicationId) // Adjust this field if necessary
+                .ToList();
 
             // Pass the list of medications to the view for display
             return View(medications);

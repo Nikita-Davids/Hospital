@@ -114,6 +114,11 @@
     .table tr:nth-child(even) {
         background-color: #f9f9f9; /* Alternating row colors */
     }
+
+    /* Hidden date input styling */
+    .date-container {
+        display: none; /* Initially hidden */
+    }
 </style>
 
 <h1>Stock Management</h1>
@@ -153,7 +158,7 @@
                     <td class="@stockClass">@Html.DisplayFor(modelItem => Model.Items[i].StockOnHand)</td>
                     <td>@Html.DisplayFor(modelItem => Model.Items[i].ReOrderLevel)</td>
                     <td>
-                        <input type="checkbox" asp-for="Items[i].IsSelected" class="order-checkbox" onclick="toggleQuantity(this)" />
+                        <input type="checkbox" asp-for="Items[i].IsSelected" class="order-checkbox" onclick="toggleQuantityAndDate(this)" />
                     </td>
                     <td>
                         <select asp-for="Items[i].QuantityToOrder" class="form-control quantity-select" onchange="validateQuantity(this)" disabled>
@@ -166,11 +171,13 @@
                         <span class="quantity-error" style="color: red; display: none;">Please select a quantity greater than 0 units.</span>
                     </td>
                     <td>
-                        <input type="datetime-local" id="dateTimePicker_@i" class="form-control order-date-time-picker"
-                               style="display:none;"
-                               value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" onchange="updateHiddenDateTime(this, @i)" />
-                        <input type="hidden" id="hiddenOrderStockDate_@i" name="Items[@i].OrderStockDate" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff")" />
+                        <div class="date-container">
+                            <input type="text" id="dateTimePicker_@i" class="form-control order-date-time-picker"
+                                   value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" readonly />
+                            <input type="hidden" id="hiddenOrderStockDate_@i" name="Items[@i].OrderStockDate" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff")" />
+                        </div>
                     </td>
+
                     <input type="hidden" asp-for="Items[i].MedicationId" />
                 </tr>
             }
@@ -186,12 +193,14 @@
 <br />
 
 <script>
-    function toggleQuantity(checkbox) {
+    function toggleQuantityAndDate(checkbox) {
         var row = checkbox.closest('tr');
         var select = row.querySelector('.quantity-select');
-        var dateTimePicker = row.querySelector('.order-date-time-picker');
+        var dateContainer = row.querySelector('.date-container');
         select.disabled = !checkbox.checked;
-        dateTimePicker.style.display = checkbox.checked ? 'block' : 'none';
+
+        // Show or hide the date input when the checkbox is selected/unselected
+        dateContainer.style.display = checkbox.checked ? 'block' : 'none';
 
         // Reset quantity to 0 units if checkbox is unchecked
         if (!checkbox.checked) {
@@ -209,15 +218,6 @@
         orderButton.disabled = !anyChecked; // Disable button if no checkboxes are selected
     }
 
-    function updateHiddenDateTime(dateTimePicker, index) {
-        var hiddenDateTimeInput = document.getElementById('hiddenOrderStockDate_' + index);
-        var dateTime = new Date(dateTimePicker.value);
-        var formattedDateTime = dateTime.toISOString().split('.')[0];
-        var milliseconds = dateTime.getMilliseconds();
-        formattedDateTime += '.' + milliseconds.toString().padStart(3, '0');
-        hiddenDateTimeInput.value = formattedDateTime;
-    }
-
     function validateQuantity(selectElement) {
         var row = selectElement.closest('tr');
         var errorMessage = row.querySelector('.quantity-error');
@@ -230,34 +230,6 @@
             selectElement.classList.remove('error');
             errorMessage.style.display = 'none';
         }
-    }
-
-    function validateQuantities() {
-        var hasErrors = false;
-        var errorMessages = [];
-
-        document.querySelectorAll('.order-checkbox:checked').forEach(function (checkbox) {
-            var row = checkbox.closest('tr');
-            var select = row.querySelector('.quantity-select');
-            var errorMessage = row.querySelector('.quantity-error');
-            var selectedValue = select.value;
-
-            if (selectedValue === "0") {
-                select.classList.add('error');
-                errorMessage.style.display = 'block';
-                hasErrors = true;
-                // Collect error message
-                errorMessages.push('Please select a quantity greater than 0 units.');
-                // Scroll to the problematic select element
-                select.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                select.focus();
-            } else {
-                select.classList.remove('error');
-                errorMessage.style.display = 'none';
-            }
-        });
-
-        return { hasErrors, errorMessages: errorMessages[0] }; // Only take the first error message for display
     }
 
     function filterTable() {
@@ -286,30 +258,62 @@
         event.preventDefault();
         const validation = validateQuantities();
         if (validation.hasErrors) {
-            // Display a single alert with one aggregated error message
-            alert(validation.errorMessages);
-            return; // Prevent form submission if validation fails
+            showAlert(validation.errorMessages, 'error');
+            return;
         }
 
+        // Form submission via fetch
         const formData = new FormData(this);
         const response = await fetch(this.action, {
             method: 'POST',
             body: formData
         });
+
         const result = await response.json();
-        if (!result.success) {
-            if (confirm(result.message + '\nClick OK to go to the ViewOrderedStock page.')) {
+        if (response.ok) {
+            showAlert('Order placed successfully!', 'success');
+            this.reset(); // Optionally reset the form
+            updateOrderButtonState(); // Re-check order button state
+
+            // After success message, redirect to ViewOrderedStock page
+            setTimeout(() => {
                 window.location.href = '@Url.Action("ViewOrderedStock", "Pharmacist")';
-            }
+            }, 3000); // Redirect after 3 seconds
         } else {
-            alert(result.message);
-            window.location.href = '@Url.Action("ViewOrderedStock", "Pharmacist")';
+            showAlert('Error placing order: ' + result.message, 'error');
         }
     };
 
-    // Initialize button state on page load
-    document.addEventListener('DOMContentLoaded', function () {
-        updateOrderButtonState(); // Ensure the button state is correct on initial load
-    });
-</script>
+    function validateQuantities() {
+        const selects = document.querySelectorAll('.quantity-select');
+        let hasErrors = false;
+        let errorMessages = [];
 
+        selects.forEach(select => {
+            if (select.value === "0" && !select.disabled) {
+                select.classList.add('error');
+                errorMessages.push("One or more medications have an invalid quantity selected.Select a quanity greater that 0");
+                hasErrors = true;
+            } else {
+                select.classList.remove('error');
+            }
+        });
+
+        return { hasErrors, errorMessages: errorMessages.join("\n") };
+    }
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alert-container');
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+
+        const alertElement = document.createElement('div');
+        alertElement.className = `alert ${alertClass}`;
+        alertElement.textContent = message;
+
+        alertContainer.appendChild(alertElement);
+
+        setTimeout(() => {
+            alertElement.remove();
+        }, 5000);
+    }
+</script>
