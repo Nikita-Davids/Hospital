@@ -49,9 +49,7 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        margin-right: 10px; /* Add margin to the right for spacing */
     }
 
         .btn-back:hover {
@@ -101,13 +99,17 @@
         background-color: #ddd;
         margin: 10px 0;
     }
+
+    .button-container {
+        display: flex; /* Use flex to align buttons */
+        justify-content: flex-start; /* Align to the left */
+        margin-bottom: 10px; /* Space between buttons and table */
+    }
 </style>
 
-<div style="position: relative; text-align: center; margin-bottom: 20px;">
-    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+<div style="text-align: center; margin-bottom: 20px;">
     <h1>View Ordered Stock</h1>
 </div>
-
 <form id="searchForm" method="get" asp-action="ViewOrderedStock" class="search-container">
     <div class="form-group">
         <input type="text" id="searchQuery" name="searchQuery" class="form-control" value="@ViewData["SearchQuery"]" placeholder="Enter medication name or date (yyyy-mm-dd)" />
@@ -116,9 +118,13 @@
     </div>
 </form>
 
-<p>
+<!-- Button Container -->
+<div class="button-container">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
     <a class="btn-link" asp-controller="Pharmacist" asp-action="StockManagement">Order Stock</a>
-</p>
+</div>
+
+
 
 <table class="table">
     <thead>

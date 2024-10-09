@@ -47,9 +47,6 @@
         text-decoration: none;
         cursor: pointer;
         font-size: 13px;
-        position: absolute; /* Position it relative to the container */
-        top: 20px; /* Adjust vertical position */
-        left: 20px; /* Adjust horizontal position */
     }
 
         .btn-back:hover {
@@ -90,13 +87,21 @@
         .table tr:nth-child(even) {
             background-color: #f9f9f9; /* Alternating row colors */
         }
+
+    .button-container {
+        display: flex; /* Use flexbox to align buttons */
+        align-items: center; /* Vertically center align */
+        margin-bottom: 20px; /* Space below the button container */
+    }
+
+        .button-container a {
+            margin-right: 10px; /* Space between the buttons */
+        }
 </style>
+<h1>Restocked Medication</h1>
 
 <!-- Container for the back button and header -->
-<div style="position: relative; text-align: center; margin-bottom: 20px;">
-    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
-    <h1>Restocked Medication</h1>
-</div>
+
 
 <form id="searchForm" method="get" asp-action="ViewRestock" class="search-container">
     <div class="form-group">
@@ -105,10 +110,13 @@
         <a href="@Url.Action("ViewRestock", "Pharmacist")" class="btn-refresh">Refresh</a>
     </div>
 </form>
+<div style="text-align: left;">
+    <div class="button-container">
+        <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+        <a class="btn-link" asp-controller="Pharmacist" asp-action="Restock">Restock New Medication</a>
+    </div>
 
-<p>
-    <a class="btn-link" asp-controller="Pharmacist" asp-action="Restock">Restock New Medication</a>
-</p>
+</div>
 
 <table class="table">
     <thead>

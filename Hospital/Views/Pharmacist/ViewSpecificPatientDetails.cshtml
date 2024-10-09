@@ -95,9 +95,27 @@
     .button-container {
         text-align: right; /* Aligns button container to the right */
     }
+
+    .btn-back {
+        background-color: red; /* Red color for the back button */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .btn-back:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
 </style>
 
 <h1>Patient Details</h1>
+
+<div style="text-align: left; margin-bottom: 20px;">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn btn-back">Back</a>
+</div>
 
 <!-- Patient Details Section -->
 <div>

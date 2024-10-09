@@ -20,7 +20,6 @@
         h1 {
             text-align: center;
             color: #08075F;
-            
             text-decoration: underline;
         }
 
@@ -54,6 +53,7 @@
             font-size: 13px;
             cursor: pointer;
             border-radius: 0; /* Ensures sharp edges */
+            margin: 5px; /* Adds some space around buttons */
         }
 
             .btn:hover {
@@ -62,24 +62,19 @@
                 border: 1px solid #08075F;
             }
 
-        /* Back to Pharmacist Portal button */
-        .back-btn {
-            display: block;
-            margin: 30px auto;
-            background-color: #08075F;
+        .btn-back {
+            background-color: red; /* Red color for the back button */
             color: white;
             border: none;
             padding: 5px 10px;
+            text-decoration: none;
+            cursor: pointer;
             font-size: 13px;
-            text-align: center;
-            border-radius: 0; /* Ensures sharp edges */
         }
 
-            .back-btn:hover {
-                background-color: #FFDE59;
-                color: #08075F;
+            .btn-back:hover {
+                background-color: darkred; /* Darker red on hover */
             }
-
     </style>
 </head>
 <body>
@@ -89,6 +84,11 @@
 
     <div class="container">
         <h1><u><b>Rejected Prescriptions</b></u></h1>
+
+        <!-- Button for going back -->
+        <div style="text-align: left; margin-bottom: 20px;">
+            <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn btn-back">Back</a>
+        </div>
 
         <!-- Table displaying data -->
         <table class="table">

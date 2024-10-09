@@ -52,6 +52,7 @@
         position: absolute; /* Position it relative to the container */
         top: 20px; /* Adjust vertical position */
         left: 20px; /* Adjust horizontal position */
+        margin-left: -18px; /* Shift the button to the left */
     }
 
         .btn-back:hover {
@@ -95,12 +96,13 @@
             background-color: #f9f9f9;
         }
 </style>
-
+<h1>View Medication Dispensed</h1>
 <!-- Container for the back button and header -->
 <div style="position: relative; text-align: center; margin-bottom: 20px;">
     <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
-    <h1>View Medication Dispensed</h1>
+   
 </div>
+
 
 <!-- Search form -->
 <form id="searchForm" method="get" asp-action="ViewMedicationDispensed" class="search-container">
