@@ -212,7 +212,7 @@ namespace Hospital.Controllers
 
                     if (emailFound)
                     {
-                        TempData["SuccessMessage"] = "You are logged in!" + @DisplayNameAndSurname.passUserName + " " + @DisplayNameAndSurname.passUserSurname;
+                        TempData["SuccessMessage"] = "You are logged in as " + @DisplayNameAndSurname.passUserName + " " + @DisplayNameAndSurname.passUserSurname;
                         return RedirectToAction(redirectAction, redirectController);
                     }
                     else
