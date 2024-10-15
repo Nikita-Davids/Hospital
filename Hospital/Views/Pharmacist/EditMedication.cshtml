@@ -9,6 +9,14 @@
         @TempData["SuccessMessage"]
     </div>
 }
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="errorMessage" class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");
@@ -18,8 +26,27 @@
                 successMessage.style.display = "none";
             }, 3000);
         }
+
+        var errorMessage = document.getElementById("errorMessage");
+        if (errorMessage) {
+            errorMessage.style.display = "block";
+            setTimeout(function () {
+                errorMessage.style.display = "none";
+            }, 3000);
+        }
     });
-    </script>
+
+    $(document).ready(function () {
+        $('#medicationForm').on('submit', function (event) {
+            var reorderLevel = $('#ReOrderLevel').val();
+            if (reorderLevel < 1 || reorderLevel > 10000) {
+                alert("ReOrderLevel must be greater than 0 and less than 10,000.");
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+    });
+</script>
+
 <style>
     h1 {
         text-align: center;
@@ -72,33 +99,37 @@
         }
 
     .small-input {
-        width: 250px; /* Adjust the width to your liking */
+        width: 250px;
     }
 
     .shift-right {
-        margin-left: 80px; /* Adjust the margin to your liking */
+        margin-left: 80px;
     }
 
     .text-danger {
         color: red;
     }
 
-    /* Ensure list-group-item and button alignment */
     .list-group-item {
-        position: relative; /* Allow absolute positioning of the button */
+        position: relative;
     }
 
     .remove-ingredient {
-        position: absolute; /* Position the button absolutely within the list item */
-        right: 10px; /* Adjust as needed */
-        top: 50%; /* Center vertically */
-        transform: translateY(-50%); /* Center vertically */
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     .text-right {
-        text-align: right; /* Aligns the text or elements to the right */
+        text-align: right;
     }
-  
+
+    #ingredientErrorMessage {
+        color: red;
+        margin-top: 10px;
+        display: none; /* Hide initially */
+    }
 </style>
 
 <h1>Edit Medication</h1>
@@ -106,7 +137,7 @@
 <hr />
 <div class="row">
     <div class="col-md-6 offset-md-3 form-border">
-        <form asp-action="EditMedication" asp-route-id="@Model.MedicationId" method="post">
+        <form id="medicationForm" asp-action="EditMedication" asp-route-id="@Model.MedicationId" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="MedicationName" class="control-label"></label>
@@ -135,7 +166,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="ReOrderLevel" class="control-label"></label>
-                <input asp-for="ReOrderLevel" class="form-control" />
+                <input asp-for="ReOrderLevel" class="form-control" min="1" max="9999" required />
                 <span asp-validation-for="ReOrderLevel" class="text-danger"></span>
             </div>
 
@@ -143,7 +174,7 @@
             <div class="form-group">
                 <label class="control-label">Active Ingredient</label>
                 <select id="ingredientDropdown" class="form-control">
-                    <option value="">Select Ingredient</option>
+                    <option value="">Select New Active Ingredient</option>
                     @foreach (var ingredient in ViewBag.Ingredients as IEnumerable<SelectListItem>)
                     {
                         <option value="@ingredient.Value">@ingredient.Text</option>
@@ -155,13 +186,12 @@
             <div class="form-group">
                 <label class="control-label">Strength</label>
                 <select id="strengthDropdown" class="form-control">
-                    <option value="">Select Strength</option>
+                    <option value="">Select A New Strength</option>
                 </select>
             </div>
             <br />
             <div class="form-group">
-                <button type="button" id="addIngredientButton" class="btn btn-primary">Add Ingredient</button>
-                <button type="button" id="saveIngredientButton" class="btn btn-secondary">Save Changes</button>
+                <button type="button" id="addIngredientButton" class="btn btn-primary">Add New Ingredient</button>
             </div>
             <br />
 
@@ -174,9 +204,10 @@
                 <input type="hidden" name="CombinedIngredientsHidden" id="CombinedIngredientsHidden" value="@Model.MedicationActiveIngredients" />
             </div>
             <br />
+            <div id="ingredientErrorMessage" class="text-danger">Please add at least one active ingredient before saving.</div>
 
             <div class="form-group text-right">
-                <input type="submit" value="Save Medication" class="btn btn-primary" />
+                <input type="submit" value="Save Medication" id="saveMedicationButton" class="btn btn-primary" />
             </div>
 
             <div class="form-group text-center">
@@ -187,106 +218,77 @@
 </div>
 <br />
 <br />
-                                                                          
-                                                                                
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var ingredientStrengths = @Html.Raw(Json.Serialize(ViewBag.IngredientStrengths));
+        var existingIngredients = @Html.Raw(Json.Serialize(Model.MedicationActiveIngredients));
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            var ingredientStrengths = @Html.Raw(Json.Serialize(ViewBag.IngredientStrengths));
-            var existingIngredients = @Html.Raw(Json.Serialize(Model.MedicationActiveIngredients));
+        function populateStrengths(ingredientName) {
+            var $strengthDropdown = $('#strengthDropdown');
+            $strengthDropdown.empty();
+            $strengthDropdown.append('<option value="">Select Strength</option>');
 
-            function populateStrengths(ingredientName) {
-                var $strengthDropdown = $('#strengthDropdown');
-                $strengthDropdown.empty();
-                $strengthDropdown.append('<option value="">Select Strength</option>');
-
-                if (ingredientStrengths[ingredientName]) {
-                    $.each(ingredientStrengths[ingredientName], function (index, value) {
-                        $strengthDropdown.append('<option value="' + value + '">' + value + '</option>');
-                    });
-                }
-            }
-
-            function updateIngredientList() {
-                var $ingredientsList = $('#ingredientsList');
-                var combinedList = $('#CombinedIngredientsHidden').val().split(', ').filter(Boolean);
-
-                $ingredientsList.empty();
-                $.each(combinedList, function (index, item) {
-                    $ingredientsList.append('<li class="list-group-item" data-index="' + index + '">' + item + ' <button type="button" class="btn btn-danger btn-sm remove-ingredient" data-index="' + index + '">Remove</button></li>');
+            if (ingredientStrengths[ingredientName]) {
+                $.each(ingredientStrengths[ingredientName], function (index, value) {
+                    $strengthDropdown.append('<option value="' + value + '">' + value + '</option>');
                 });
             }
+        }
 
-            $('#ingredientDropdown').change(function () {
-                var ingredientName = $(this).val();
-                populateStrengths(ingredientName);
+        function updateIngredientList() {
+            var $ingredientsList = $('#ingredientsList');
+            var combinedList = $('#CombinedIngredientsHidden').val().split(', ').filter(Boolean);
+
+            $ingredientsList.empty();
+            $.each(combinedList, function (index, item) {
+                $ingredientsList.append('<li class="list-group-item" data-index="' + index + '">' + item + ' <button type="button" class="btn btn-danger btn-sm remove-ingredient" data-index="' + index + '">Remove</button></li>');
             });
 
-            $('#addIngredientButton').click(function () {
-                var ingredientName = $('#ingredientDropdown').val();
-                var strength = $('#strengthDropdown').val();
-                var combinedIngredients = $('#CombinedIngredientsHidden');
-                var combinedList = combinedIngredients.val().split(', ').filter(Boolean);
+            // Enable/disable the Save Medication button based on whether the combined ingredients list is populated
+            if (combinedList.length > 0) {
+                $('#saveMedicationButton').prop('disabled', false);
+                $('#ingredientErrorMessage').hide(); // Hide error message if ingredients are present
+            } else {
+                $('#saveMedicationButton').prop('disabled', true);
+                $('#ingredientErrorMessage').show(); // Show error message if no ingredients
+            }
+        }
 
-                if (ingredientName && strength) {
-                    var newIngredient = ingredientName + ' (' + strength + ')';
-                    if (!combinedList.includes(newIngredient)) {
-                        combinedList.push(newIngredient);
-                        combinedIngredients.val(combinedList.join(', '));
-                        updateIngredientList();
-                    }
-                }
-            });
+        $('#ingredientDropdown').change(function () {
+            var ingredientName = $(this).val();
+            populateStrengths(ingredientName);
+        });
 
-            $('#saveIngredientButton').click(function () {
-                var ingredientName = $('#ingredientDropdown').val();
-                var strength = $('#strengthDropdown').val();
-                var selectedIndex = $('#ingredientsList .list-group-item.selected').data('index');
-                var combinedIngredients = $('#CombinedIngredientsHidden');
-                var combinedList = combinedIngredients.val().split(', ').filter(Boolean);
+        $('#addIngredientButton').click(function () {
+            var ingredientName = $('#ingredientDropdown').val();
+            var strength = $('#strengthDropdown').val();
 
-                if (ingredientName && strength) {
-                    var updatedIngredient = ingredientName + ' (' + strength + ')';
+            if (ingredientName && strength) {
+                var combinedList = $('#CombinedIngredientsHidden').val().split(', ').filter(Boolean);
+                combinedList.push(ingredientName + ' - ' + strength);
+                $('#CombinedIngredientsHidden').val(combinedList.join(', '));
 
-                    if (selectedIndex !== undefined) {
-                        combinedList[selectedIndex] = updatedIngredient;
-                        combinedIngredients.val(combinedList.join(', '));
-                        updateIngredientList();
-                    }
-                }
-            });
-
-            $('#ingredientsList').on('click', 'li', function () {
-                $(this).addClass('selected').siblings().removeClass('selected');
-                var index = $(this).data('index');
-                var ingredientString = $('#CombinedIngredientsHidden').val().split(', ')[index];
-                var parts = ingredientString.split(' (');
-                var ingredientName = parts[0];
-                var strength = parts[1]?.replace(')', '');
-
-                $('#ingredientDropdown').val(ingredientName);
-                populateStrengths(ingredientName);
-                $('#strengthDropdown').val(strength);
-            });
-
-            $('#ingredientsList').on('click', '.remove-ingredient', function () {
-                var index = $(this).data('index');
-                var combinedIngredients = $('#CombinedIngredientsHidden');
-                var combinedList = combinedIngredients.val().split(', ').filter(Boolean);
-
-                combinedList.splice(index, 1);
-                combinedIngredients.val(combinedList.join(', '));
                 updateIngredientList();
-            });
+                $('#ingredientDropdown').val(''); // Reset dropdown
+                $('#strengthDropdown').val(''); // Reset dropdown
+            } else {
+                alert("Please select both an ingredient and a strength.");
+            }
+        });
 
-            // Initialize pre-selected ingredients
+        // Remove ingredient on button click
+        $(document).on('click', '.remove-ingredient', function () {
+            var index = $(this).data('index');
+            var combinedList = $('#CombinedIngredientsHidden').val().split(', ').filter(Boolean);
+            combinedList.splice(index, 1); // Remove ingredient
+            $('#CombinedIngredientsHidden').val(combinedList.join(', '));
+
             updateIngredientList();
         });
-    </script>
-}
+
+        // Initialize the ingredient list on page load
+        updateIngredientList();
+    });
+</script>
