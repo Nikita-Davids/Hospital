@@ -1,6 +1,5 @@
 ﻿@model Hospital.Models.Medication
 
-
 @{
     Layout = "~/Views/Shared/_LayoutPharmacist.cshtml";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -132,7 +131,6 @@
 
 <h1>Add Medication</h1>
 
-
 <hr />
 <div class="box">
     @if (ViewBag.ErrorMessage != null)
@@ -144,7 +142,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="AddMedication" method="post">
+            <form asp-action="AddMedication" method="post" id="medicationForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="MedicationName" class="control-label"></label>
@@ -177,6 +175,9 @@
                     <label asp-for="ReOrderLevel" class="control-label"></label>
                     <input asp-for="ReOrderLevel" class="form-control" />
                     <span asp-validation-for="ReOrderLevel" class="text-danger"></span>
+                    <div id="reorderLevelError" class="alert alert-danger" style="display:none;">
+                        ReOrder Level must be between 1 and 10000.
+                    </div>
                 </div>
 
                 <!-- Active Ingredients Section -->
@@ -217,12 +218,12 @@
                 </div>
 
             </form>
-        
+
         </div>
     </div>
 </div>
 <div class="button-container">
-    <a class="btn-link" asp-action="ViewAddMedication">View All Medciation Added</a>
+    <a class="btn-link" asp-action="ViewAddMedication">View All Medications Added</a>
 </div>
 <br />
 <br />
@@ -263,40 +264,25 @@
                     var ingredient = $(this).find('.ingredient-dropdown').val();
                     var strength = $(this).find('.strength-dropdown').val();
                     if (ingredient && strength) {
-                        combinedIngredients.push(`${ingredient} (${strength})`);
+                        combinedIngredients.push(ingredient + ' (' + strength + ')');
                     }
                 });
-                var combinedIngredientsString = combinedIngredients.join(', ');
-                $('#CombinedIngredients').val(combinedIngredientsString);
-                $('#CombinedIngredientsHidden').val(combinedIngredientsString); // Set hidden input value
+                $('#CombinedIngredients').val(combinedIngredients.join(', '));
+                $('#CombinedIngredientsHidden').val(combinedIngredients.join(', '));
             }
 
             function updateRemoveButtons() {
                 var rowsCount = $('#ingredientsContainer .ingredient-row').length;
-                $('#ingredientsContainer .remove-ingredient-btn').each(function () {
-                    var $btn = $(this);
-                    if (rowsCount <= 1) {
-                        $btn.prop('disabled', true);
-                    } else {
-                        $btn.prop('disabled', false);
-                    }
-                });
+                $('#ingredientsContainer .remove-ingredient-btn').prop('disabled', rowsCount <= 1);
             }
 
             $('#ingredientsContainer').on('change', '.ingredient-dropdown', function () {
                 updateStrengthDropdown(this);
+                updateCombinedIngredients();
             });
 
             $('#ingredientsContainer').on('change', '.strength-dropdown', function () {
                 updateCombinedIngredients();
-            });
-
-            $('#addIngredientBtn').click(function () {
-                var newRow = $('#ingredientsContainer .ingredient-row:first').clone();
-                newRow.find('select').val(''); // Clear values
-                $('#ingredientsContainer').append(newRow);
-                updateCombinedIngredients();
-                updateRemoveButtons();
             });
 
             $('#ingredientsContainer').on('click', '.remove-ingredient-btn', function () {
@@ -305,20 +291,37 @@
                 updateRemoveButtons();
             });
 
-            // Initialize the state of remove buttons on page load
-            updateRemoveButtons();
-        });
-
-
-            document.addEventListener("DOMContentLoaded", function () {
-                var successMessage = document.getElementById("successMessage");
-                if (successMessage) {
-                    successMessage.style.display = "block";
-                    setTimeout(function () {
-                        successMessage.style.display = "none";
-                    }, 3000);
-                }
+            $('#addIngredientBtn').click(function () {
+                var newRow = `
+                            <div class="ingredient-row">
+                                <select class="form-control ingredient-dropdown" name="selectedIngredients[]">
+                                    <option value="">Select Ingredient</option>
+        @foreach (var ingredient in ViewBag.Ingredients)
+        {
+                                            <option value="@ingredient.Value">@ingredient.Text</option>
+        }
+                                </select>
+                                <select class="form-control strength-dropdown" name="selectedStrengths[]">
+                                    <option value="">Select Strength</option>
+                                </select>
+                                <button type="button" class="remove-ingredient-btn">Remove</button>
+                            </div>
+                        `;
+                $('#ingredientsContainer').append(newRow);
+                updateRemoveButtons();
             });
 
+            // Validation for ReOrderLevel
+            $('#medicationForm').on('input', 'input[name="ReOrderLevel"]', function () {
+                var reorderLevel = parseInt($(this).val());
+                var $errorDiv = $('#reorderLevelError');
+
+                if (isNaN(reorderLevel) || reorderLevel < 1 || reorderLevel > 10000) {
+                    $errorDiv.show(); // Show error message
+                } else {
+                    $errorDiv.hide(); // Hide error message
+                }
+            });
+        });
     </script>
 }

@@ -130,6 +130,17 @@
         margin-top: 10px;
         display: none; /* Hide initially */
     }
+
+    h4 {
+        color: #08075F;
+        font-weight: bold;
+        margin-bottom: 20px; /* Adds more space below the form headings */
+    }
+
+    .form-group {
+        margin-bottom: 15px; /* Adds space between form fields */
+    }
+
 </style>
 
 <h1>Edit Medication</h1>
@@ -140,18 +151,18 @@
         <form id="medicationForm" asp-action="EditMedication" asp-route-id="@Model.MedicationId" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="MedicationName" class="control-label"></label>
+                <label asp-for="MedicationName" class="control-label">Medication Name:</label>
                 <input asp-for="MedicationName" class="form-control" />
                 <span asp-validation-for="MedicationName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DosageForm" class="control-label"></label>
+                <label asp-for="DosageForm" class="control-label">Dosage Form:</label>
                 <select asp-for="DosageForm" class="form-control" asp-items="ViewBag.DosageForms"></select>
                 <span asp-validation-for="DosageForm" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Schedule" class="control-label"></label>
+                <label asp-for="Schedule" class="control-label">Schedule:</label>
                 <select asp-for="Schedule" class="form-control">
                     <option value="">Select Schedule</option>
                     <option value="Schedule 1">Schedule 1</option>
@@ -165,14 +176,16 @@
                 <span asp-validation-for="Schedule" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ReOrderLevel" class="control-label"></label>
-                <input asp-for="ReOrderLevel" class="form-control" min="1" max="9999" required />
+                <label asp-for="ReOrderLevel" class="control-label">Re-order level:</label>
+                <input asp-for="ReOrderLevel" class="form-control" min="1" max="10000" required />
                 <span asp-validation-for="ReOrderLevel" class="text-danger"></span>
+                <!-- Hidden error message that appears when input is invalid -->
+                <span id="reorderLevelError" class="text-danger" style="display:none;">Re-Order Level must be between 1 and 10,000.</span>
             </div>
 
             <!-- Active Ingredients Section -->
             <div class="form-group">
-                <label class="control-label">Active Ingredient</label>
+                <label class="control-label">Active Ingredient:</label>
                 <select id="ingredientDropdown" class="form-control">
                     <option value="">Select New Active Ingredient</option>
                     @foreach (var ingredient in ViewBag.Ingredients as IEnumerable<SelectListItem>)
@@ -184,7 +197,7 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label">Strength</label>
+                <label class="control-label">Strength:</label>
                 <select id="strengthDropdown" class="form-control">
                     <option value="">Select A New Strength</option>
                 </select>
@@ -291,4 +304,32 @@
         // Initialize the ingredient list on page load
         updateIngredientList();
     });
+    $(document).ready(function () {
+        $('#medicationForm').on('submit', function (event) {
+            var reorderLevel = parseInt($('#ReOrderLevel').val(), 10);  // Convert to number
+            var reorderLevelError = $('#reorderLevelError');
+
+            // Check if the value is outside the valid range
+            if (isNaN(reorderLevel) || reorderLevel < 1 || reorderLevel > 10000) {
+                reorderLevelError.text("ReOrderLevel must be between 1 and 10,000.");
+                reorderLevelError.show();  // Show the error message in red
+                event.preventDefault();    // Prevent form submission
+            } else {
+                reorderLevelError.hide();  // Hide the error message when valid
+            }
+        });
+
+        // Optional: Add real-time validation when user types
+        $('#ReOrderLevel').on('input', function () {
+            var reorderLevel = parseInt($(this).val(), 10);  // Convert to number
+            var reorderLevelError = $('#reorderLevelError');
+
+            if (isNaN(reorderLevel) || reorderLevel < 1 || reorderLevel > 10000) {
+                reorderLevelError.show();  // Show the error message in red
+            } else {
+                reorderLevelError.hide();  // Hide the error message when valid
+            }
+        });
+    });
+
 </script>

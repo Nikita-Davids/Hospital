@@ -35,6 +35,7 @@ namespace Hospital.Models
 
 
         [Required]
+
         [Display(Name = "Reorder Level")]
         public int ReOrderLevel { get; set; }
 
