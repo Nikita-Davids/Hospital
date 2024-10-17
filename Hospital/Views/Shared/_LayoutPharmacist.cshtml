@@ -25,31 +25,32 @@
             width: 100%;
             background-color: #FFDE59;
             overflow: hidden;
-            white-space: nowrap; /* Prevent wrapping of nav items */
+            white-space: nowrap; /* Prevent wrapping to a new line */
         }
 
             /* Navigation links */
             .topnav a {
                 display: inline-block;
-                padding: 10px;
+                padding: 8px;
                 color: #08075F;
                 text-decoration: none;
-                font-size: 14px; /* Adjust font size for better fit */
+                font-size: 14px;
                 text-align: center;
-                width: 14.285%; /* Seven links, equal width. Adjust percentage if number of links changes */
-                box-sizing: border-box; /* Include padding in width calculation */
+                width: 12.5%; /* 100% divided by 8 links */
+                box-sizing: border-box; /* Ensure padding is included in width calculation */
+                margin: 0; /* No spacing between links */
             }
 
                 /* Add a background color on mouse-over */
                 .topnav a:hover {
                     background-color: #08075F;
-                    color: white; /* Change the text color to white on hover */
+                    color: white;
                 }
 
                 /* Style the current/active link */
                 .topnav a.active {
                     background-color: white;
-                    color: #08075F; /* Ensure active link text color is visible */
+                    color: #08075F;
                 }
 
         /* Center the logo */
@@ -88,10 +89,8 @@
             <a asp-controller="Pharmacist" asp-action="AddMedication">Add Medication</a>
             <a asp-controller="Pharmacist" asp-action="Restock">Restock</a>
             <a asp-controller="Pharmacist" asp-action="ViewInfo">View Info</a>
+            <a asp-controller="Pharmacist" asp-action="FilterPrescription">Report</a>
             <a href="javascript:void(0);" onclick="confirmLogout(event)">Logout</a>
-            <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-                <i class="fa fa-bars"></i>
-            </a>
         </div>
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">

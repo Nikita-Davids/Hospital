@@ -106,7 +106,7 @@
                     <th>Dosage Form</th>
                     <th>Quantity</th>
                     <th>Rejection Date</th>
-                    <th>Status</th>
+                  
                     <th>Action</th>
                 </tr>
             </thead>
@@ -122,7 +122,7 @@
                         <td>@item.PrescriptionDosageForm</td>
                         <td>@item.Quantity</td>
                         <td>@item.RejectionDate.ToString("dd-MM-yyyy")</td>
-                        <td>@item.Status</td>
+                     
                         <td>
                             <a href="@Url.Action("DetailsRejectedScript", "Pharmacist", new { PrescribedID = item.PrescribedID })" class="btn">View Details</a>
                         </td>
