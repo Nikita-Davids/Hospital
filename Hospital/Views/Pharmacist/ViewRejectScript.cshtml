@@ -81,15 +81,19 @@
     <header>
         <!-- Optional header content -->
     </header>
-
+  
+    
     <div class="container">
         <h1><u><b>Rejected Prescriptions</b></u></h1>
+        <!-- Wrapper for the back button and search bar -->
+        <div style="position: relative; margin-bottom: 20px;">
+            <!-- Button for going back, positioned on the left -->
+            <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn btn-back" style="position: absolute; left: 0;">Back</a>
 
-        <!-- Button for going back -->
-        <div style="text-align: left; margin-bottom: 20px;">
-            <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn btn-back">Back</a>
-        </div>
-
+            <!-- Search bar, centered -->
+            <div style="text-align: center;">
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by patient name or surname" style="padding: 5px; width: 500px;" />
+            </div>
         <!-- Table displaying data -->
         <table class="table">
             <thead>
@@ -134,5 +138,31 @@
             <p style="text-align: center">2024, Northside. All rights reserved.</p>
         </footer>
     </div>
+    <script>
+        function filterTable() {
+            // Get the search query from the input field
+            var input = document.getElementById('searchInput');
+            var filter = input.value.toLowerCase();
+            var table = document.getElementById('prescriptionTable');
+            var tr = table.getElementsByTagName('tr');
+
+            // Loop through all table rows (except the header) and hide those that don't match the search query
+            for (var i = 1; i < tr.length; i++) {
+                var tdName = tr[i].getElementsByTagName('td')[2]; // Patient Name column
+                var tdSurname = tr[i].getElementsByTagName('td')[3]; // Patient Surname column
+
+                if (tdName || tdSurname) {
+                    var nameValue = tdName.textContent || tdName.innerText;
+                    var surnameValue = tdSurname.textContent || tdSurname.innerText;
+
+                    if (nameValue.toLowerCase().indexOf(filter) > -1 || surnameValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show row
+                    } else {
+                        tr[i].style.display = "none"; // Hide row
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>

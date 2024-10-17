@@ -1267,8 +1267,46 @@ namespace Hospital.Controllers
             // Pass the list to the view for rendering
             return View(rejectedPrescriptions);
         }
+
+        // Action to generate and display the report
+        //    public IActionResult GenerateReport(DateTime? startDate, DateTime? endDate)
+        //    {
+        //        // Fetch the data from the database
+        //        var allScriptsData = _context.Script // Adjust to the name of your DbSet
+        //            .Where(s => (!startDate.HasValue || s.DispenseDate >= startDate) &&
+        //                        (!endDate.HasValue || s.DispenseDate <= endDate))
+        //            .Select(s => new ScriptDataViewModel
+        //            {
+        //                DispenseDate = s.DispenseDate,
+        //                PatientId = s.PatientName,      // Assuming PatientName is a field in your Script model
+        //                Medication = s.MedicationName,  // Assuming MedicationName is a field in your Script model
+        //                Qty = s.Quantity,
+        //                ScriptStatus = s.Status         // Assuming Status is a field in your Script model
+        //            })
+        //            .ToList();
+
+        //        // Calculate totals
+        //        var totalDispensed = allScriptsData.Count(s => s.ScriptStatus == "Dispensed");
+        //        var totalRejected = allScriptsData.Count(s => s.ScriptStatus == "Rejected");
+
+        //        // Create the view model and populate it with the data
+        //        var model = new ReportViewModel
+        //        {
+        //            AllcombinedData = allScriptsData,
+        //            TotalDispensed = totalDispensed,
+        //            TotalRejected = totalRejected
+        //        };
+
+        //        // Pass the model to the 'Reports' view
+        //        return View("Reports", model);
+        //    }
+
+        //    // Action for the initial report page where the user selects the date range
+
+        //}
     }
 }
+
 
 
 
