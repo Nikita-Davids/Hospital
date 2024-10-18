@@ -1345,118 +1345,131 @@ namespace Hospital.Controllers
         }
         private bool WardExists(int id)
         {
-            return _context.Ward.Any(e => e.WardId == id); 
+            return _context.Ward.Any(e => e.WardId == id);
         }
-    
 
 
-    // GET: Medications/Create
-    public IActionResult AdminAddChronicMedication()
-    {
-        // Populate the dropdown list with dosage forms sorted alphabetically (A-Z)
-        ViewBag.DosageForms = _context.DosageForm
-            .OrderBy(a => a.DosageFormName) // Sort by DosageFormName A-Z
-            .Select(a => new SelectListItem
-            {
-                Value = a.DosageFormName,
-                Text = a.DosageFormName
-            }).ToList();
 
-        // Populate the dropdown list with distinct active ingredient names
-        ViewBag.Ingredients = _context.ActiveIngredient
-            .OrderBy(m => m.IngredientName) // Sort by IngredientName A-Z
-            .Select(a => new SelectListItem
-            {
-                Value = a.IngredientName,
-                Text = a.IngredientName
-            }).Distinct().ToList();
-
-        return View();
-    }
-
-    // GET: Medications/GetStrengths
-    public JsonResult GetStrengths(string ingredientName)
-    {
-        var strengths = _context.ActiveIngredient
-            .Where(a => a.IngredientName == ingredientName)
-            .Select(a => a.Strength)
-            .Distinct()
-            .ToList();
-
-        return Json(strengths);
-    }
-
-
-    // POST: Medications/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult AdminAddChronicMedication(ChronicMedication medication)
-    {
-        // Debugging: Confirm received data
-        ViewBag.DebugMedication = medication;
-
-        if (ModelState.IsValid)
+        // GET: Medications/Create
+        public IActionResult AdminAddChronicMedication()
         {
-            // Normalize the input to lowercase for comparison
-            string medicationNameLower = medication.CMedicationName.Trim().ToLower();
-            string dosageFormLower = medication.CDosageForm?.Trim().ToLower();
+            // Populate the dropdown list with dosage forms sorted alphabetically (A-Z)
+            ViewBag.DosageForms = _context.DosageForm
+                .OrderBy(a => a.DosageFormName) // Sort by DosageFormName A-Z
+                .Select(a => new SelectListItem
+                {
+                    Value = a.DosageFormName,
+                    Text = a.DosageFormName
+                }).ToList();
 
-            // Check if a medication with the same name and dosage form already exists (case-insensitive)
-            bool medicationExists = _context.ChronicMedication
-                .Any(m => m.CMedicationName.Trim().ToLower() == medicationNameLower
-&& m.CDosageForm.Trim().ToLower() == dosageFormLower);
+            // Populate the dropdown list with distinct active ingredient names
+            ViewBag.Ingredients = _context.ActiveIngredient
+                .OrderBy(m => m.IngredientName) // Sort by IngredientName A-Z
+                .Select(a => new SelectListItem
+                {
+                    Value = a.IngredientName,
+                    Text = a.IngredientName
+                }).Distinct().ToList();
 
-            if (medicationExists)
-            {
-                // Add a model error for duplicate medication name
-                ModelState.AddModelError("CMedicationName", "A medication with the same name already exists.");
-
-                // Re-populate ViewBag data for validation errors
-                PopulateViewBagData();
-                return View(medication);
-            }
-
-            // Attempt to add the medication to the database
-            try
-            {
-                _context.ChronicMedication.Add(medication);
-                _context.SaveChanges();
-                TempData["SuccessMessage"] = "Chronic Medication added successfully.";
-                return RedirectToAction("AdminAddChronicMedication");
-            }
-            catch (Exception ex)
-            {
-                // Log the error (you can use a logging framework)
-                ModelState.AddModelError("", "An error occurred while saving data: " + ex.Message);
-            }
+            return View();
         }
 
-        // Re-populate ViewBag data for validation errors
-        PopulateViewBagData();
-        return View(medication);
-    }
+        // GET: Medications/GetStrengths
+        public JsonResult GetStrengths(string ingredientName)
+        {
+            var strengths = _context.ActiveIngredient
+                .Where(a => a.IngredientName == ingredientName)
+                .Select(a => a.Strength)
+                .Distinct()
+                .ToList();
 
-    // Helper method to populate ViewBag data
-    private void PopulateViewBagData()
-    {
-        ViewBag.DosageForms = _context.DosageForm
-            .OrderBy(a => a.DosageFormName) // Sort by DosageFormName A-Z
-            .Select(a => new SelectListItem
+            return Json(strengths);
+        }
+
+
+        // POST: Medications/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdminAddChronicMedication(ChronicMedication medication)
+        {
+            // Debugging: Confirm received data
+            ViewBag.DebugMedication = medication;
+
+            if (ModelState.IsValid)
             {
-                Value = a.DosageFormName,
-                Text = a.DosageFormName
-            }).ToList();
+                // Normalize the input to lowercase for comparison
+                string medicationNameLower = medication.CMedicationName.Trim().ToLower();
+                string dosageFormLower = medication.CDosageForm?.Trim().ToLower();
 
-        ViewBag.Ingredients = _context.ActiveIngredient
-            .OrderBy(m => m.IngredientName) // Sort by IngredientName A-Z
-            .Select(a => new SelectListItem
-            {
-                Value = a.IngredientName,
-                Text = a.IngredientName
-            }).Distinct().ToList();
+                // Check if a medication with the same name and dosage form already exists (case-insensitive)
+                bool medicationExists = _context.ChronicMedication
+                    .Any(m => m.CMedicationName.Trim().ToLower() == medicationNameLower
+    && m.CDosageForm.Trim().ToLower() == dosageFormLower);
+
+                if (medicationExists)
+                {
+                    // Add a model error for duplicate medication name
+                    ModelState.AddModelError("CMedicationName", "A medication with the same name already exists.");
+
+                    // Re-populate ViewBag data for validation errors
+                    PopulateViewBagData();
+                    return View(medication);
+                }
+
+                // Attempt to add the medication to the database
+                try
+                {
+                    _context.ChronicMedication.Add(medication);
+                    _context.SaveChanges();
+                    TempData["SuccessMessage"] = "Chronic Medication added successfully.";
+                    return RedirectToAction("AdminAddChronicMedication");
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (you can use a logging framework)
+                    ModelState.AddModelError("", "An error occurred while saving data: " + ex.Message);
+                }
+            }
+
+            // Re-populate ViewBag data for validation errors
+            PopulateViewBagData();
+            return View(medication);
+        }
+
+        // Helper method to populate ViewBag data
+        private void PopulateViewBagData()
+        {
+            ViewBag.DosageForms = _context.DosageForm
+                .OrderBy(a => a.DosageFormName) // Sort by DosageFormName A-Z
+                .Select(a => new SelectListItem
+                {
+                    Value = a.DosageFormName,
+                    Text = a.DosageFormName
+                }).ToList();
+
+            ViewBag.Ingredients = _context.ActiveIngredient
+                .OrderBy(m => m.IngredientName) // Sort by IngredientName A-Z
+                .Select(a => new SelectListItem
+                {
+                    Value = a.IngredientName,
+                    Text = a.IngredientName
+                }).Distinct().ToList();
+        }
+
+        // GET: Pharmacist/ViewAddMedication
+        public IActionResult AdminViewChronicMedication()
+        {
+            // Retrieve all medication records from the database using _context
+            // Sort the medications from the latest input to the oldest
+            List<ChronicMedication> medications = _context.ChronicMedication
+                .OrderByDescending(m => m.ChronicMedicationId) // Adjust this field if necessary
+                .ToList();
+
+            // Pass the list of medications to the view for display
+            return View(medications);
+        }
+
     }
-}
-
 }
 
 

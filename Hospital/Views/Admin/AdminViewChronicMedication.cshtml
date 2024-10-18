@@ -1,0 +1,148 @@
+﻿@model IEnumerable<Hospital.Models.ChronicMedication>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+        margin: 10px 0; /* Added margin for spacing */
+        flex-grow: 1; /* Allow the header to take up available space */
+    }
+
+    .button {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px; /* Margin between buttons */
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+        }
+
+    .disabled-button {
+        background-color: grey;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .deleted-row {
+        background-color: lightgrey !important; /* Ensure this applies even if other styles are present */
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .form-control {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .btn-search {
+        background-color: #08075F;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+
+        .btn-search:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        /* Remove alternating row colors to avoid confusion */
+        .table tr:nth-child(even) {
+            background-color: #fff;
+        }
+
+    .btn-back {
+        background-color: red; /* Red color for the back button */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 13px;
+        margin-right: 10px; /* Space between button and next element */
+    }
+
+        .btn-back:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Align items to the left */
+        margin-bottom: 20px;
+    }
+</style>
+<h1>View Medications</h1>
+
+<!-- Container for the back button and header -->
+<div class="header-container">
+    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+    <a class="button" asp-action="AdminAddChronicMedication">Create New</a>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.CMedicationName)</th>
+            <th>@Html.DisplayNameFor(model => model.CDosageForm)</th>
+            <th>@Html.DisplayNameFor(model => model.CSchedule)</th>
+            <th>@Html.DisplayNameFor(model => model.CMedicationActiveIngredients)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+
+        {
+        <td>@Html.DisplayFor(modelItem => item.CMedicationName)</td>
+        <td>@Html.DisplayFor(modelItem => item.CDosageForm)</td>
+        <td>@Html.DisplayFor(modelItem => item.CSchedule)</td>
+        <td>@Html.DisplayFor(modelItem => item.CMedicationActiveIngredients)</td>
+
+        }
+    </tbody>
+</table>
+<br />
+<br />
