@@ -136,6 +136,35 @@ namespace Hospital.Migrations
                     b.ToTable("ChronicCondition");
                 });
 
+            modelBuilder.Entity("Hospital.Models.ChronicMedication", b =>
+                {
+                    b.Property<int>("ChronicMedicationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChronicMedicationId"));
+
+                    b.Property<string>("CDosageForm")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CMedicationActiveIngredients")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CMedicationName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CSchedule")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ChronicMedicationId");
+
+                    b.ToTable("ChronicMedication");
+                });
+
             modelBuilder.Entity("Hospital.Models.DayHospital", b =>
                 {
                     b.Property<int>("HospitalId")
