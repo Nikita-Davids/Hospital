@@ -1322,6 +1322,8 @@ namespace Hospital.Controllers
         }
 
 
+
+
         //Displaying pdf info
         [HttpGet]
         public IActionResult NurseReports(DateTime? startDate, DateTime? endDate)
@@ -1365,7 +1367,6 @@ namespace Hospital.Controllers
 
             return View(model); // Return the filtered results to a view
         }
-
 
         private List<MedicineSummaryViewModel> GetMedicineSummary(List<PrescriptionViewModel> prescriptions)
         {
@@ -1497,7 +1498,7 @@ namespace Hospital.Controllers
             }
 
             // Calculate totals for dispensed and rejected scripts
-            int totalPatients = filteredPrescriptions.Count(p => p.Dispense == "Dispense"); // Count dispensed scripts
+            int totalPatients = filteredPrescriptions.Count(p => p.Patient != null); // Count patients
 
             // Add some space before the totals
             yPoint += 20; // Space between the last row and totals

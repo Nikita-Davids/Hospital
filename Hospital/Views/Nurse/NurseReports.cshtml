@@ -16,14 +16,14 @@
         <label  for="endDate">End Date:</label>
         <input  type="date" id="endDate" name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
 
-        <button type="submit" class="button">Filter</button>
+        <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
     <!-- Export to PDF button -->
     <form method="post" asp-controller="Nurse" asp-action="ExportToPdf" class="pdf-form">
         <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
         <input type="hidden" name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
-        <button type="submit" class="button">Export to PDF</button>
+        <button type="submit" class="btn btn-primary">Export to PDF</button>
     </form>
 </div>
 
@@ -50,13 +50,13 @@
 </table>
 
 <div style="margin-top: 20px;">
-    TOTAL PATIENTS: @Model.Prescriptions.Count(p => p.Dispense == "Dispense")
+    TOTAL PATIENTS: @Model.Prescriptions.Count(p => p.Patient != null)
 </div>
 
 <br />
 <br />
 <h4>SUMMARY PER MEDICINE:</h4>
-<table class="summary-table">
+   <table class="table">
     <thead>
         <tr>
             <th>MEDICINE</th>
@@ -77,10 +77,6 @@
     </tbody>
 </table>
 
-<br />
-<br />
-<br />
-
 <style>
     .filter-container {
         display: flex;
@@ -94,78 +90,16 @@
         align-items: center;
     }
 
-        .filter-form label {
-            margin-right: 5px;
-        }
+    .filter-form label {
+        margin-right: 5px;
+    }
 
-        .filter-form input {
-            margin-right: 10px;
-        }
+    .filter-form input {
+        margin-right: 10px;
+    }
 
     .pdf-form {
         margin-left: auto;
     }
 
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-    .summary-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-        .summary-table th, .summary-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        .summary-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-    h1 {
-        text-align: center;
-        color: #08075F;
-        font-weight: bold;
-        text-decoration: underline;
-    }
-
-    .button {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        cursor: pointer;
-        font-size: 13px;
-    }
-
-        .button:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
 </style>
