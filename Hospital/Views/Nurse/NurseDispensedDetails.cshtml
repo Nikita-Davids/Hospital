@@ -61,4 +61,22 @@
         .view-button:hover, .receive-button:hover {
             background-color: #FFDE59;
         }
+
+    .alert {
+        padding: 15px;
+        background-color: green;
+        color: white;
+        margin-bottom: 15px;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            setTimeout(function () {
+                successMessage.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+    });
+</script>

@@ -1087,6 +1087,10 @@ namespace Hospital.Controllers
                 // Save the new medication administration record
                 _context.Add(administerMedication);
                 await _context.SaveChangesAsync();
+
+                // Set success message in TempData
+                TempData["SuccessMessage"] = "Medication successfully received and administered!";
+
             }
 
             // Redirect back to the NurseDispensedAlert page after updating
