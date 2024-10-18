@@ -394,7 +394,15 @@ namespace Hospital.Controllers
         public IActionResult NurseAddPatientVital()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View();
         }
 
@@ -488,9 +496,6 @@ namespace Hospital.Controllers
 
 
 
-
-
-
         private async Task SendPatientVitalEmail(List<PatientVital> selectedVitals)
         {
             // Check if there are any vitals to email about
@@ -507,8 +512,21 @@ namespace Hospital.Controllers
 
                 foreach (var vital in selectedVitals)
                 {
+                    // Retrieve the patient's full name from the database based on PatientId
+                    var patient = _context.Patients
+                                          .Where(p => p.PatientIDNumber == vital.PatientId)
+                                          .Select(p => new
+                                          {
+                                              FullName = p.PatientName + " " + p.PatientSurname
+                                          })
+                                          .FirstOrDefault();
+
+                    // Ensure patient is found
+                    var patientName = patient?.FullName ?? "Unknown Patient";
+
                     // Add patient vital details to the email body
-                    vitalDetailsBuilder.Append($"<li>Patient ID: {vital.PatientId}<br />" +
+                    vitalDetailsBuilder.Append($"<li><strong>Patient: {patientName}</strong><br />" +
+                                                $"Patient ID: {vital.PatientId}<br />" +
                                                 $"Weight: {vital.Weight} kg<br />" +
                                                 $"Height: {vital.Height} cm<br />" +
                                                 $"Temperature: {vital.Tempreture} °C<br />" +
@@ -518,7 +536,6 @@ namespace Hospital.Controllers
                                                 $"Blood Oxygen: {vital.BloodOxygen} %<br />" +
                                                 $"Blood Glucose Level: {vital.BloodGlucoseLevel} mg/dL<br />" +
                                                 $"Vital Time: {vital.VitalTime?.ToString(@"hh\:mm")}<br /></li>");
-
                 }
 
                 vitalDetailsBuilder.Append("</ul>");
@@ -543,10 +560,10 @@ namespace Hospital.Controllers
                     From = fromAddress,
                     Subject = "Northside Hospital - Patient Vital Alert",
                     Body = $@"
-                            <h3>Patient Vitals Alert</h3>
-                            <p>The following patient vitals require your IMMEDIATE ATTENTION:</p>
-                            {vitalDetailsBuilder}
-                            <p>please attend to the matter ASAP</p>",
+                    <h3>Patient Vitals Alert</h3>
+                    <p>The following patient vitals require your IMMEDIATE ATTENTION:</p>
+                    {vitalDetailsBuilder}
+                    <p>Please attend to the matter ASAP</p>",
                     IsBodyHtml = true
                 };
                 mailMessage.To.Add(toAddress);
@@ -566,7 +583,6 @@ namespace Hospital.Controllers
                 }
             }
         }
-     
 
 
         // GET: Nurse/AddPatientAllergy
