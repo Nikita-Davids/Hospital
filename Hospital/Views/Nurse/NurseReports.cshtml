@@ -1,0 +1,171 @@
+﻿@using Hospital.ModelViews
+@model PrescriptionFilterViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+}
+
+<h1> Nurse Reports</h1>
+<br />
+
+<!-- Date filter form with PDF button aligned to the right -->
+<div class="filter-container">
+    <form method="get" class="filter-form">
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" style="margin-right: 40px" />
+
+        <label  for="endDate">End Date:</label>
+        <input  type="date" id="endDate" name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+
+        <button type="submit" class="button">Filter</button>
+    </form>
+
+    <!-- Export to PDF button -->
+    <form method="post" asp-controller="Nurse" asp-action="ExportToPdf" class="pdf-form">
+        <input type="hidden" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+        <button type="submit" class="button">Export to PDF</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>DATE & TIME</th>
+            <th>PATIENT</th>
+            <th>MEDICATION</th>
+            <th>QTY</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var prescription in Model.Prescriptions)
+        {
+            <tr>
+                <td>@prescription.DispenseDateTime</td>
+                <td>@prescription.Patient</td>
+                <td>@prescription.MedicationName</td>
+                <td>@prescription.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="margin-top: 20px;">
+    TOTAL PATIENTS: @Model.Prescriptions.Count(p => p.Dispense == "Dispense")
+</div>
+
+<br />
+<br />
+<h4>SUMMARY PER MEDICINE:</h4>
+<table class="summary-table">
+    <thead>
+        <tr>
+            <th>MEDICINE</th>
+            <th>QTY ADMINISTERED</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Prescriptions
+        .Where(p => p.Dispense == "Dispense")
+        .GroupBy(p => p.MedicationName)
+        .Select(g => new { Medicine = g.Key, Quantity = g.Sum(p => p.Quantity) }))
+        {
+            <tr>
+                <td>@item.Medicine</td>
+                <td>@item.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br />
+<br />
+<br />
+
+<style>
+    .filter-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .filter-form {
+        display: flex;
+        align-items: center;
+    }
+
+        .filter-form label {
+            margin-right: 5px;
+        }
+
+        .filter-form input {
+            margin-right: 10px;
+        }
+
+    .pdf-form {
+        margin-left: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .summary-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+    h1 {
+        text-align: center;
+        color: #08075F;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .button {
+        background-color: #08075F;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+</style>

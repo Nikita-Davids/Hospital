@@ -1324,7 +1324,7 @@ namespace Hospital.Controllers
 
         //Displaying pdf info
         [HttpGet]
-        public IActionResult FilterPrescription(DateTime? startDate, DateTime? endDate)
+        public IActionResult NurseReports(DateTime? startDate, DateTime? endDate)
         {
             // Default date range if not provided
             if (!startDate.HasValue)
@@ -1460,7 +1460,7 @@ namespace Hospital.Controllers
 
             // Define fixed column widths for the table
             float[] columnWidths = { 160, 160, 160, 160, 160, 160, 160 }; // Set widths for columns
-            string[] headers = { "DATE", "PATIENT", "MEDICATION", "QTY" }; // Column headers
+            string[] headers = { "DATE & TIME", "PATIENT", "MEDICATION", "QTY" }; // Column headers
 
             // Draw the headers for the table
             DrawTableRow(gfx, headers, headerFont, 120, columnWidths, true); // Call method to draw table row
@@ -1555,7 +1555,7 @@ namespace Hospital.Controllers
             pdfDocument.Save(stream); // Save the document to the stream
             stream.Position = 0; // Reset stream position for reading
 
-            return File(stream, "application/pdf", "Medication_Report.pdf"); // Return the PDF as a file
+            return File(stream, "application/pdf", "Medication Report.pdf"); // Return the PDF as a file
         }
 
 
