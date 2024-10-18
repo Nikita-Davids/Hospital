@@ -55,6 +55,7 @@ namespace Hospital.Data
         public DbSet<AdministerMedication> AdministerMedication { get; set; }
 
         public DbSet<RejectedPrescription> RejectedPrescription { get; set; }
+        public DbSet<ChronicMedication> ChronicMedication { get; set; }
 
 
 
