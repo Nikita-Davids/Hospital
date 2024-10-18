@@ -566,9 +566,6 @@ namespace Hospital.Migrations
                     b.Property<int>("PrescribedID")
                         .HasColumnType("int");
 
-                    b.Property<int>("PrescriptionId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("RejectionDate")
                         .HasColumnType("datetime2");
 
@@ -586,8 +583,6 @@ namespace Hospital.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("RejectionId");
-
-                    b.HasIndex("PrescriptionId");
 
                     b.HasIndex("SurgeonId");
 
@@ -1124,12 +1119,6 @@ namespace Hospital.Migrations
 
             modelBuilder.Entity("Hospital.Models.RejectedPrescription", b =>
                 {
-                    b.HasOne("Hospital.Models.SurgeonPrescription", "SurgeonPrescription")
-                        .WithMany()
-                        .HasForeignKey("PrescriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Hospital.Models.Surgeon", "Surgeon")
                         .WithMany()
                         .HasForeignKey("SurgeonId")
@@ -1137,8 +1126,6 @@ namespace Hospital.Migrations
                         .IsRequired();
 
                     b.Navigation("Surgeon");
-
-                    b.Navigation("SurgeonPrescription");
                 });
 
             modelBuilder.Entity("Hospital.Models.Restock", b =>

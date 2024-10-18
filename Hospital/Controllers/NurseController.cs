@@ -11,6 +11,12 @@ using System.Text;
 using System.Net.Mail;
 using System.Net;
 using Hospital.ViewModels;
+using System.Drawing.Printing;
+using System.Drawing;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+using PdfSharp;
+
 namespace Hospital.Controllers
 {
     public class NurseController(ApplicationDbContext dbContext) : Controller
@@ -1293,6 +1299,265 @@ namespace Hospital.Controllers
             return _context.PatientsAdministration.Any(e => e.PatientsAdministration1 == id);
         }
 
+
+        [HttpGet]
+        public IActionResult FilterAdministeredMedication(DateTime? startDate, DateTime? endDate)
+        {
+            // Default date range if not provided
+            if (!startDate.HasValue)
+            {
+                startDate = DateTime.Now.AddMonths(-1); // Default to last month
+            }
+
+            if (!endDate.HasValue)
+            {
+                endDate = DateTime.Now;
+            }
+
+            // Fetch data using LINQ based on the AdministerMedication model
+            var filteredMedications = (from am in _context.AdministerMedication
+                                       join m in _context.Medication on am.MedicationId equals m.MedicationId
+                                       where am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate
+                                       select new AdministerMedication
+                                       {
+                                           AdministerMedicationTime = am.AdministerMedicationTime,
+                                           Patient_Id = am.Patient_Id,
+                                           ScriptDetails = am.ScriptDetails,
+                                           Quantity = am.Quantity
+                                       }).ToList();
+
+            // Get summary of administered medications
+            var medicationSummary = MedicineSummaryViewModel(filteredMedications);
+
+            var model = new AdministeredMedicationFilterViewModel
+            {
+                StartDate = startDate.Value,
+                EndDate = endDate.Value,
+                AdministeredMedications = filteredMedications,
+                MedicationSummary = medicationSummary // Add the summary to the model
+            };
+
+            return View(model); // Return the filtered results to a view
+        }
+
+
+        private List<MedicineSummaryViewModel> GetMedicineSummary(List<PrescriptionViewModel> prescriptions)
+        {
+            return prescriptions
+                .Where(p => p.Dispense == "Dispense") // Filter only dispensed prescriptions
+                .GroupBy(p => p.MedicationName) // Group by medication name
+                .Select(g => new MedicineSummaryViewModel
+                {
+                    MedicationName = g.Key,
+                    TotalQuantity = g.Sum(p => p.Quantity) // Sum quantities for each medication
+                })
+                .ToList();
+        }
+
+        [HttpPost]
+        public IActionResult ExportToPdf(DateTime? startDate, DateTime? endDate)
+        {
+            // Create a new instance of the database context to access data
+
+            // Set default dates if not provided; defaults to the last month for startDate and now for endDate
+            startDate ??= DateTime.Now.AddMonths(-1);
+            endDate ??= DateTime.Now;
+
+            // Retrieve filtered prescriptions based on the provided date range
+            var filteredPrescriptions = (from sp in _context.SurgeonPrescription
+                                         join s in _context.Surgeons on sp.SurgeonId equals s.SurgeonId
+                                         where sp.DispenseDateTime >= startDate && sp.DispenseDateTime <= endDate
+                                         select new PrescriptionViewModel
+                                         {
+                                             DispenseDateTime = sp.DispenseDateTime,
+                                             PatientIDNumber = sp.PatientIdnumber.Trim(),
+                                             Patient = $"{sp.PatientName} {sp.PatientSurname}",
+                                             ScriptBy = $"{s.Name} {s.Surname}",
+                                             MedicationName = sp.MedicationName,
+                                             Quantity = sp.Quantity,
+                                             Dispense = sp.Dispense
+                                         }).ToList();
+
+            // Get a summary of dispensed medications, grouping by medication name and summing quantities
+            var medicineSummary = GetMedicineSummary(filteredPrescriptions);
+
+            // Prepare the PDF document for export
+            var pdfDocument = new PdfDocument();
+            pdfDocument.Info.Title = "Filtered Prescriptions"; // Set the document title
+
+            // Create a new A3 landscape page for the report
+            int currentPage = 1; // Track the current page number
+            PdfPage page = pdfDocument.AddPage();
+            page.Size = PageSize.A3; // Set page size to A3 for more content space
+            page.Orientation = PageOrientation.Landscape; // Set orientation to landscape
+            XGraphics gfx = XGraphics.FromPdfPage(page); // Create graphics object to draw on the page
+            XFont font = new XFont("Arial", 11); // Default font for general text
+            XFont headerFont = new XFont("Arial", 12); // Font for headers
+            XFont pageNumberFont = new XFont("Arial", 11); // Font for page numbers
+
+            // Get the current date for report generation timestamp
+            DateTime reportGeneratedDate = DateTime.Now;
+            string formattedReportDate = reportGeneratedDate.ToString("d MMMM yyyy"); // Format the date
+
+            // Draw the report title at the top of the page and center it
+            string reportTitle = "DISPENSARY REPORT";
+            XFont titleFont = new XFont("Arial", 20); // Font for the title
+            XSize titleSize = gfx.MeasureString(reportTitle, titleFont); // Measure title size
+            double xTitlePosition = (page.Width - titleSize.Width) / 2; // Calculate centered X position
+            gfx.DrawString(reportTitle, titleFont, XBrushes.Black, new XPoint(xTitlePosition, 50)); // Draw title
+
+            // Retrieve and display the pharmacist's name and surname for the report
+            var pharmacistName = DisplayNameAndSurname.passUserName ?? "Unknown Name"; // Get pharmacist's name
+            var pharmacistSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname"; // Get pharmacist's surname
+
+            // Create a bold font for the pharmacist's name and surname
+            XFont boldFont = new XFont("Arial", 12);
+            string pharmacistFullName = $"{pharmacistName} {pharmacistSurname}"; // Combine names
+
+            // Measure the width of the full name to center it
+            XSize fullNameSize = gfx.MeasureString(pharmacistFullName, boldFont);
+            double xFullNamePosition = (page.Width - fullNameSize.Width) / 2; // Center the full name
+
+            // Draw the pharmacist's name and surname in bold at the center of the page
+            gfx.DrawString(pharmacistFullName, boldFont, XBrushes.Black, new XPoint(xFullNamePosition, 80)); // Adjust Y position as needed
+
+            // Draw the date range for the report on the left side
+            gfx.DrawString($"Date Range: {startDate.Value.ToString("d MMMM yyyy")} - {endDate.Value.ToString("d MMMM yyyy")}", font, XBrushes.Black, new XPoint(40, 100));
+
+            // Calculate position for "Report generated" text on the right-hand side
+            string reportGeneratedText = $"Report Generated: {formattedReportDate}";
+            XSize reportGeneratedTextSize = gfx.MeasureString(reportGeneratedText, font);
+            double xPositionForReportGenerated = page.Width - reportGeneratedTextSize.Width - 40; // Align right with 40px margin
+
+            // Draw the "Report generated" text on the right side
+            gfx.DrawString(reportGeneratedText, font, XBrushes.Black, new XPoint(xPositionForReportGenerated, 100));
+
+            // Add some space before the table by drawing an empty string
+            gfx.DrawString("", font, XBrushes.Black, new XPoint(40, 100)); // Empty line for spacing
+
+            // Define fixed column widths for the table
+            float[] columnWidths = { 160, 160, 160, 160, 160, 160, 160 }; // Set widths for columns
+            string[] headers = { "DATE", "PATIENT ID", "PATIENT", "SCRIPT BY", "MEDICATION", "QTY", "STATUS" }; // Column headers
+
+            // Draw the headers for the table
+            DrawTableRow(gfx, headers, headerFont, 120, columnWidths, true); // Call method to draw table row
+
+            // Draw table rows for each prescription in the filtered list
+            int yPoint = 140; // Start Y position for the first data row
+            double rowHeight = 20; // Set height for each row
+            foreach (var prescription in filteredPrescriptions)
+            {
+                // Prepare data for each row
+                string[] rowData = {
+                prescription.DispenseDateTime?.ToString("g") ?? "N/A", // Format dispense date
+                prescription.PatientIDNumber,
+                prescription.Patient,
+                prescription.ScriptBy,
+                prescription.MedicationName,
+                prescription.Quantity.ToString(),
+                prescription.Dispense
+            };
+
+                // Check if there is enough space for the next row
+                if (yPoint + rowHeight > page.Height - 40) // Leave some space at the bottom
+                {
+                    // Draw page number before adding a new page
+                    DrawPageNumber(gfx, pageNumberFont, currentPage, page);
+                    currentPage++; // Increment page number
+
+                    // Add a new page if needed
+                    page = pdfDocument.AddPage(); // Create a new page
+                    gfx = XGraphics.FromPdfPage(page); // Get graphics for the new page
+                    yPoint = 40; // Reset y position for new page
+                }
+
+                // Draw the current row of data
+                DrawTableRow(gfx, rowData, font, yPoint, columnWidths, false);
+                yPoint += (int)rowHeight; // Move to the next row
+            }
+
+            // Calculate totals for dispensed and rejected scripts
+            int totalDispensed = filteredPrescriptions.Count(p => p.Dispense == "Dispense"); // Count dispensed scripts
+            int totalRejected = filteredPrescriptions.Count(p => p.Dispense == "Rejected"); // Count rejected scripts
+
+            // Add some space before the totals
+            yPoint += 20; // Space between the last row and totals
+
+            // Draw the totals at the bottom of the report
+            gfx.DrawString($"TOTAL SCRIPTS DISPENSED: {totalDispensed}", font, XBrushes.Black, new XPoint(40, yPoint));
+            yPoint += 20; // Move down for the next total
+            gfx.DrawString($"TOTAL SCRIPTS REJECTED: {totalRejected}", font, XBrushes.Black, new XPoint(40, yPoint));
+
+            // Increase the space to create a break after the heading
+            yPoint += 30; // Adjust this value to create more space after the heading
+
+            // Add space before the medicine summary
+            yPoint += 10; // Space before summary
+            gfx.DrawString("SUMMARY PER MEDICINE:", new XFont("Verdana", 12), XBrushes.Black, new XPoint(40, yPoint)); // Draw summary title
+
+            // Increase the space to create a break after the heading
+            yPoint += 30; // Adjust this value to create more space after the heading
+
+            // Draw summary table headers for the medicine summary
+            string[] summaryHeaders = { "MEDICINE", "QTY DISPENSED" };
+            DrawTableRow(gfx, summaryHeaders, headerFont, yPoint, new float[] { 140, 140 }, true); // Draw headers
+            yPoint += 20; // Space before the first summary row
+
+            // Draw summary table rows for each unique medicine
+            foreach (var summaryItem in medicineSummary)
+            {
+                // Prepare data for each summary row
+                string[] summaryRowData = {
+                summaryItem.MedicationName,
+                summaryItem.TotalQuantity.ToString()
+            };
+
+                // Check if there is enough space for the next summary row
+                if (yPoint + rowHeight > page.Height - 40) // Leave some space at the bottom
+                {
+                    // Draw page number before adding a new page
+                    DrawPageNumber(gfx, pageNumberFont, currentPage, page);
+                    currentPage++; // Increment page number
+
+                    // Add a new page if needed
+                    page = pdfDocument.AddPage(); // Create a new page
+                    gfx = XGraphics.FromPdfPage(page); // Get graphics for the new page
+                    yPoint = 40; // Reset y position for new page
+                }
+
+                // Draw the current summary row
+                DrawTableRow(gfx, summaryRowData, font, yPoint, new float[] { 140, 140 }, false);
+                yPoint += (int)rowHeight; // Move to the next row
+            }
+
+            // Draw the final page number
+            DrawPageNumber(gfx, pageNumberFont, currentPage, page);
+
+            // Set the response content type and filename for the PDF download
+            var stream = new MemoryStream();
+            pdfDocument.Save(stream); // Save the document to the stream
+            stream.Position = 0; // Reset stream position for reading
+
+            return File(stream, "application/pdf", "Dispensary_Report.pdf"); // Return the PDF as a file
+        }
+
+
+        // Method to draw a table row in the PDF
+        private void DrawTableRow(XGraphics gfx, string[] rowData, XFont font, int yPoint, float[] columnWidths, bool isHeader)
+        {
+            for (int i = 0; i < rowData.Length; i++)
+            {
+                float xPoint = 40 + i * columnWidths[i]; // Calculate X position for each column
+                gfx.DrawString(rowData[i], font, XBrushes.Black, new XPoint(xPoint, yPoint + 5)); // Draw the cell content
+                gfx.DrawRectangle(XPens.Black, xPoint, yPoint - 12, columnWidths[i], 20); // Draw the cell border
+            }
+        }
+
+        // Method to draw the page number
+        private void DrawPageNumber(XGraphics gfx, XFont font, int pageNumber, PdfPage page)
+        {
+            gfx.DrawString($"Page {pageNumber}", font, XBrushes.Black, new XPoint(page.Width - 50, page.Height - 30)); // Draw page number
+        }
     }
 }
 

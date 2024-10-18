@@ -5,7 +5,7 @@ namespace Hospital.Models
     public class BookingSurgery
     {
             [Key]
-            public int SurgeryId { get; set; }
+            public int BookingSurgeryId { get; set; }
 
             public string PatientId { get; set; }
 
