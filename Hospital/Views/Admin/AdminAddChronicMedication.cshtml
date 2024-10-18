@@ -1,5 +1,472 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
+@model Hospital.Models.ChronicMedication
+ 
 @{
+
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 }
+ 
+@if (TempData["SuccessMessage"] != null)
+
+{
+<div id="successMessage" class="alert alert-success">
+
+        @TempData["SuccessMessage"]
+</div>
+
+}
+ 
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var successMessage = document.getElementById("successMessage");
+
+        if (successMessage) {
+
+            successMessage.style.display = "block";
+
+            setTimeout(function () {
+
+                successMessage.style.display = "none";
+
+            }, 3000);
+
+        }
+
+    });
+</script>
+ 
+<style>
+
+    h1 {
+
+        text-align: center;
+
+        color: #08075F;
+
+        font-weight: bold;
+
+        text-decoration: underline;
+
+    }
+ 
+    .button {
+
+        padding: 9px 50px;
+
+        font-size: 16px;
+
+        background-color: #08075F;
+
+        color: white;
+
+        border: none;
+
+        cursor: pointer;
+
+        font-weight: bold;
+
+        transition: background-color 0.3s ease;
+
+    }
+ 
+        .button:hover {
+
+            background-color: #FFDE59;
+
+            color: #08075F;
+
+        }
+ 
+    .box {
+
+        border: 1px solid #ccc;
+
+        padding: 20px;
+
+        margin: 40px auto;
+
+        width: 60%;
+
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        background-color: #f9f9f9;
+
+    }
+ 
+    .form-group {
+
+        margin-bottom: 20px;
+
+    }
+ 
+    .form-control {
+
+        width: 100%;
+
+    }
+ 
+    .ingredient-row {
+
+        border: 1px solid #ccc;
+
+        padding: 10px;
+
+        margin-bottom: 10px;
+
+        border-radius: 5px;
+
+        background-color: #f9f9f9;
+
+        display: flex;
+
+        align-items: center;
+
+    }
+ 
+        .ingredient-row select {
+
+            margin-right: 10px;
+
+            width: 300px;
+
+        }
+ 
+        .ingredient-row .remove-ingredient-btn {
+
+            background-color: #721c24;
+
+            color: white;
+
+            border: none;
+
+            padding: 5px 10px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            margin-left: 10px;
+
+        }
+ 
+            .ingredient-row .remove-ingredient-btn:hover {
+
+                background-color: #f5c6cb;
+
+            }
+ 
+            .ingredient-row .remove-ingredient-btn:disabled {
+
+                cursor: not-allowed;
+
+                opacity: 0.5;
+
+            }
+ 
+    .alert-danger {
+
+        color: #721c24;
+
+        background-color: #f8d7da;
+
+        border-color: #f5c6cb;
+
+        padding: 10px;
+
+        margin-bottom: 20px;
+
+        border-radius: 5px;
+
+    }
+ 
+    .align-right {
+
+        text-align: right;
+
+    }
+ 
+    .btn-link {
+
+        background-color: #08075F;
+
+        color: white;
+
+        border: none;
+
+        padding: 5px 10px;
+
+        text-decoration: none;
+
+        cursor: pointer;
+
+        font-size: 13px;
+
+    }
+ 
+        .btn-link:hover {
+
+            background-color: #FFDE59;
+
+        }
+ 
+    .button-container {
+
+        text-align: right;
+
+    }
+</style>
+ 
+<h1>Add Chronic Medication</h1>
+ 
+<hr />
+<div class="box">
+
+    @if (ViewBag.ErrorMessage != null)
+
+    {
+<div class="alert alert-danger">
+
+            @ViewBag.ErrorMessage
+</div>
+
+    }
+ 
+    <div class="row">
+<div class="col-md-12">
+<form asp-action="AdminAddChronicMedication" method="post" id="medicationForm">
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ 
+                <div class="form-group">
+<label asp-for="CMedicationName" class="control-label"></label>
+<input asp-for="CMedicationName" class="form-control" />
+<span asp-validation-for="CMedicationName" class="text-danger"></span>
+</div>
+ 
+                <div class="form-group">
+<label asp-for="CDosageForm" class="control-label"></label>
+<select asp-for="CDosageForm" class="form-control" asp-items="ViewBag.DosageForms">
+<option value="">Select Dosage Form</option>
+</select>
+<span asp-validation-for="CDosageForm" class="text-danger"></span>
+</div>
+ 
+                <div class="form-group">
+<label asp-for="CSchedule" class="control-label"></label>
+<select asp-for="CSchedule" class="form-control">
+<option value="">Select Schedule</option>
+
+                        @for (int i = 1; i <= 7; i++)
+
+                        {
+<option value="Schedule @i">Schedule @i</option>
+
+                        }
+</select>
+<span asp-validation-for="CSchedule" class="text-danger"></span>
+</div>
+ 
+                <div class="form-group">
+<label class="control-label">Active Ingredients</label>
+<div id="ingredientsContainer">
+<div class="ingredient-row">
+<select class="form-control ingredient-dropdown" name="selectedIngredients[]">
+<option value="">Select Ingredient</option>
+
+                                @foreach (var ingredient in ViewBag.Ingredients)
+
+                                {
+<option value="@ingredient.Value">@ingredient.Text</option>
+
+                                }
+</select>
+ 
+                            <select class="form-control strength-dropdown" name="selectedStrengths[]">
+<option value="">Select Strength</option>
+</select>
+<button type="button" class="remove-ingredient-btn" disabled>Remove</button>
+</div>
+</div>
+<button type="button" id="addIngredientBtn" class="button">
+<i class="fas fa-plus"></i> Add Ingredient
+</button>
+</div>
+ 
+                <div class="form-group">
+<label class="control-label">Combined Active Ingredients</label>
+<input type="text" id="CombinedIngredients" name="CombinedIngredients" class="form-control" disabled />
+<input type="hidden" id="CombinedIngredientsHidden" name="CMedicationActiveIngredients" /> <!-- Update to match your model -->
+<span asp-validation-for="CMedicationActiveIngredients" class="text-danger"></span>
+</div>
+ 
+ 
+                <div class="form-group align-right">
+<input type="submit" value="Add Chronic Medication" class="button" />
+</div>
+</form>
+</div>
+</div>
+ 
+    <div class="button-container">
+<a class="btn-link" asp-action="ViewAddMedication">View All Chronic Medication Added</a>
+</div>
+<br />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+        $(document).ready(function () {
+
+            function updateStrengthDropdown(ingredientDropdown) {
+
+                var ingredientName = $(ingredientDropdown).val();
+
+                var $strengthDropdown = $(ingredientDropdown).siblings('.strength-dropdown');
+ 
+                if (ingredientName) {
+
+                    $.ajax({
+
+                        url: '@Url.Action("GetStrengths")',
+
+                        type: 'GET',
+
+                        data: { ingredientName: ingredientName },
+
+                        success: function (data) {
+
+                            $strengthDropdown.empty();
+
+                            $strengthDropdown.append('<option value="">Select Strength</option>');
+
+                            $.each(data, function (index, value) {
+
+                                $strengthDropdown.append('<option value="' + value + '">' + value + '</option>');
+
+                            });
+
+                        }
+
+                    });
+
+                } else {
+
+                    $strengthDropdown.empty().append('<option value="">Select Strength</option>');
+
+                }
+
+            }
+ 
+                function updateCombinedIngredients() {
+
+                    var combinedIngredients = [];
+
+                    $('#ingredientsContainer .ingredient-row').each(function () {
+
+                        var ingredient = $(this).find('.ingredient-dropdown').val();
+
+                        var strength = $(this).find('.strength-dropdown').val();
+
+                        if (ingredient && strength) {
+
+                            combinedIngredients.push(ingredient + ' (' + strength + ')');
+
+                        }
+
+                    });
+
+                    $('#CombinedIngredients').val(combinedIngredients.join(', '));
+
+                    $('#CombinedIngredientsHidden').val(combinedIngredients.join(', ')); // Ensure this updates the correct field
+
+                }
+ 
+            function updateRemoveButtons() {
+
+                var rowsCount = $('#ingredientsContainer .ingredient-row').length;
+
+                $('#ingredientsContainer .remove-ingredient-btn').prop('disabled', rowsCount <= 1);
+
+            }
+ 
+            $('#ingredientsContainer').on('change', '.ingredient-dropdown', function () {
+
+                updateStrengthDropdown(this);
+
+                updateCombinedIngredients();
+
+            });
+ 
+            $('#ingredientsContainer').on('change', '.strength-dropdown', function () {
+
+                updateCombinedIngredients();
+
+            });
+ 
+            $('#ingredientsContainer').on('click', '.remove-ingredient-btn', function () {
+
+                $(this).closest('.ingredient-row').remove();
+
+                updateCombinedIngredients();
+
+                updateRemoveButtons();
+
+            });
+ 
+            $('#addIngredientBtn').click(function () {
+
+                var newRow = `
+<div class="ingredient-row">
+<select class="form-control ingredient-dropdown" name="selectedIngredients[]">
+<option value="">Select Ingredient</option>
+
+        @foreach (var ingredient in ViewBag.Ingredients)
+
+        {
+<option value="@ingredient.Value">@ingredient.Text</option>
+
+        }
+</select>
+<select class="form-control strength-dropdown" name="selectedStrengths[]">
+<option value="">Select Strength</option>
+</select>
+<button type="button" class="remove-ingredient-btn">Remove</button>
+</div>
+
+                        `;
+
+                $('#ingredientsContainer').append(newRow);
+
+                updateRemoveButtons();
+
+            });
+ 
+            // Validation for ReOrderLevel
+
+            $('#medicationForm').on('input', 'input[name="ReOrderLevel"]', function () {
+
+                var reorderLevel = parseInt($(this).val());
+
+                var $errorDiv = $('#reorderLevelError');
+ 
+                if (isNaN(reorderLevel) || reorderLevel < 1 || reorderLevel > 10000) {
+
+                    $errorDiv.show(); // Show error message
+
+                } else {
+
+                    $errorDiv.hide(); // Hide error message
+
+                }
+
+            });
+
+        });
+</script>
+
+
+
+ 
