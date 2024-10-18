@@ -72,6 +72,48 @@ namespace Hospital.Controllers
         }
 
 
+        //public async Task<IActionResult> NurseVitalAlert()
+        //{
+        //    // Retrieve the user's full name from TempData
+        //    ViewBag.UserName = TempData["UserName"];
+
+        //    // Retrieve patient vitals that are out of range
+        //    var outOfRangeVitals = _context.PatientVital
+        //        .Where(v => v.Tempreture > 37 || v.Tempreture < 34 || // Temperature out of range
+        //                    v.Pulse > 100 || v.Pulse < 60 || // Pulse out of range
+        //                    v.BloodOxygen < 95) // Blood oxygen out of range
+        //        .Select(v => new PatientVital
+        //        {
+        //            PatientVitalId = v.PatientVitalId,
+        //            PatientId = v.PatientId,
+        //            Weight = v.Weight,
+        //            Height = v.Height,
+        //            Tempreture = v.Tempreture,
+        //            BloodPressure = v.BloodPressure,
+        //            Pulse = v.Pulse,
+        //            Respiratory = v.Respiratory,
+        //            BloodOxygen = v.BloodOxygen,
+        //            BloodGlucoseLevel = v.BloodGlucoseLevel,
+        //            VitalTime = v.VitalTime
+        //        })
+        //        .OrderByDescending(v => v.VitalTime)
+        //        .ToList();
+
+        //    // Check if there are out of range vitals
+        //    if (outOfRangeVitals.Any())
+        //    {
+        //        // Send email alert for the out of range vitals
+        //        await SendPatientVitalEmail(outOfRangeVitals);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("No out-of-range vitals found.");
+        //    }
+
+        //    // Pass the filtered list of patient vitals to the view
+        //    return View(outOfRangeVitals);
+        //}
+
         public async Task<IActionResult> NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
@@ -99,21 +141,32 @@ namespace Hospital.Controllers
                 .OrderByDescending(v => v.VitalTime)
                 .ToList();
 
-            // Check if there are out of range vitals
-            if (outOfRangeVitals.Any())
-            {
-                // Send email alert for the out of range vitals
-                await SendPatientVitalEmail(outOfRangeVitals);
-            }
-            else
-            {
-                Console.WriteLine("No out-of-range vitals found.");
-            }
-
             // Pass the filtered list of patient vitals to the view
             return View(outOfRangeVitals);
         }
+        [HttpPost]
+        public async Task<IActionResult> SendVitalEmail(string patientId)
+        {
+            // Retrieve the vital data for the specific patient
+            var vital = _context.PatientVital.FirstOrDefault(v => v.PatientId == patientId);
 
+            if (vital != null)
+            {
+                // Send the email for this specific patient's vital data
+                await SendPatientVitalEmail(new List<PatientVital> { vital });
+
+                // Optionally, set a success message to display on the page after the email is sent
+                TempData["SuccessMessage"] = "Email sent successfully!";
+            }
+            else
+            {
+                // Handle the case where the patient vital is not found
+                TempData["ErrorMessage"] = "Error: Patient not found.";
+            }
+
+            // Redirect back to the NurseVitalAlert view
+            return RedirectToAction("NurseVitalAlert");
+        }
 
 
 
