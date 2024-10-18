@@ -713,6 +713,10 @@ namespace Hospital.Controllers
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
             ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            
+            // Populate ViewBag.ChronicMedicationId with a list of chronic medications for the dropdown
+            ViewBag.ChronicMedicationId = new SelectList(_context.ChronicMedication, "ChronicMedicationId", "CMedicationName");
+
             return View(new PatientCurrentMedication());
         }
 
@@ -1300,7 +1304,50 @@ namespace Hospital.Controllers
         }
 
 
-     
+        //Displaying pdf info
+        [HttpGet]
+        public IActionResult FilterPrescription(DateTime? startDate, DateTime? endDate)
+        {
+            // Default date range if not provided
+            if (!startDate.HasValue)
+            {
+                startDate = DateTime.Now.AddMonths(-1); // last month as default
+            }
+
+            if (!endDate.HasValue)
+            {
+                endDate = DateTime.Now;
+            }
+
+            // Fetch data using LINQ
+            var filteredPrescriptions = (from sp in _context.SurgeonPrescription
+                                         join s in _context.Surgeons on sp.SurgeonId equals s.SurgeonId
+                                         where sp.DispenseDateTime >= startDate && sp.DispenseDateTime <= endDate
+                                         select new PrescriptionViewModel
+                                         {
+                                             DispenseDateTime = sp.DispenseDateTime,
+                                             PatientIDNumber = sp.PatientIdnumber,
+                                             Patient = $"{sp.PatientName} {sp.PatientSurname}",
+                                             ScriptBy = $"{s.Name} {s.Surname}",
+                                             MedicationName = sp.MedicationName,
+                                             Quantity = sp.Quantity,
+                                             Dispense = sp.Dispense
+                                         }).ToList();
+
+            // Get summary of dispensed medications
+            var medicineSummary = GetMedicineSummary(filteredPrescriptions);
+
+            var model = new PrescriptionFilterViewModel
+            {
+                StartDate = startDate.Value,
+                EndDate = endDate.Value,
+                Prescriptions = filteredPrescriptions,
+                MedicineSummary = medicineSummary // Add the summary to the model
+            };
+
+            return View(model); // Return the filtered results to a view
+        }
+
 
         private List<MedicineSummaryViewModel> GetMedicineSummary(List<PrescriptionViewModel> prescriptions)
         {

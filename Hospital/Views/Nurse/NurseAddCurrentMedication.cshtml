@@ -23,8 +23,8 @@
             </div>
             <div class="form-group">
             <label asp-for="CurrentMedication" class="control-label">Current Medication</label>
-                <input asp-for="CurrentMedication" class="form-control" />
-                <span asp-validation-for="CurrentMedication" class="text-danger"></span>
+            <select asp-for="CurrentMedication" class="form-control" asp-items="ViewBag.ChronicMedicationId"></select>
+            <span asp-validation-for="CurrentMedication" class="text-danger"></span>
             </div>
         <div class="form-group button-container">
                 <input type="submit" value="Add" class="btn btn-primary" />
