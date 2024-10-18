@@ -8,6 +8,14 @@
 <h1>@ViewData["Title"]</h1>
 <br>
 
+<!-- Success message -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 <div class="prescription-item">
     <div class="prescription-details">
         <p><b>Patient ID:</b> @Model.PatientIdnumber</p>
@@ -17,23 +25,17 @@
         <p><b>Quantity:</b> @Model.Quantity</p>
     </div>
 
+    <!-- Form for receiving and administering medication -->
     <form asp-action="ReceiveMedication" method="post">
         <input type="hidden" name="prescriptionId" value="@Model.PrescriptionId" />
-        <button type="submit" class="receive-button">Receive</button>
+        <input type="hidden" name="patientId" value="@Model.PatientIdnumber" />
+        <input type="hidden" name="patientName" value="@Model.PatientName" />
+        <input type="hidden" name="medicationName" value="@Model.MedicationName" />
+        <input type="hidden" name="medicationId" value="@Model.MedicationId" />
+        <input type="hidden" name="dosageForm" value="@Model.PrescriptionDosageForm" />
+        <input type="hidden" name="quantity" value="@Model.Quantity" />
+        <button type="submit" class="receive-button">Receive & Administer</button>
     </form>
-</div>
-
-<!-- When the "Administer Medication" button is clicked, redirect to the form with pre-filled values -->
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseAddAdministerMedication"
-       asp-route-patientId="@Model.PatientIdnumber"
-       asp-route-patientName="@Model.PatientName"
-       asp-route-patientSurname="@Model.PatientSurname"
-       asp-route-medicationName="@Model.MedicationName"
-       asp-route-medicationId="@Model.MedicationId"
-       asp-route-dosageForm="@Model.PrescriptionDosageForm"
-       asp-route-quantity="@Model.Quantity"
-       asp-route-prescriptionId="@Model.PrescriptionId">Administer Medication</a>
 </div>
 
 <a href="@Url.Action("NurseDispensedAlert", "Nurse")" class="view-button">Back to Alerts</a>

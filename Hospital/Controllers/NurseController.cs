@@ -590,7 +590,15 @@ namespace Hospital.Controllers
         public IActionResult NurseAddPatientAllergy()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "IngredientName");
             return View(new PatientAllergy());
         }
@@ -728,8 +736,16 @@ namespace Hospital.Controllers
         public IActionResult NurseAddCurrentMedication()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
-            
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+
             // Populate ViewBag.ChronicMedicationId with a list of chronic medications for the dropdown
             ViewBag.ChronicMedicationId = new SelectList(_context.ChronicMedication, "ChronicMedicationId", "CMedicationName");
 
@@ -872,7 +888,15 @@ namespace Hospital.Controllers
         public IActionResult NurseAddMedicalCondition()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View(new PatientMedicalCondition());
         }
         // POST: Nurse/AddPatientMedicalCondition
@@ -1039,22 +1063,35 @@ namespace Hospital.Controllers
         }
 
         [HttpPost]
-        public IActionResult ReceiveMedication(int prescriptionId)
+        public async Task<IActionResult> ReceiveMedication(int prescriptionId, string patientId, string patientName, string medicationName, int medicationId, string dosageForm, int quantity)
         {
             // Find the prescription by the ID
             var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
 
             if (prescription != null)
             {
-                // Update the Dispense field to "Received"
+                // Step 1: Update the Dispense field to "Received"
                 prescription.Dispense = "Received";
-                _context.SaveChanges();
+
+                // Step 2: Administer the medication by creating a new record in AdministerMedication
+                var administerMedication = new AdministerMedication
+                {
+                    Patient_Id = patientId,
+                    ScriptDetails = medicationName,
+                    MedicationId = medicationId,
+                    DosageFormName = dosageForm,
+                    Quantity = quantity,
+                    AdministerMedicationTime = DateTime.Now // Record the current time of administration
+                };
+
+                // Save the new medication administration record
+                _context.Add(administerMedication);
+                await _context.SaveChangesAsync();
             }
 
             // Redirect back to the NurseDispensedAlert page after updating
             return RedirectToAction("NurseDispensedAlert");
         }
-
 
 
 
@@ -1077,10 +1114,6 @@ namespace Hospital.Controllers
                 ViewBag.DosageForm = dosageForm;
                 ViewBag.Quantity = quantity;
             }
-
-            // Optionally, you could fetch additional data here from the database if needed
-            // For example: Fetch a full list of medications for dropdown
-            // ViewBag.Medications = new SelectList(_context.Medications, "MedicationId", "MedicationName");
 
             return View();
         }
@@ -1196,8 +1229,16 @@ namespace Hospital.Controllers
             // Populate ViewBag with dropdown list of wards
             ViewBag.WardName = new SelectList(_context.Ward, "WardName", "WardName"); // Use WardName for both value and display
 
-            // Populate ViewBag with dropdown lists for patients
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View(new PatientsAdministration());
         }
 
