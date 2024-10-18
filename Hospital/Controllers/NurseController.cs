@@ -1300,46 +1300,7 @@ namespace Hospital.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult FilterAdministeredMedication(DateTime? startDate, DateTime? endDate)
-        {
-            // Default date range if not provided
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddMonths(-1); // Default to last month
-            }
-
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
-
-            // Fetch data using LINQ based on the AdministerMedication model
-            var filteredMedications = (from am in _context.AdministerMedication
-                                       join m in _context.Medication on am.MedicationId equals m.MedicationId
-                                       where am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate
-                                       select new AdministerMedication
-                                       {
-                                           AdministerMedicationTime = am.AdministerMedicationTime,
-                                           Patient_Id = am.Patient_Id,
-                                           ScriptDetails = am.ScriptDetails,
-                                           Quantity = am.Quantity
-                                       }).ToList();
-
-            // Get summary of administered medications
-            var medicationSummary = MedicineSummaryViewModel(filteredMedications);
-
-            var model = new AdministeredMedicationFilterViewModel
-            {
-                StartDate = startDate.Value,
-                EndDate = endDate.Value,
-                AdministeredMedications = filteredMedications,
-                MedicationSummary = medicationSummary // Add the summary to the model
-            };
-
-            return View(model); // Return the filtered results to a view
-        }
-
+     
 
         private List<MedicineSummaryViewModel> GetMedicineSummary(List<PrescriptionViewModel> prescriptions)
         {
