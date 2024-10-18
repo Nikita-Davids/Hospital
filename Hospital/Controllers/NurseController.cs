@@ -77,49 +77,6 @@ namespace Hospital.Controllers
             return View(model);
         }
 
-
-        //public async Task<IActionResult> NurseVitalAlert()
-        //{
-        //    // Retrieve the user's full name from TempData
-        //    ViewBag.UserName = TempData["UserName"];
-
-        //    // Retrieve patient vitals that are out of range
-        //    var outOfRangeVitals = _context.PatientVital
-        //        .Where(v => v.Tempreture > 37 || v.Tempreture < 34 || // Temperature out of range
-        //                    v.Pulse > 100 || v.Pulse < 60 || // Pulse out of range
-        //                    v.BloodOxygen < 95) // Blood oxygen out of range
-        //        .Select(v => new PatientVital
-        //        {
-        //            PatientVitalId = v.PatientVitalId,
-        //            PatientId = v.PatientId,
-        //            Weight = v.Weight,
-        //            Height = v.Height,
-        //            Tempreture = v.Tempreture,
-        //            BloodPressure = v.BloodPressure,
-        //            Pulse = v.Pulse,
-        //            Respiratory = v.Respiratory,
-        //            BloodOxygen = v.BloodOxygen,
-        //            BloodGlucoseLevel = v.BloodGlucoseLevel,
-        //            VitalTime = v.VitalTime
-        //        })
-        //        .OrderByDescending(v => v.VitalTime)
-        //        .ToList();
-
-        //    // Check if there are out of range vitals
-        //    if (outOfRangeVitals.Any())
-        //    {
-        //        // Send email alert for the out of range vitals
-        //        await SendPatientVitalEmail(outOfRangeVitals);
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("No out-of-range vitals found.");
-        //    }
-
-        //    // Pass the filtered list of patient vitals to the view
-        //    return View(outOfRangeVitals);
-        //}
-
         public async Task<IActionResult> NurseVitalAlert()
         {
             // Retrieve the user's full name from TempData
@@ -1439,12 +1396,9 @@ namespace Hospital.Controllers
                                          select new PrescriptionViewModel
                                          {
                                              DispenseDateTime = sp.DispenseDateTime,
-                                             PatientIDNumber = sp.PatientIdnumber.Trim(),
                                              Patient = $"{sp.PatientName} {sp.PatientSurname}",
-                                             ScriptBy = $"{s.Name} {s.Surname}",
                                              MedicationName = sp.MedicationName,
-                                             Quantity = sp.Quantity,
-                                             Dispense = sp.Dispense
+                                             Quantity = sp.Quantity
                                          }).ToList();
 
             // Get a summary of dispensed medications, grouping by medication name and summing quantities
@@ -1452,7 +1406,7 @@ namespace Hospital.Controllers
 
             // Prepare the PDF document for export
             var pdfDocument = new PdfDocument();
-            pdfDocument.Info.Title = "Filtered Prescriptions"; // Set the document title
+            pdfDocument.Info.Title = "Filtered Aministered Medications"; // Set the document title
 
             // Create a new A3 landscape page for the report
             int currentPage = 1; // Track the current page number
@@ -1469,26 +1423,26 @@ namespace Hospital.Controllers
             string formattedReportDate = reportGeneratedDate.ToString("d MMMM yyyy"); // Format the date
 
             // Draw the report title at the top of the page and center it
-            string reportTitle = "DISPENSARY REPORT";
+            string reportTitle = "MEDICATION REPORT";
             XFont titleFont = new XFont("Arial", 20); // Font for the title
             XSize titleSize = gfx.MeasureString(reportTitle, titleFont); // Measure title size
             double xTitlePosition = (page.Width - titleSize.Width) / 2; // Calculate centered X position
             gfx.DrawString(reportTitle, titleFont, XBrushes.Black, new XPoint(xTitlePosition, 50)); // Draw title
 
             // Retrieve and display the pharmacist's name and surname for the report
-            var pharmacistName = DisplayNameAndSurname.passUserName ?? "Unknown Name"; // Get pharmacist's name
-            var pharmacistSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname"; // Get pharmacist's surname
+            var NurseName = DisplayNameAndSurname.passUserName ?? "Unknown Name"; // Get Nurse's name
+            var NurseSurname = DisplayNameAndSurname.passUserSurname ?? "Unknown Surname"; // Get Nurse's surname
 
-            // Create a bold font for the pharmacist's name and surname
+            // Create a bold font for the Nurse's name and surname
             XFont boldFont = new XFont("Arial", 12);
-            string pharmacistFullName = $"{pharmacistName} {pharmacistSurname}"; // Combine names
+            string NurseFullName = $"{NurseName} {NurseSurname}"; // Combine names
 
             // Measure the width of the full name to center it
-            XSize fullNameSize = gfx.MeasureString(pharmacistFullName, boldFont);
+            XSize fullNameSize = gfx.MeasureString(NurseFullName, boldFont);
             double xFullNamePosition = (page.Width - fullNameSize.Width) / 2; // Center the full name
 
             // Draw the pharmacist's name and surname in bold at the center of the page
-            gfx.DrawString(pharmacistFullName, boldFont, XBrushes.Black, new XPoint(xFullNamePosition, 80)); // Adjust Y position as needed
+            gfx.DrawString(NurseFullName, boldFont, XBrushes.Black, new XPoint(xFullNamePosition, 80)); // Adjust Y position as needed
 
             // Draw the date range for the report on the left side
             gfx.DrawString($"Date Range: {startDate.Value.ToString("d MMMM yyyy")} - {endDate.Value.ToString("d MMMM yyyy")}", font, XBrushes.Black, new XPoint(40, 100));
@@ -1506,7 +1460,7 @@ namespace Hospital.Controllers
 
             // Define fixed column widths for the table
             float[] columnWidths = { 160, 160, 160, 160, 160, 160, 160 }; // Set widths for columns
-            string[] headers = { "DATE", "PATIENT ID", "PATIENT", "SCRIPT BY", "MEDICATION", "QTY", "STATUS" }; // Column headers
+            string[] headers = { "DATE", "PATIENT", "MEDICATION", "QTY" }; // Column headers
 
             // Draw the headers for the table
             DrawTableRow(gfx, headers, headerFont, 120, columnWidths, true); // Call method to draw table row
@@ -1519,12 +1473,9 @@ namespace Hospital.Controllers
                 // Prepare data for each row
                 string[] rowData = {
                 prescription.DispenseDateTime?.ToString("g") ?? "N/A", // Format dispense date
-                prescription.PatientIDNumber,
                 prescription.Patient,
-                prescription.ScriptBy,
                 prescription.MedicationName,
-                prescription.Quantity.ToString(),
-                prescription.Dispense
+                prescription.Quantity.ToString()
             };
 
                 // Check if there is enough space for the next row
@@ -1546,16 +1497,13 @@ namespace Hospital.Controllers
             }
 
             // Calculate totals for dispensed and rejected scripts
-            int totalDispensed = filteredPrescriptions.Count(p => p.Dispense == "Dispense"); // Count dispensed scripts
-            int totalRejected = filteredPrescriptions.Count(p => p.Dispense == "Rejected"); // Count rejected scripts
+            int totalPatients = filteredPrescriptions.Count(p => p.Dispense == "Dispense"); // Count dispensed scripts
 
             // Add some space before the totals
             yPoint += 20; // Space between the last row and totals
 
             // Draw the totals at the bottom of the report
-            gfx.DrawString($"TOTAL SCRIPTS DISPENSED: {totalDispensed}", font, XBrushes.Black, new XPoint(40, yPoint));
-            yPoint += 20; // Move down for the next total
-            gfx.DrawString($"TOTAL SCRIPTS REJECTED: {totalRejected}", font, XBrushes.Black, new XPoint(40, yPoint));
+            gfx.DrawString($"TOTAL PATIENTS: {totalPatients}", font, XBrushes.Black, new XPoint(40, yPoint));
 
             // Increase the space to create a break after the heading
             yPoint += 30; // Adjust this value to create more space after the heading
@@ -1568,7 +1516,7 @@ namespace Hospital.Controllers
             yPoint += 30; // Adjust this value to create more space after the heading
 
             // Draw summary table headers for the medicine summary
-            string[] summaryHeaders = { "MEDICINE", "QTY DISPENSED" };
+            string[] summaryHeaders = { "MEDICINE", "QTY ADMINISTERED" };
             DrawTableRow(gfx, summaryHeaders, headerFont, yPoint, new float[] { 140, 140 }, true); // Draw headers
             yPoint += 20; // Space before the first summary row
 
@@ -1607,7 +1555,7 @@ namespace Hospital.Controllers
             pdfDocument.Save(stream); // Save the document to the stream
             stream.Position = 0; // Reset stream position for reading
 
-            return File(stream, "application/pdf", "Dispensary_Report.pdf"); // Return the PDF as a file
+            return File(stream, "application/pdf", "Medication_Report.pdf"); // Return the PDF as a file
         }
 
 
