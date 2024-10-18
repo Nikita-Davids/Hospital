@@ -9,13 +9,17 @@ namespace Hospital.Models
 
             public string PatientId { get; set; }
 
+            public string PatientEmailAddress { get; set; }
+
             public DateTime SurgeryDate { get; set; }
 
             public TimeSpan SurgeryTime { get; set; }
 
+            public string? OperatingTheatreName { get; set; }
+
             public int TreatmentCodeId { get; set; }
 
-            public string PatientEmailAddress { get; set; }
+          
         
     }
 }
