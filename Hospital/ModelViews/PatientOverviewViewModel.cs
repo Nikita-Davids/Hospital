@@ -20,6 +20,7 @@ namespace Hospital.ViewModels
         // Vital Signs
         public decimal? Weight { get; set; }
         public decimal? Height { get; set; }
+        public decimal? BMI { get; set; }
         public decimal? Temperature { get; set; }
         public decimal? BloodPressure { get; set; }
         public decimal? Pulse { get; set; }
