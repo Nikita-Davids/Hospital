@@ -1042,5 +1042,96 @@ namespace Hospital.Controllers
         {
             return _context.AdministerMedication.Any(e => e.AdministerMedication_Id == id);
         }
+
+
+        public async Task<IActionResult> SurgeonBookingSurgery()
+        {
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+
+            // Populate ViewBag.TreatmentCodeId with a list of chronic medications for the dropdown
+            var treatmentCodes = _context.TreatmentCode
+                .Select(tc => new
+                {
+                    tc.TreatmentCodeId, // Use the primary key as value
+                    Description = tc.TreatmentCodeDescription + " - " + tc.Icd10Code
+                })
+                .ToList();
+
+            ViewBag.TreatmentCodeId = new SelectList(treatmentCodes, "TreatmentCodeId", "Description");
+
+            return View(new BookingSurgery());
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetPatientEmail(string patientId)
+        {
+            var patient = await _context.Patients
+                .Where(p => p.PatientIDNumber == patientId)
+                .Select(p => new
+                {
+                    p.PatientEmailAddress
+                })
+                .FirstOrDefaultAsync();
+
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new { email = patient.PatientEmailAddress });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SurgeonBookingSurgery(BookingSurgery bookingSurgery)
+        {
+            if (ModelState.IsValid)
+            {
+                // Add the booking surgery to the database
+                _context.Add(bookingSurgery);
+                await _context.SaveChangesAsync();
+
+                // Display success message
+                TempData["SuccessMessage"] = "Surgery successfully booked!";
+
+                // Redirect to some page (e.g., back to the list)
+                return RedirectToAction(nameof(Index));
+            }
+
+            // If model validation fails, reload the dropdown data and redisplay the form
+            var patients = _context.Patients
+                .Select(p => new
+                {
+                    PatientIDNumber = p.PatientIDNumber,
+                    FullName = p.PatientName + " " + p.PatientSurname
+                })
+                .ToList();
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+
+            var treatmentCodes = _context.TreatmentCode
+                .Select(tc => new
+                {
+                    tc.TreatmentCodeId,
+                    Description = tc.TreatmentCodeDescription + " - " + tc.Icd10Code
+                })
+                .ToList();
+
+            ViewBag.TreatmentCodeId = new SelectList(treatmentCodes, "TreatmentCodeId", "Description");
+
+            // Return the form with validation errors
+            return View(bookingSurgery);
+        }
+
+
+
     }
 }
