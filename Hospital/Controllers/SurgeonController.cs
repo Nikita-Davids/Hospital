@@ -1138,7 +1138,17 @@ namespace Hospital.Controllers
             return View(bookingSurgery);
         }
 
-
-
+        // GET: Nurse/ViewPatientCurrentMedication
+        public async Task<IActionResult> NurseViewPatientCurrentMedication()
+        {
+            var patientMedications = await _context.PatientCurrentMedication.ToListAsync();
+            return View(patientMedications);
+        }
+        // GET: Nurse/ViewPatientCurrentMedication
+        public async Task<IActionResult> SurgeonViewBookinSurgery()
+        {
+            var patientMedications = await _context.BookingSurgery.ToListAsync();
+            return View(patientMedications);
+        }
     }
 }
