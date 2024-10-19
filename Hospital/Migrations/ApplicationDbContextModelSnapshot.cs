@@ -17,7 +17,7 @@ namespace Hospital.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -111,6 +111,36 @@ namespace Hospital.Migrations
                     b.HasIndex("WardId");
 
                     b.ToTable("Bed");
+                });
+
+            modelBuilder.Entity("Hospital.Models.BookingSurgery", b =>
+                {
+                    b.Property<int>("BookingSurgeryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingSurgeryId"));
+
+                    b.Property<string>("PatientEmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SurgeryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("SurgeryTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("TreatmentCodeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BookingSurgeryId");
+
+                    b.ToTable("BookingSurgery");
                 });
 
             modelBuilder.Entity("Hospital.Models.ChronicCondition", b =>

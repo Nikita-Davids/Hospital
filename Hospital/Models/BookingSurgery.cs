@@ -7,15 +7,29 @@ namespace Hospital.Models
             [Key]
             public int BookingSurgeryId { get; set; }
 
-            public string PatientId { get; set; }
 
-            public DateTime SurgeryDate { get; set; }
+        [Required]
+        [Display(Name = "Patient ID")]
 
-            public TimeSpan SurgeryTime { get; set; }
+        public string PatientId { get; set; }
 
-            public int TreatmentCodeId { get; set; }
+        [Required]
+        [Display(Name = "Date  of Suregry")]
 
-            public string PatientEmailAddress { get; set; }
+        public DateTime SurgeryDate { get; set; }
+
+        [Required]
+        [Display(Name = "Time of Booking Suregry")]
+
+        public TimeSpan SurgeryTime { get; set; }
+
+        [Required]
+        [Display(Name = "Treatment Code(ICD10)")]
+        public int TreatmentCodeId { get; set; }
+
+        [Required]
+        [Display(Name = "Patient Email Address")]
+        public string PatientEmailAddress { get; set; }
         
     }
 }
