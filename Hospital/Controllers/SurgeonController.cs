@@ -1044,21 +1044,20 @@ namespace Hospital.Controllers
         }
 
 
-        // GET: Booking form
         public async Task<IActionResult> SurgeonBookingSurgery()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
             var patients = _context.Patients
-                .Select(p => new
-                {
-                    PatientIDNumber = p.PatientIDNumber,
-                    FullName = p.PatientName + " " + p.PatientSurname
-                })
-                .ToList();
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
 
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
 
-            // Populate ViewBag.TreatmentCodeId with a list of treatment codes for the dropdown
+            // Populate ViewBag.TreatmentCodeId with a list of chronic medications for the dropdown
             var treatmentCodes = _context.TreatmentCode
                 .Select(tc => new
                 {
@@ -1071,24 +1070,33 @@ namespace Hospital.Controllers
 
             return View(new BookingSurgery());
         }
-
-        // GET: Get Patient Email
         [HttpGet]
-        public IActionResult GetPatientEmail(string patientId)
+        public async Task<IActionResult> GetPatientEmail(string patientId)
         {
-            // Fetch the patient's email based on the PatientID
-            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == patientId);
-
-            if (patient != null)
+            if (string.IsNullOrEmpty(patientId))
             {
-                return Json(new { email = patient.PatientEmailAddress });
+                return Json(new { email = "" });
             }
 
-            // If patient not found, return an empty email
-            return Json(new { email = "" });
+            var patient = await _context.Patients
+                .Where(p => p.PatientIDNumber == patientId)
+                .Select(p => new
+                {
+                    Email = p.PatientEmailAddress // Adjust this to your actual email property name
+                })
+                .FirstOrDefaultAsync();
+
+            if (patient == null)
+            {
+                return Json(new { email = "" }); // Return empty if no patient found
+            }
+
+            return Json(new { email = patient.Email }); // Return the email as JSON
         }
 
-        // POST: Submit the booking form
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SurgeonBookingSurgery(BookingSurgery bookingSurgery)
@@ -1102,7 +1110,7 @@ namespace Hospital.Controllers
                 // Display success message
                 TempData["SuccessMessage"] = "Surgery successfully booked!";
 
-                // Redirect to the list
+                // Redirect to some page (e.g., back to the list)
                 return RedirectToAction(nameof(Index));
             }
 
@@ -1129,6 +1137,7 @@ namespace Hospital.Controllers
             // Return the form with validation errors
             return View(bookingSurgery);
         }
+
 
 
     }

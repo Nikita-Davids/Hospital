@@ -1,99 +1,108 @@
 ﻿@model Hospital.Models.BookingSurgery
 
 @{
-    ViewData["Title"] = "Booking Surgery";
+    ViewData["Title"] = "Administer Medication";
     Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
 }
-
 @if (TempData["SuccessMessage"] != null)
 {
     <div id="successMessage" class="alert alert-success">
         @TempData["SuccessMessage"]
     </div>
 }
-<h1>SurgeonBookingSurgery</h1>
+<h1>Book Surgery</h1>
 
-<h4>BookingSurgery</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="SurgeonBookingSurgery">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row justify-content-center">
+    <!-- Centering the row -->
+    <div class="col-md-6">
+        <!-- Increased column size for better appearance -->
+        <div class="form-container">
+            <!-- New div for styling -->
+            <form asp-action="SurgeonBookingSurgery">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="PatientId" class="control-label">Patient</label>
+                    <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId" id="patientDropdown"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SurgeryDate" class="control-label"></label>
+                    <input asp-for="SurgeryDate" class="form-control" />
+                    <span asp-validation-for="SurgeryDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SurgeryTime" class="control-label"></label>
+                    <input asp-for="SurgeryTime" class="form-control" />
+                    <span asp-validation-for="SurgeryTime" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TreatmentCodeId" class="control-label">Treatment Code</label>
+                    <select asp-for="TreatmentCodeId" class="form-control" asp-items="ViewBag.TreatmentCodeId"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PatientEmailAddress" class="control-label">Patient Email Address</label>
+                    <input asp-for="PatientEmailAddress" class="form-control" id="patientEmailAddress" />
+                    <span asp-validation-for="PatientEmailAddress" class="text-danger"></span>
+                </div>
 
-            <!-- Patient dropdown -->
-            <div class="form-group">
-                <label asp-for="PatientId" class="control-label">Patient</label>
-                <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId" id="patientDropdown"></select>
-            </div>
-
-            <!-- Surgery Date -->
-            <div class="form-group">
-                <label asp-for="SurgeryDate" class="control-label"></label>
-                <input asp-for="SurgeryDate" class="form-control" />
-                <span asp-validation-for="SurgeryDate" class="text-danger"></span>
-            </div>
-
-            <!-- Surgery Time -->
-            <div class="form-group">
-                <label asp-for="SurgeryTime" class="control-label"></label>
-                <input asp-for="SurgeryTime" class="form-control" />
-                <span asp-validation-for="SurgeryTime" class="text-danger"></span>
-            </div>
-
-            <!-- Treatment Code dropdown -->
-            <div class="form-group">
-                <label asp-for="TreatmentCodeId" class="control-label">Treatment Code</label>
-                <select asp-for="TreatmentCodeId" class="form-control" asp-items="ViewBag.TreatmentCodeId"></select>
-            </div>
-
-            <!-- Patient Email Address -->
-            <div class="form-group">
-                <label asp-for="PatientEmailAddress" class="control-label">Patient Email Address</label>
-                <input asp-for="PatientEmailAddress" class="form-control" id="patientEmailAddress" />
-                <span asp-validation-for="PatientEmailAddress" class="text-danger"></span>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="form-group d-flex justify-content-end">
+                    <!-- Added d-flex and justify-content-end -->
+                    <input type="submit" value="Book Surgery" class="btn btn-primary" />
+                </div>
+            </form>
+        </div> <!-- End of the form container -->
     </div>
 </div>
 
-<!-- Back to List Link -->
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="button-container">
+    <a class="btn-link" asp-action="ViewAddMedication">View All Bookings</a>
 </div>
 
-<!-- JavaScript Section -->
-<script>
-    $(document).ready(function () {
-        $('#patientDropdown').change(function () {
-            var selectedPatientId = $(this).val();
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-            if (selectedPatientId) {
-                console.log("Selected Patient ID:", selectedPatientId); // Check if ID is being captured
+    <script>
+        $(document).ready(function () {
+            // Trigger AJAX request when patient is selected
+            $('#patientDropdown').change(function () {
+                var selectedPatientId = $(this).val(); // Get the selected patient ID
 
-                $.ajax({
-                    url: '@Url.Action("GetPatientEmail", "Surgeon")', // Adjust the controller name if needed
-                    type: 'GET',
-                    data: { patientId: selectedPatientId },
-                    success: function (response) {
-                        console.log("Response from server:", response); // Log the response to check if it's working
-                        // Populate the email field with the retrieved email address
-                        $('#patientEmailAddress').val(response.email);
-                    },
-                    error: function () {
-                        console.log("Error occurred during the AJAX request."); // Log any errors
-                        // Clear the email field in case of error
-                        $('#patientEmailAddress').val('');
-                    }
-                });
-            } else {
-                // Clear the email field if no patient is selected
-                $('#patientEmailAddress').val('');
-            }
+                if (selectedPatientId) {
+                    $.ajax({
+                        url: '@Url.Action("GetPatientEmail", "Surgeon")', // Adjust the controller name if necessary
+                        type: 'GET',
+                        data: { patientId: selectedPatientId }, // Send selected patient ID to the action
+                        success: function (response) {
+                            // Populate the email field with the returned email
+                            $('#patientEmailAddress').val(response.email);
+                        },
+                        error: function () {
+                            // Clear email field if an error occurs
+                            $('#patientEmailAddress').val('');
+                        }
+                    });
+                } else {
+                    // Clear the email field if no patient is selected
+                    $('#patientEmailAddress').val('');
+                }
+            });
         });
-    });
-</script>
+    </script>
+}
+
+<style>
+    .form-container {
+        border: 1px solid #ccc; /* Border color */
+        border-radius: 5px; /* Rounded corners */
+        padding: 20px; /* Padding inside the border */
+        background-color: #f9f9f9; /* Light background color */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        margin-top: 20px; /* Spacing from the top */
+    }
+
+    .button-container {
+        text-align: right; /* Aligns button container to the right */
+    }
+</style>
