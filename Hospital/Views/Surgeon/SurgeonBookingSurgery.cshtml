@@ -1,0 +1,87 @@
+﻿@model Hospital.Models.BookingSurgery
+
+@{
+    ViewData["Title"] = "Administer Medication";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+<h1>SurgeonBookingSurgery</h1>
+
+<h4>BookingSurgery</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SurgeonBookingSurgery">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="PatientId" class="control-label">Patient</label>
+                <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId" id="patientDropdown"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="SurgeryDate" class="control-label"></label>
+                <input asp-for="SurgeryDate" class="form-control" />
+                <span asp-validation-for="SurgeryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SurgeryTime" class="control-label"></label>
+                <input asp-for="SurgeryTime" class="form-control" />
+                <span asp-validation-for="SurgeryTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TreatmentCodeId" class="control-label">Treatment Code</label>
+                <select asp-for="TreatmentCodeId" class="form-control" asp-items="ViewBag.TreatmentCodeId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PatientEmailAddress" class="control-label">Patient Email Address</label>
+                <input asp-for="PatientEmailAddress" class="form-control" id="patientEmailAddress" />
+                <span asp-validation-for="PatientEmailAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Function to handle patient dropdown change
+        $(document).ready(function () {
+            $('#patientDropdown').change(function () {
+                var selectedPatientId = $(this).val();
+
+                if (selectedPatientId) {
+                    $.ajax({
+                        url: '@Url.Action("GetPatientEmail", "YourController")', // Adjust with your controller name
+                        type: 'GET',
+                        data: { patientId: selectedPatientId },
+                        success: function (response) {
+                            // Populate the email field with the retrieved email address
+                            $('#patientEmailAddress').val(response.email);
+                        },
+                        error: function () {
+                            // Clear the email field in case of error
+                            $('#patientEmailAddress').val('');
+                        }
+                    });
+                } else {
+                    // Clear the email field if no patient is selected
+                    $('#patientEmailAddress').val('');
+                }
+            });
+        });
+    </script>
+}
