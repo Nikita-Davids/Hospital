@@ -1073,21 +1073,28 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPatientEmail(string patientId)
         {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                return Json(new { email = "" });
+            }
+
             var patient = await _context.Patients
                 .Where(p => p.PatientIDNumber == patientId)
                 .Select(p => new
                 {
-                    p.PatientEmailAddress
+                    Email = p.PatientEmailAddress // Adjust this to your actual email property name
                 })
                 .FirstOrDefaultAsync();
 
             if (patient == null)
             {
-                return NotFound();
+                return Json(new { email = "" }); // Return empty if no patient found
             }
 
-            return Json(new { email = patient.PatientEmailAddress });
+            return Json(new { email = patient.Email }); // Return the email as JSON
         }
+
+
 
 
         [HttpPost]
