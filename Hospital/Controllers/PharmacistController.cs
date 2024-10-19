@@ -1345,6 +1345,7 @@ namespace Hospital.Controllers
             var filteredPrescriptions = (from sp in _context.SurgeonPrescription
                                          join s in _context.Surgeons on sp.SurgeonId equals s.SurgeonId
                                          where sp.DispenseDateTime >= startDate && sp.DispenseDateTime <= endDate
+                                       
                                          select new PrescriptionViewModel
                                          {
                                              DispenseDateTime = sp.DispenseDateTime,
