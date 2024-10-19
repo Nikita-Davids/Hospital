@@ -28,6 +28,8 @@ namespace Hospital.Models
         public int TreatmentCodeId { get; set; }
 
         [Required]
+        [StringLength(100)]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         [Display(Name = "Patient Email Address")]
         public string PatientEmailAddress { get; set; }
         
