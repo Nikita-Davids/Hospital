@@ -1178,6 +1178,7 @@ namespace Hospital.Controllers
                 PatientGender = patient.PatientGender,
                 Weight = vitals?.Weight ?? null, // Allow null if vitals are not found
                 Height = vitals?.Height ?? null,
+                BMI = vitals?.BMI ?? null,
                 Temperature = vitals?.Tempreture ?? null,
                 BloodPressure = vitals?.BloodPressure ?? null,
                 Pulse = vitals?.Pulse ?? null,

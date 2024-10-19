@@ -167,7 +167,7 @@ namespace Hospital.Controllers
                     if (nurse != null)
                     {
                         emailFound = true;
-                        redirectAction = "Index";
+                        redirectAction = "NurseVitalAlert";
                         redirectController = "Nurse";
                         DisplayNameAndSurname.getUserName(nurse.Name);
                         DisplayNameAndSurname.getUserSurname(nurse.Surname);
