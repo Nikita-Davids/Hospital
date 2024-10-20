@@ -18,8 +18,9 @@
         <div class="text-center">
             <!-- Navigation bar with links to other pages -->
             <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
-                <a asp-controller="Nurse" asp-action="NurseVitalAlert">Vital Alerts</a>
+                <a asp-controller="Nurse" asp-action="NurseVitalAlert">Dashboard</a>
                 <a asp-controller="Nurse" asp-action="NurseDispensedAlert">Medication Alerts</a>
+                <a asp-controller="Nurse" asp-action="NurseViewBookedPatient">Booked Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatients">Add Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
                 <a asp-controller="Nurse" asp-action="NurseAddCurrentMedication">Patient Current Medication</a>

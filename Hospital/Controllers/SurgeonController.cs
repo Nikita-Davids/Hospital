@@ -16,7 +16,11 @@ namespace Hospital.Controllers
         {
             _context = context;
         }
-
+        public async Task<IActionResult> SurgeonViewBookedPatient()
+        {
+            var bookedpatient = await _context.BookingSurgery.ToListAsync();
+            return View(bookedpatient);
+        }
         // GET method to load the SurgeonPrescription view with dropdowns for patients, medications, dosage forms, and surgeons
         public IActionResult AddSurgeonPrescription()
         {
@@ -420,7 +424,15 @@ namespace Hospital.Controllers
         public IActionResult SurgeonAddPatientVital()
         {
             // Populate ViewBag.PatientId with a list of patients for the dropdown
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName");
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View();
         }
 

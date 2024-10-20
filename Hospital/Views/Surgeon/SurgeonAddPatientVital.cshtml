@@ -10,6 +10,13 @@
         @TempData["SuccessMessage"]
     </div>
 }
+@if (TempData["AlertMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["AlertMessage"]
+    </div>
+}
+
 
 <h1>@ViewData["Title"]</h1>
 
@@ -26,13 +33,18 @@
             <span asp-validation-for="Weight" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="Height" class="control-label"></label>
+            <label asp-for="Height" class="control-label"> Height in (m)</label>
             <input asp-for="Height" class="form-control" />
             <span asp-validation-for="Height" class="text-danger"></span>
         </div>
         <div class="form-group">
+            <label asp-for="BMI" class="control-label"></label>
+            <input asp-for="BMI" class="form-control" id="BMI" readonly step="0,01" />
+            <span asp-validation-for="BMI" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="Tempreture" class="control-label"></label>
-            <input asp-for="Tempreture" class="form-control" />
+            <input asp-for="Tempreture" class="form-control" id="TemperatureInput" />
             <span asp-validation-for="Tempreture" class="text-danger"></span>
         </div>
         <div class="form-group">
@@ -42,7 +54,7 @@
         </div>
         <div class="form-group">
             <label asp-for="Pulse" class="control-label"></label>
-            <input asp-for="Pulse" class="form-control" />
+            <input asp-for="Pulse" class="form-control" id="PulseInput" />
             <span asp-validation-for="Pulse" class="text-danger"></span>
         </div>
         <div class="form-group">
@@ -52,7 +64,7 @@
         </div>
         <div class="form-group">
             <label asp-for="BloodOxygen" class="control-label">Blood Oxygen</label>
-            <input asp-for="BloodOxygen" class="form-control" />
+            <input asp-for="BloodOxygen" class="form-control" id="BloodOxygenInput" />
             <span asp-validation-for="BloodOxygen" class="text-danger"></span>
         </div>
         <div class="form-group">
@@ -77,6 +89,7 @@
     <a class="btn-link" asp-action="SurgeonViewPatientVital">View Patient Vital</a>
 </div>
 
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var successMessage = document.getElementById("successMessage");
@@ -91,5 +104,87 @@
                 console.log("Success message hidden");
             }, 3000); // Hide message after 3 seconds
         }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var weightInput = document.querySelector("[name='Weight']");
+        var heightInput = document.querySelector("[name='Height']");
+        var bmiInput = document.getElementById("BMI");
+        var temperatureInput = document.getElementById("TemperatureInput");
+        var pulseInput = document.getElementById("PulseInput");
+        var bloodOxygenInput = document.getElementById("BloodOxygenInput");
+
+        // BMI calculation and alert
+        function calculateBMI() {
+            var weight = parseFloat(weightInput.value);
+            var height = parseFloat(heightInput.value);
+
+            if (!isNaN(weight) && !isNaN(height) && height > 0) {
+                var bmi = weight / (height * height);
+                bmi = bmi.toFixed(2); // Round BMI to 2 decimal places
+                bmiInput.value = bmi;
+
+                // Trigger alert if BMI is out of normal range
+                if (bmi < 18.5 || bmi > 24.9) {
+                    bmiInput.classList.add("alert-danger");
+                    alert("BMI is outside the normal range (18.5 - 24.9). Please take action.");
+                } else {
+                    bmiInput.classList.remove("alert-danger");
+                }
+            } else {
+                bmiInput.value = ''; // Clear BMI if inputs are invalid
+            }
+        }
+
+        function handleBlur() {
+            if (weightInput.value && heightInput.value) {
+                calculateBMI(); // Only calculate BMI when both fields are filled
+            }
+        }
+
+        weightInput.addEventListener("blur", handleBlur);
+        heightInput.addEventListener("blur", handleBlur);
+
+        // Temperature alert
+        temperatureInput.addEventListener("blur", function () {
+            var temperature = parseFloat(temperatureInput.value);
+
+            if (!isNaN(temperature)) {
+                if (temperature > 37 || temperature < 34) {
+                    temperatureInput.classList.add("alert-danger");
+                    alert("Temperature is out of the normal range (34 - 37°C). Please take action.");
+                } else {
+                    temperatureInput.classList.remove("alert-danger");
+                }
+            }
+        });
+
+        // Pulse alert
+        pulseInput.addEventListener("blur", function () {
+            var pulse = parseFloat(pulseInput.value);
+
+            if (!isNaN(pulse)) {
+                if (pulse > 100 || pulse < 60) {
+                    pulseInput.classList.add("alert-danger");
+                    alert("Pulse rate is out of the normal range (60 - 100 bpm). Please take action.");
+                } else {
+                    pulseInput.classList.remove("alert-danger");
+                }
+            }
+        });
+
+        // Blood Oxygen alert
+        bloodOxygenInput.addEventListener("blur", function () {
+            var bloodOxygen = parseFloat(bloodOxygenInput.value);
+
+            if (!isNaN(bloodOxygen)) {
+                if (bloodOxygen < 95) {
+                    bloodOxygenInput.classList.add("alert-danger");
+                    alert("Blood Oxygen level is below the normal range (95%). Please take action.");
+                } else {
+                    bloodOxygenInput.classList.remove("alert-danger");
+                }
+            }
+        });
     });
 </script>

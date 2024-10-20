@@ -132,7 +132,12 @@ namespace Hospital.Controllers
             return RedirectToAction("NurseVitalAlert");
         }
 
-
+        // GET: Nurse/ViewPatients
+        public async Task<IActionResult> NurseViewBookedPatient()
+        {
+            var bookedpatient = await _context.BookingSurgery.ToListAsync();
+            return View(bookedpatient);
+        }
 
         public IActionResult NurseDischargePatients()
         {
