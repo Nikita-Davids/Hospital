@@ -2,12 +2,11 @@
 
 @{
     ViewData["Title"] = "AdminEditTheatres";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>AdminEditTheatres</h1>
+<h1>Edit Operating Theatres</h1>
 
-<h4>OperatingTheatre</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="AdminEditTheatres">
@@ -26,9 +25,5 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn-link" asp-action="AdminViewOperatingTheatres">Back to List</a>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
