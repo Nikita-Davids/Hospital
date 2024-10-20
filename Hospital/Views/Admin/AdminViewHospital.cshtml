@@ -66,24 +66,34 @@
 <table class="table">
     <thead>
         <tr>
-            <th class="col-name">
-                Hospital Name
+            <th>
+                @Html.DisplayNameFor(model => model.HospitalName)
             </th>
-            <th class="col-name">
-                Address
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
             </th>
-            <th class="col-name">
-                City
+            <th>
+                @Html.DisplayNameFor(model => model.City)
             </th>
-            <th class="col-name">
-                Province
+            <th>
+                @Html.DisplayNameFor(model => model.Province)
             </th>
-            <th class="col-name">
-                Postal Code
+            <th>
+                @Html.DisplayNameFor(model => model.PostalCode)
             </th>
-            <th class="col-action">
-                Action
+            <th>
+                @Html.DisplayNameFor(model => model.ContactNumber)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmailAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PracticeManager)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PurchaseManagerEmail)
+            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -104,6 +114,18 @@
                 </td>
                 <td class="col-name">
                     @Html.DisplayFor(modelItem => item.PostalCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ContactNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmailAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PracticeManager)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PurchaseManagerEmail)
                 </td>
                 <td class="col-action">
                     <a class="btn-link" asp-action="AdminEditDayHospital" asp-route-id="@item.HospitalId">Edit</a>
