@@ -20,11 +20,16 @@
             <label asp-for="PatientId" class="control-label">Patient</label>
                 <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
             </div>
+        <div class="form-group">
+            <label asp-for="MedicalCondition" class="control-label">Diagnosis</label>
+            <select asp-for="MedicalCondition" class="form-control" asp-items="ViewBag.Diagnosis"></select>
+            <span asp-validation-for="MedicalCondition" class="text-danger"></span>
+        </div>@* 
             <div class="form-group">
             <label asp-for="MedicalCondition" class="control-label">Medical Condition</label>
                 <input asp-for="MedicalCondition" class="form-control" />
                 <span asp-validation-for="MedicalCondition" class="text-danger"></span>
-            </div>
+            </div> *@
         <div class="form-group button-container">
                 <input type="submit" value="Add" class="btn btn-primary" />
             </div>
