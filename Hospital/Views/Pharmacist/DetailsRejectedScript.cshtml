@@ -90,40 +90,34 @@
         <dd>@Model.PrescriptionDosageForm</dd>
     </dl>
     <dl class="form-group">
-        <dt>Quantity:</dt>
+        <dt>Quantity of medication(units):</dt>
         <dd>@Model.Quantity</dd>
     </dl>
     <dl class="form-group">
-        <dt>Instructions:</dt>
+        <dt>Instructions of medication:</dt>
         <dd>@Model.Instructions</dd>
     </dl>
     <dl class="form-group">
         <dt>Urgency:</dt>
         <dd>@Model.Urgent</dd>
     </dl>
+   
     <dl class="form-group">
-        <dt>Surgeon ID:</dt>
-        <dd>@Model.SurgeonID</dd>
-    </dl>
-    <dl class="form-group">
-        <dt>Prescription Date:</dt>
+        <dt>Date of Prescription Sent:</dt>
         <dd>@Model.PrescriptionDate?.ToString("dd-MM-yyyy")</dd>
     </dl>
-    <dl class="form-group">
-        <dt>Dispense Date:</dt>
-        <dd>@Model.DispenseDateTime?.ToString("dd-MM-yyyy HH:mm")</dd>
-    </dl>
+  
     <hr />
     <dl class="form-group">
         <dt>Rejection Reason:</dt>
         <dd>@Model.RejectionReason</dd>
     </dl>
     <dl class="form-group">
-        <dt>Rejection Date:</dt>
+        <dt>Rejection Script Date:</dt>
         <dd>@Model.RejectionDate.ToString("dd-MM-yyyy HH:mm")</dd>
     </dl>
     <dl class="form-group">
-        <dt>Pharmacist:</dt>
+        <dt>Rejected by (pharmacist) :</dt>
         <dd>@Model.PharmacistName @Model.PharmacistSurname</dd>
     </dl>
     <dl class="form-group">

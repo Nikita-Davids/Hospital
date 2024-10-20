@@ -313,7 +313,7 @@ namespace Hospital.Controllers
 
             _context.SaveChanges();
             TempData["SuccessMessage"] = "Medication successfully Edited.";
-            return RedirectToAction("ViewAddMedication");
+            return RedirectToAction("EditMedication");
         }
 
         // Method to display the medication deletion confirmation view
@@ -883,8 +883,8 @@ namespace Hospital.Controllers
             // Filter by the provided PrescribedID
             var rejectedPrescription = (from sp in _context.SurgeonPrescription
                                         join rp in _context.RejectedPrescription
-                                        on sp.PrescriptionId equals rp.PrescribedID
-                                        where sp.PrescriptionId == PrescribedID
+                                        on sp.PrescribedID equals rp.PrescribedID
+                                        where sp.PrescribedID == PrescribedID
                                         select new RejectedPrescriptionViewModel
                                         {
                                             PrescribedID = sp.PrescribedID,
@@ -915,6 +915,7 @@ namespace Hospital.Controllers
             // Pass the rejectedPrescription model to the view for rendering
             return View(rejectedPrescription);
         }
+
 
 
         public IActionResult ViewRejectedScript()
@@ -1288,6 +1289,7 @@ namespace Hospital.Controllers
                 PatientGender = patient.PatientGender,
                 Weight = vitals?.Weight ?? null, // Allow null if vitals are not found
                 Height = vitals?.Height ?? null,
+                BMI = vitals?.BMI ?? null,
                 Temperature = vitals?.Tempreture ?? null,
                 BloodPressure = vitals?.BloodPressure ?? null,
                 Pulse = vitals?.Pulse ?? null,
