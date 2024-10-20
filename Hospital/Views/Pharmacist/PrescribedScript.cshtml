@@ -29,11 +29,6 @@
             padding: 8px;
         }
 
-    .table th, .table td {
-        border: 1px solid #ddd; /* Light grey border */
-        padding: 8px;
-    }
-
     .table th {
         background-color: #f2f2f2; /* Light grey background for header */
         text-align: left;
@@ -105,6 +100,7 @@
 
             .button-container button:hover {
                 background-color: #FFDE59;
+               
             }
 
         .button-container .btn-warning {
@@ -120,7 +116,7 @@
         }
 
             .button-container .btn-danger:hover {
-                background-color: #E04C58;
+                background-color: #A71C24;
             }
 
         .button-container .btn-primary {
@@ -128,7 +124,7 @@
         }
 
             .button-container .btn-primary:hover {
-                background-color: #008CFF;
+                background-color: #004085;
             }
 
         .button-container .btn-success {
@@ -136,8 +132,9 @@
         }
 
             .button-container .btn-success:hover {
-                background-color: #35B558;
+                background-color: #1A6A29;
             }
+
     /* Styling for the modal content */
     .modal-content {
         width: 50%; /* Adjust the width to make it smaller */
@@ -155,6 +152,22 @@
             margin-bottom: 20px;
         }
 
+    /* Styling for the close button */
+    .close {
+        color: #aaa; /* Light grey */
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #000; /* Darker grey on hover */
+            text-decoration: none;
+            cursor: pointer;
+        }
+
 </style>
 
 <div class="container-box">
@@ -162,11 +175,10 @@
 
     <div class="details-container">
         <p><strong>Patient ID:</strong> @Model.PatientIDNumber</p>
-        <p><strong>Patient Name:</strong> @Model.PatientName @Model.PatientSurname</p>
-        <p><strong>Surgeon Name:</strong> @Model.SurgeonName @Model.SurgeonSurname</p>
+        <p><strong>Patient Full Name:</strong> @Model.PatientName @Model.PatientSurname</p>
+        <p><strong>Surgeon Full Name:</strong> @Model.SurgeonName @Model.SurgeonSurname</p>
         <p><strong>Prescription Date:</strong> @Model.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
-        <p><strong>Surgeon  ID:</strong> @Model.SurgeonId</p>
-        <p><strong>Prescribed ID:</strong> @Model.PrescribedID</p>
+       
     </div>
 
     <h6>Medication to dispense:</h6>
@@ -233,7 +245,6 @@
 <br />
 <br />
 
-
 <script>
     function confirmDispense() {
         if (confirm("Are you sure you want to dispense this script?")) {
@@ -247,68 +258,23 @@
                         alert(data.message); // Error message
                     }
                 })
-                .catch(error => {
-                    alert('An unexpected error occurred.');
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error:', error));
         }
     }
 
     function showRejectModal() {
-        // Populate modal with surgeon details
-        document.getElementById('SurgeonName').textContent = '@Model.SurgeonName';
-        document.getElementById('SurgeonSurname').textContent = '@Model.SurgeonSurname';
-        document.getElementById('rejectModal').style.display = 'block';
+        document.getElementById("rejectModal").style.display = "block"; // Show the modal
     }
 
     function closeRejectModal() {
-        document.getElementById('rejectModal').style.display = 'none';
+        document.getElementById("rejectModal").style.display = "none"; // Hide the modal
     }
 
-    // Submit the rejection form via AJAX
-    document.getElementById('rejectForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        // Gather form data
-        var formData = new FormData(this);
-
-        // Send an AJAX request to the Reject action
-        fetch(this.action, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message); // Show success message
-                    window.location.href = data.redirectUrl; // Redirect to ViewRejectedMedication
-                } else {
-                    alert(data.message); // Show error message
-                }
-            })
-            .catch(error => {
-                alert('An unexpected error occurred.');
-                console.error('Error:', error);
-            });
-    });
-
-    function confirmDispense() {
-        if (confirm("Are you sure you want to dispense this script?")) {
-            fetch('@Url.Action("Dispense", "Pharmacist", new { id = Model.PrescribedID })')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message); // Success message
-                        location.href = '@Url.Action("Index", "Pharmacist")'; // Redirect to index
-                    } else {
-                        alert(data.message); // Error message
-                    }
-                })
-                .catch(error => {
-                    alert('An unexpected error occurred.');
-                    console.error('Error:', error);
-                });
+    // Close the modal if the user clicks anywhere outside of it
+    window.onclick = function (event) {
+        const modal = document.getElementById("rejectModal");
+        if (event.target === modal) {
+            modal.style.display = "none"; // Hide the modal
         }
     }
 </script>
-

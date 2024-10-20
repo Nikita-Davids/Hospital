@@ -47,20 +47,7 @@
         text-decoration: underline;
     }
 
-    .btn-link {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 13px;
-    }
 
-        .btn-link:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
 
     .form-container {
         border: 1px solid #ccc;
@@ -77,21 +64,7 @@
         margin-top: 20px;
     }
 
-    .btn-primary {
-        padding: 10px 60px;
-        font-size: 16px;
-        background-color: #08075F;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
 
-        .btn-primary:hover {
-            background-color: #FFDE59;
-            color: #08075F;
-        }
 
     .form-group {
         margin-bottom: 20px;
@@ -100,9 +73,24 @@
     input.form-control {
         width: 100%;
     }
+
+   
+
 </style>
 
 <h1>Patient Details</h1>
+
+<div class="button-container">
+    <button style="background-color: #08075F; color: white; border: none; padding: 10px 20px; text-decoration: none; font-size: 13px; border-radius: 0px; cursor: pointer;"
+            onmouseover="this.style.backgroundColor='#FFDE59'; this.style.color='blue';"
+            onmouseout="this.style.backgroundColor='#08075F'; this.style.color='white';"
+            onclick="location.href='@Url.Action("PharmacistViewPatientDetails")'">
+        Return
+    </button>
+</div>
+
+<hr />
+
 <!-- Patient Details Section -->
 <div>
     <h2>Patient Details</h2>
@@ -244,8 +232,7 @@
         <p>None reported</p>
     }
 </div>
-<div class="button-container">
-    <a class="btn-link" asp-action="PharmacistViewPatientDetails">Return</a>
-</div>
+
+
 <br />
 <br />

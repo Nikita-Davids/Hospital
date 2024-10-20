@@ -97,7 +97,7 @@
     }
 
     .btn-back {
-        background-color: red; /* Red color for the back button */
+        background-color: #08075F; /* Red color for the back button */
         color: white;
         border: none;
         padding: 5px 10px;
@@ -107,15 +107,26 @@
     }
 
         .btn-back:hover {
-            background-color: darkred; /* Darker red on hover */
+            background-color: #FFDE59; /* Darker red on hover */
         }
 </style>
 
 <h1>Patient Details</h1>
 
+
 <div style="text-align: left; margin-bottom: 20px;">
-    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn btn-back">Back</a>
+    @if (Context.Request.Headers["Referer"].ToString() != null && !string.IsNullOrEmpty(Context.Request.Headers["Referer"]))
+    {
+        <a href="@Context.Request.Headers["Referer"]" class="btn btn-back">Return</a>
+    }
+    else
+    {
+        <a href="@Url.Action("Index", "Pharmacist")" class="btn btn-back">Return</a>
+    }
 </div>
+
+
+<hr />
 
 <!-- Patient Details Section -->
 <div>
@@ -259,8 +270,6 @@
     }
 </div>
 
-<div class="button-container">
-    <a class="btn-link" asp-action="Index">Return</a>
-</div>
+
 <br />
 <br />

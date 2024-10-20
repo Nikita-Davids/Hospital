@@ -217,7 +217,7 @@ namespace Hospital.Controllers
                     }
                     else
                     {
-                        ViewBag.ErrorMessage = "Invalid login attempt. Email not found.";
+                        ViewBag.ErrorMessage = "Invalid login attempt.Incorrect credentials";
                     }
                 }
                 else

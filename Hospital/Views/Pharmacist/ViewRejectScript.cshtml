@@ -81,8 +81,7 @@
     <header>
         <!-- Optional header content -->
     </header>
-  
-    
+
     <div class="container">
         <h1><u><b>Rejected Prescriptions</b></u></h1>
         <!-- Wrapper for the back button and search bar -->
@@ -94,11 +93,13 @@
             <div style="text-align: center;">
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by patient name or surname" style="padding: 5px; width: 500px;" />
             </div>
+        </div>
+
         <!-- Table displaying data -->
-        <table class="table">
+        <table class="table" id="prescriptionTable">
+            <!-- Add ID here -->
             <thead>
                 <tr>
-                    <th>Prescribed ID</th>
                     <th>Patient ID</th>
                     <th>Patient Name</th>
                     <th>Patient Surname</th>
@@ -106,7 +107,6 @@
                     <th>Dosage Form</th>
                     <th>Quantity</th>
                     <th>Rejection Date</th>
-                  
                     <th>Action</th>
                 </tr>
             </thead>
@@ -114,7 +114,6 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.PrescribedID</td>
                         <td>@item.PatientIDNumber</td>
                         <td>@item.PatientName</td>
                         <td>@item.PatientSurname</td>
@@ -122,7 +121,6 @@
                         <td>@item.PrescriptionDosageForm</td>
                         <td>@item.Quantity</td>
                         <td>@item.RejectionDate.ToString("dd-MM-yyyy")</td>
-                     
                         <td>
                             <a href="@Url.Action("DetailsRejectedScript", "Pharmacist", new { PrescribedID = item.PrescribedID })" class="btn">View Details</a>
                         </td>
@@ -138,6 +136,7 @@
             <p style="text-align: center">2024, Northside. All rights reserved.</p>
         </footer>
     </div>
+
     <script>
         function filterTable() {
             // Get the search query from the input field
@@ -148,8 +147,8 @@
 
             // Loop through all table rows (except the header) and hide those that don't match the search query
             for (var i = 1; i < tr.length; i++) {
-                var tdName = tr[i].getElementsByTagName('td')[2]; // Patient Name column
-                var tdSurname = tr[i].getElementsByTagName('td')[3]; // Patient Surname column
+                var tdName = tr[i].getElementsByTagName('td')[1]; // Patient Name column
+                var tdSurname = tr[i].getElementsByTagName('td')[2]; // Patient Surname column
 
                 if (tdName || tdSurname) {
                     var nameValue = tdName.textContent || tdName.innerText;

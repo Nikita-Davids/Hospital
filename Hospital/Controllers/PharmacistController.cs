@@ -120,10 +120,9 @@ namespace Hospital.Controllers
             return Json(strengths);
         }
 
-        // POST: Medications/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddMedication(Medication medication)
+        public IActionResult AddMedication(Medication medication, List<string> selectedIngredients, List<string> selectedStrengths)
         {
             // Debugging: Confirm received data
             ViewBag.DebugMedication = medication;
@@ -144,6 +143,43 @@ namespace Hospital.Controllers
                 {
                     // Add a model error for duplicate medication name
                     ModelState.AddModelError("MedicationName", "A medication with the same name already exists.");
+
+                    // Re-populate ViewBag data for validation errors
+                    ViewBag.DosageForms = _context.DosageForm
+                        .OrderBy(a => a.DosageFormName) // Sort by DosageFormName A-Z
+                        .Select(a => new SelectListItem
+                        {
+                            Value = a.DosageFormName,
+                            Text = a.DosageFormName
+                        }).ToList();
+
+                    ViewBag.Ingredients = _context.ActiveIngredient
+                        .OrderBy(m => m.IngredientName) // Sort by Ingredient Name A-Z
+                        .Select(a => a.IngredientName)
+                        .Distinct()
+                        .Select(name => new SelectListItem
+                        {
+                            Value = name,
+                            Text = name
+                        }).ToList();
+
+                    return View(medication);
+                }
+
+                // Check for duplicate active ingredients with the same strength
+                var ingredientStrengthPairs = selectedIngredients.Zip(selectedStrengths, (ingredient, strength) => new { ingredient, strength })
+                    .GroupBy(x => new { x.ingredient, x.strength }) // Group by ingredient and strength
+                    .Where(g => g.Count() > 1) // Find groups with more than one occurrence
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (ingredientStrengthPairs.Any())
+                {
+                    // Build error message for duplicate ingredient and strength pairs
+                    string errorMessage = "You cannot select the same active ingredient with the same strength multiple times: ";
+                    errorMessage += string.Join(", ", ingredientStrengthPairs.Select(pair => $"{pair.ingredient} (Strength: {pair.strength})"));
+
+                    ModelState.AddModelError("ActiveIngredients", errorMessage);
 
                     // Re-populate ViewBag data for validation errors
                     ViewBag.DosageForms = _context.DosageForm
@@ -198,6 +234,7 @@ namespace Hospital.Controllers
 
             return View(medication);
         }
+
 
         // GET: /Pharmacist/EditMedication/3
         [HttpGet("EditMedication/{id}")]
@@ -1156,14 +1193,23 @@ namespace Hospital.Controllers
             // Fetch vitals (allow null if not found)
             var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
 
-            // Fetch allergies (empty list if not found)
-            var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
+            // Fetch allergies (empty list if not found) and sort alphabetically
+            var allergies = await _context.PatientAllergies
+                                           .Where(a => a.PatientId == patientId)
+                                           .OrderBy(a => a.Allergy) // Sort alphabetically by allergy name
+                                           .ToListAsync();
 
-            // Fetch current medications (empty list if not found)
-            var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
+            // Fetch current medications (empty list if not found) and sort alphabetically
+            var currentMedications = await _context.PatientCurrentMedication
+                                                   .Where(m => m.PatientId == patientId)
+                                                   .OrderBy(m => m.CurrentMedication) // Sort alphabetically by medication name
+                                                   .ToListAsync();
 
-            // Fetch medical conditions (empty list if not found)
-            var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
+            // Fetch medical conditions (empty list if not found) and sort alphabetically
+            var medicalConditions = await _context.PatientMedicalCondition
+                                                  .Where(c => c.PatientId == patientId)
+                                                  .OrderBy(c => c.MedicalCondition) // Sort alphabetically by condition name
+                                                  .ToListAsync();
 
             // Construct the model with vitals and other details (using null-coalescing operator where necessary)
             var model = new PatientOverviewViewModel
@@ -1186,9 +1232,9 @@ namespace Hospital.Controllers
                 BloodOxygen = vitals?.BloodOxygen ?? null,
                 BloodGlucoseLevel = vitals?.BloodGlucoseLevel ?? null,
                 VitalTime = vitals?.VitalTime ?? null,
-                Allergies = allergies, // Will be an empty list if none are found
-                CurrentMedications = currentMedications, // Empty list if none found
-                MedicalConditions = medicalConditions // Empty list if none found
+                Allergies = allergies, // Will be a sorted list
+                CurrentMedications = currentMedications, // Sorted list
+                MedicalConditions = medicalConditions // Sorted list
             };
 
             return View(model);
@@ -1211,14 +1257,23 @@ namespace Hospital.Controllers
             // Fetch vitals (allow null if not found)
             var vitals = await _context.PatientVital.FirstOrDefaultAsync(v => v.PatientId == patientId);
 
-            // Fetch allergies (empty list if not found)
-            var allergies = await _context.PatientAllergies.Where(a => a.PatientId == patientId).ToListAsync();
+            // Fetch allergies (empty list if not found) and sort alphabetically
+            var allergies = await _context.PatientAllergies
+                                           .Where(a => a.PatientId == patientId)
+                                           .OrderBy(a => a.Allergy) // Sort alphabetically by allergy name
+                                           .ToListAsync();
 
-            // Fetch current medications (empty list if not found)
-            var currentMedications = await _context.PatientCurrentMedication.Where(m => m.PatientId == patientId).ToListAsync();
+            // Fetch current medications (empty list if not found) and sort alphabetically
+            var currentMedications = await _context.PatientCurrentMedication
+                                                   .Where(m => m.PatientId == patientId)
+                                                   .OrderBy(m => m.CurrentMedication) // Sort alphabetically by medication name
+                                                   .ToListAsync();
 
-            // Fetch medical conditions (empty list if not found)
-            var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
+            // Fetch medical conditions (empty list if not found) and sort alphabetically
+            var medicalConditions = await _context.PatientMedicalCondition
+                                                  .Where(c => c.PatientId == patientId)
+                                                  .OrderBy(c => c.MedicalCondition) // Sort alphabetically by condition name
+                                                  .ToListAsync();
 
             // Construct the model with vitals and other details (using null-coalescing operator where necessary)
             var model = new PatientOverviewViewModel
@@ -1240,9 +1295,9 @@ namespace Hospital.Controllers
                 BloodOxygen = vitals?.BloodOxygen ?? null,
                 BloodGlucoseLevel = vitals?.BloodGlucoseLevel ?? null,
                 VitalTime = vitals?.VitalTime ?? null,
-                Allergies = allergies, // Will be an empty list if none are found
-                CurrentMedications = currentMedications, // Empty list if none found
-                MedicalConditions = medicalConditions // Empty list if none found
+                Allergies = allergies, // Will be a sorted list
+                CurrentMedications = currentMedications, // Sorted list
+                MedicalConditions = medicalConditions // Sorted list
             };
 
             return View(model);
@@ -1346,6 +1401,7 @@ namespace Hospital.Controllers
             var filteredPrescriptions = (from sp in _context.SurgeonPrescription
                                          join s in _context.Surgeons on sp.SurgeonId equals s.SurgeonId
                                          where sp.DispenseDateTime >= startDate && sp.DispenseDateTime <= endDate
+                                       
                                          select new PrescriptionViewModel
                                          {
                                              DispenseDateTime = sp.DispenseDateTime,

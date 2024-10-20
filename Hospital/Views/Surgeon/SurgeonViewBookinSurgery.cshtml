@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Hospital.Models.BookingSurgery>
+
+@{
+    ViewData["Title"] = "View Booking Surgery";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<style>
+    .button {
+        padding: 7px 30px;
+        font-size: 13px; /* Corrected: removed space around the dash */
+        background-color: #08075F; /* Corrected: removed space around the dash */
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold; /* Corrected: removed space around the dash */
+        transition: background-color 0.3s ease; /* Corrected: removed space around the dash */
+    }
+
+        .button:hover {
+            background-color: #FFDE59; /* Corrected: removed space around the dash */
+            color: #08075F;
+        }
+</style>
+
+<h1>View Surgeries Booked</h1>
+<!-- Search box -->
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Discharges..." class="form-control mb-3">
+
+<!-- Container for the back button and header -->
+<div class="header-container text-right">
+    <!-- Added text-right for right alignment -->
+    <a class="button" asp-action="SurgeonBookingSurgery">Add Booking</a>
+</div>
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SurgeryDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SurgeryTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TreatmentCodeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientEmailAddress)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SurgeryDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SurgeryTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TreatmentCodeId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("dischargeTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
+            tr[i].style.display = "none"; // Hide the row initially
+            td = tr[i].getElementsByTagName("td");
+
+            for (j = 0; j < td.length; j++) { // Loop through columns
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = ""; // Show the row if a match is found
+                        break; // Stop searching the rest of the columns in this row
+                    }
+                }
+            }
+        }
+    }
+</script>
