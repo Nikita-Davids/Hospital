@@ -13,6 +13,7 @@ namespace Hospital.Models
         [Display(Name = "Dosage Form")]
         public string DosageForm { get; set; }
         [Required]
+
         [Display(Name = "Quantity Received")]
         public int QuantityReceived { get; set; }
         [Required]

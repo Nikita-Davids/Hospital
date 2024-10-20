@@ -132,7 +132,8 @@
             <th>@Html.DisplayNameFor(model => model.Schedule)</th>
             <th>@Html.DisplayNameFor(model => model.ReOrderLevel)</th>
             <th>@Html.DisplayNameFor(model => model.MedicationActiveIngredients)</th>
-            <th>Action</th> <!-- Keep this for action buttons -->
+            <th style="width: 150px;">Action</th> <!-- Adjust the width value as needed -->
+
         </tr>
     </thead>
     <tbody>
@@ -145,10 +146,16 @@
                 <td>@Html.DisplayFor(modelItem => item.Schedule)</td>
                 <td>@Html.DisplayFor(modelItem => item.ReOrderLevel)</td>
                 <td>@Html.DisplayFor(modelItem => item.MedicationActiveIngredients)</td>
-                <td>
-                    <a class="button @(isDeleted ? "disabled-button" : "")" asp-action="EditMedication" asp-route-id="@item.MedicationId">Edit</a> |
-                    <a class="button @(isDeleted ? "disabled-button" : "")" asp-action="DeleteMedication" asp-route-id="@item.MedicationId">Delete</a>
+                <td class="action-column">
+                    <a class="button @(isDeleted ? "disabled-button" : "")"
+                       asp-action="EditMedication"
+                       asp-route-id="@item.MedicationId">Edit</a> |<a class="button @(isDeleted ? "disabled-button" : "")"
+                       asp-action="DeleteMedication"
+                       asp-route-id="@item.MedicationId"
+                       style="margin-left: 10px;">Delete</a> <!-- Add margin for spacing -->
                 </td>
+
+
             </tr>
         }
     </tbody>

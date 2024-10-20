@@ -336,11 +336,54 @@
                     reorderError.style.display = 'block'; // Show error if invalid
                 }
             });
+
         });
         $(document).ready(function () {
+            // Function to check for duplicates
+            function checkForDuplicates() {
+                let combinationMap = {};
+                let hasDuplicate = false;
+
+                $('#ingredientsContainer .ingredient-row').each(function () {
+                    let ingredient = $(this).find('.ingredient-dropdown').val();
+                    let strength = $(this).find('.strength-dropdown').val();
+
+                    // Create a unique key for the combination of ingredient and strength
+                    let combinationKey = ingredient + '_' + strength;
+
+                    if (ingredient && strength) {
+                        if (combinationMap[combinationKey]) {
+                            hasDuplicate = true;
+                            $(this).remove(); // Remove the duplicate row
+                        } else {
+                            combinationMap[combinationKey] = true;
+                        }
+                    }
+                });
+
+                if (hasDuplicate) {
+                    alert("Duplicate active ingredient with the same strength detected and will be removed.");
+                }
+            }
+
+            // Function to update the combined ingredients field
+            function updateCombinedIngredients() {
+                let combinedIngredients = [];
+                $('#ingredientsContainer .ingredient-row').each(function () {
+                    let ingredient = $(this).find('.ingredient-dropdown').val();
+                    let strength = $(this).find('.strength-dropdown').val();
+                    if (ingredient && strength) {
+                        combinedIngredients.push(ingredient + ' (' + strength + ')');
+                    }
+                });
+                $('#CombinedIngredients').val(combinedIngredients.join(', '));
+                $('#CombinedIngredientsHidden').val(combinedIngredients.join(', '));
+            }
+
+            // Function to dynamically update strength dropdown based on selected ingredient
             function updateStrengthDropdown(ingredientDropdown) {
-                var ingredientName = $(ingredientDropdown).val();
-                var $strengthDropdown = $(ingredientDropdown).siblings('.strength-dropdown');
+                let ingredientName = $(ingredientDropdown).val();
+                let $strengthDropdown = $(ingredientDropdown).siblings('.strength-dropdown');
 
                 if (ingredientName) {
                     $.ajax({
@@ -353,10 +396,6 @@
                             $.each(data, function (index, value) {
                                 $strengthDropdown.append('<option value="' + value + '">' + value + '</option>');
                             });
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(error);
-                            alert("Failed to load strengths. Please try again.");
                         }
                     });
                 } else {
@@ -364,94 +403,37 @@
                 }
             }
 
-            function checkForDuplicateIngredient(ingredient, strength) {
-                var isDuplicate = false;
-                $('#ingredientsContainer .ingredient-row').each(function () {
-                    var currentIngredient = $(this).find('.ingredient-dropdown option:selected').text();
-                    var currentStrength = $(this).find('.strength-dropdown option:selected').text();
-                    if (currentIngredient === ingredient && currentStrength === strength) {
-                        isDuplicate = true;
-                    }
-                });
-                return isDuplicate;
-            }
-
-            $(document).on('change', '.ingredient-dropdown', function () {
+            // Add event listener to update strength dropdown when ingredient is selected
+            $('#ingredientsContainer').on('change', '.ingredient-dropdown', function () {
                 updateStrengthDropdown(this);
+                checkForDuplicates(); // Check for duplicates after updating the dropdown
+                updateCombinedIngredients(); // Update the combined ingredients field
             });
 
+            // Add event listener to update the combined ingredients field when strength changes
+            $('#ingredientsContainer').on('change', '.strength-dropdown', function () {
+                checkForDuplicates(); // Check for duplicates after changing strength
+                updateCombinedIngredients(); // Update the combined ingredients field
+            });
+
+            // Trigger duplication check when adding a new ingredient row
             $('#addIngredientBtn').click(function () {
-                var selectedIngredient = $('.ingredient-dropdown').first().find("option:selected").text();
-                var selectedStrength = $('.ingredient-dropdown').first().siblings('.strength-dropdown').find("option:selected").text();
-
-                if (selectedIngredient === "") {
-                    alert("Please select an ingredient before adding.");
-                    return;
-                }
-
-                if (selectedStrength === "") {
-                    alert("Please select a strength before adding.");
-                    return;
-                }
-
-                // Check for duplicate only if there are existing ingredients
-                if ($('#ingredientsContainer .ingredient-row').length > 0 && checkForDuplicateIngredient(selectedIngredient, selectedStrength)) {
-                    alert("This active ingredient with the selected strength has already been added.");
-                    return;
-                }
-
-                // Clone the first ingredient row
-                var ingredientRow = $('.ingredient-row').first().clone();
-                ingredientRow.find('select').val(''); // Clear the cloned dropdowns
-                ingredientRow.find('.strength-dropdown').empty().append('<option value="">Select Strength</option>'); // Reset the strength dropdown
-                ingredientRow.find('.remove-ingredient-btn').prop('disabled', false);
-                $('#ingredientsContainer').append(ingredientRow); // Append the new row
-                updateCombinedIngredients();
+                checkForDuplicates(); // Check for duplicates when adding new row
+                updateCombinedIngredients(); // Update the combined ingredients field
             });
 
-            $(document).on('click', '.remove-ingredient-btn', function () {
+            // Ensure that remove buttons are updated dynamically
+            function updateRemoveButtons() {
+                let rowsCount = $('#ingredientsContainer .ingredient-row').length;
+                $('#ingredientsContainer .remove-ingredient-btn').prop('disabled', rowsCount <= 1);
+            }
+
+            // Remove ingredient row
+            $('#ingredientsContainer').on('click', '.remove-ingredient-btn', function () {
                 $(this).closest('.ingredient-row').remove();
-                updateCombinedIngredients();
-            });
-
-            function updateCombinedIngredients() {
-                var combined = [];
-                $('#ingredientsContainer .ingredient-row').each(function () {
-                    var ingredient = $(this).find('.ingredient-dropdown option:selected').text();
-                    var strength = $(this).find('.strength-dropdown option:selected').text();
-                    if (ingredient && strength) {
-                        combined.push(ingredient + ' ' + strength);
-                    }
-                });
-                $('#CombinedIngredients').val(combined.join(', '));
-                $('#CombinedIngredientsHidden').val(combined.join(', '));
-            }
-
-            $(document).on('change', '.ingredient-dropdown, .strength-dropdown', function () {
-                updateCombinedIngredients();
-            });
-
-            // New function to remove duplicates if they exist
-            function removeDuplicateIngredients() {
-                var ingredientsMap = {};
-                $('#ingredientsContainer .ingredient-row').each(function () {
-                    var currentIngredient = $(this).find('.ingredient-dropdown option:selected').text();
-                    var currentStrength = $(this).find('.strength-dropdown option:selected').text();
-
-                    if (currentIngredient && currentStrength) {
-                        var key = currentIngredient + '_' + currentStrength;
-                        if (ingredientsMap[key]) {
-                            $(this).remove(); // Remove duplicate
-                        } else {
-                            ingredientsMap[key] = true; // Mark as added
-                        }
-                    }
-                });
-            }
-
-            $(document).on('change', '#ingredientsContainer .ingredient-dropdown, #ingredientsContainer .strength-dropdown', function () {
-                removeDuplicateIngredients(); // Call to remove duplicates
-                updateCombinedIngredients();
+                checkForDuplicates(); // Check for duplicates after removing a row
+                updateCombinedIngredients(); // Update the combined ingredients field
+                updateRemoveButtons();
             });
         });
 
