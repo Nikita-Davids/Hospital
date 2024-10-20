@@ -1,0 +1,29 @@
+﻿@model Hospital.Models.OperatingTheatre
+
+@{
+    ViewData["Title"] = "AdminEditTheatres";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>Edit Operating Theatres</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AdminEditTheatres">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="OperatingTheatreId" />
+            <div class="form-group">
+                <label asp-for="OperatingTheatreName" class="control-label"></label>
+                <input asp-for="OperatingTheatreName" class="form-control" />
+                <span asp-validation-for="OperatingTheatreName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a class="btn-link" asp-action="AdminViewOperatingTheatres">Back to List</a>
+</div>

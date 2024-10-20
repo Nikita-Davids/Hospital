@@ -860,6 +860,18 @@ namespace Hospital.Controllers
                .ToList();
 
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+
+            // Populate ViewBag.Diagnosis with a list of diagnoses for the dropdown
+            var diagnoses = _context.ChronicCondition
+                .Select(c => new
+                {
+                    c.Diagnosis
+                })
+                .Distinct()
+                .ToList();
+
+            ViewBag.Diagnosis = new SelectList(diagnoses, "Diagnosis", "Diagnosis");
+
             return View(new PatientMedicalCondition());
         }
         // POST: Nurse/AddPatientMedicalCondition
