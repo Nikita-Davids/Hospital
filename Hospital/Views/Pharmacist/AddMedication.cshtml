@@ -311,17 +311,150 @@
                 updateRemoveButtons();
             });
 
-            // Validation for ReOrderLevel
-            $('#medicationForm').on('input', 'input[name="ReOrderLevel"]', function () {
-                var reorderLevel = parseInt($(this).val());
-                var $errorDiv = $('#reorderLevelError');
+            document.getElementById('ReOrderLevel').addEventListener('input', function () {
+                var reorder = this.value;
+                var reorderError = document.getElementById('reorderLevelError');
+                var isValid = true;
 
-                if (isNaN(reorderLevel) || reorderLevel < 1 || reorderLevel > 10000) {
-                    $errorDiv.show(); // Show error message
+                // Check if input is a valid number
+                if (!/^\d+$/.test(reorder)) {
+                    reorderError.textContent = 'Re-order level must be a positive integer.';
+                    isValid = false;
                 } else {
-                    $errorDiv.hide(); // Hide error message
+                    reorder = parseInt(reorder, 10);
+                    // Check range
+                    if (reorder < 1 || reorder > 10000) {
+                        reorderError.textContent = 'Re-order level must be between 1 and 10,000.';
+                        isValid = false;
+                    }
+                }
+
+                // Show or hide error message
+                if (isValid) {
+                    reorderError.style.display = 'none'; // Hide error if valid
+                } else {
+                    reorderError.style.display = 'block'; // Show error if invalid
                 }
             });
         });
+        $(document).ready(function () {
+            function updateStrengthDropdown(ingredientDropdown) {
+                var ingredientName = $(ingredientDropdown).val();
+                var $strengthDropdown = $(ingredientDropdown).siblings('.strength-dropdown');
+
+                if (ingredientName) {
+                    $.ajax({
+                        url: '@Url.Action("GetStrengths")',
+                        type: 'GET',
+                        data: { ingredientName: ingredientName },
+                        success: function (data) {
+                            $strengthDropdown.empty();
+                            $strengthDropdown.append('<option value="">Select Strength</option>');
+                            $.each(data, function (index, value) {
+                                $strengthDropdown.append('<option value="' + value + '">' + value + '</option>');
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(error);
+                            alert("Failed to load strengths. Please try again.");
+                        }
+                    });
+                } else {
+                    $strengthDropdown.empty().append('<option value="">Select Strength</option>');
+                }
+            }
+
+            function checkForDuplicateIngredient(ingredient, strength) {
+                var isDuplicate = false;
+                $('#ingredientsContainer .ingredient-row').each(function () {
+                    var currentIngredient = $(this).find('.ingredient-dropdown option:selected').text();
+                    var currentStrength = $(this).find('.strength-dropdown option:selected').text();
+                    if (currentIngredient === ingredient && currentStrength === strength) {
+                        isDuplicate = true;
+                    }
+                });
+                return isDuplicate;
+            }
+
+            $(document).on('change', '.ingredient-dropdown', function () {
+                updateStrengthDropdown(this);
+            });
+
+            $('#addIngredientBtn').click(function () {
+                var selectedIngredient = $('.ingredient-dropdown').first().find("option:selected").text();
+                var selectedStrength = $('.ingredient-dropdown').first().siblings('.strength-dropdown').find("option:selected").text();
+
+                if (selectedIngredient === "") {
+                    alert("Please select an ingredient before adding.");
+                    return;
+                }
+
+                if (selectedStrength === "") {
+                    alert("Please select a strength before adding.");
+                    return;
+                }
+
+                // Check for duplicate only if there are existing ingredients
+                if ($('#ingredientsContainer .ingredient-row').length > 0 && checkForDuplicateIngredient(selectedIngredient, selectedStrength)) {
+                    alert("This active ingredient with the selected strength has already been added.");
+                    return;
+                }
+
+                // Clone the first ingredient row
+                var ingredientRow = $('.ingredient-row').first().clone();
+                ingredientRow.find('select').val(''); // Clear the cloned dropdowns
+                ingredientRow.find('.strength-dropdown').empty().append('<option value="">Select Strength</option>'); // Reset the strength dropdown
+                ingredientRow.find('.remove-ingredient-btn').prop('disabled', false);
+                $('#ingredientsContainer').append(ingredientRow); // Append the new row
+                updateCombinedIngredients();
+            });
+
+            $(document).on('click', '.remove-ingredient-btn', function () {
+                $(this).closest('.ingredient-row').remove();
+                updateCombinedIngredients();
+            });
+
+            function updateCombinedIngredients() {
+                var combined = [];
+                $('#ingredientsContainer .ingredient-row').each(function () {
+                    var ingredient = $(this).find('.ingredient-dropdown option:selected').text();
+                    var strength = $(this).find('.strength-dropdown option:selected').text();
+                    if (ingredient && strength) {
+                        combined.push(ingredient + ' ' + strength);
+                    }
+                });
+                $('#CombinedIngredients').val(combined.join(', '));
+                $('#CombinedIngredientsHidden').val(combined.join(', '));
+            }
+
+            $(document).on('change', '.ingredient-dropdown, .strength-dropdown', function () {
+                updateCombinedIngredients();
+            });
+
+            // New function to remove duplicates if they exist
+            function removeDuplicateIngredients() {
+                var ingredientsMap = {};
+                $('#ingredientsContainer .ingredient-row').each(function () {
+                    var currentIngredient = $(this).find('.ingredient-dropdown option:selected').text();
+                    var currentStrength = $(this).find('.strength-dropdown option:selected').text();
+
+                    if (currentIngredient && currentStrength) {
+                        var key = currentIngredient + '_' + currentStrength;
+                        if (ingredientsMap[key]) {
+                            $(this).remove(); // Remove duplicate
+                        } else {
+                            ingredientsMap[key] = true; // Mark as added
+                        }
+                    }
+                });
+            }
+
+            $(document).on('change', '#ingredientsContainer .ingredient-dropdown, #ingredientsContainer .strength-dropdown', function () {
+                removeDuplicateIngredients(); // Call to remove duplicates
+                updateCombinedIngredients();
+            });
+        });
+
+
     </script>
 }

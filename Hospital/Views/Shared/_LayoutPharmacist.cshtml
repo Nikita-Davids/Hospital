@@ -73,6 +73,17 @@
             padding: 5px;
             text-align: center;
         }
+        /* Style the current/active link */
+        .topnav a.active {
+            background-color: #08075F; /* Darker shade of blue */
+            color: white;
+        }
+
+        /* Add a background color on hover */
+        .topnav a:hover {
+            background-color: #08075F; /* Darker shade on hover */
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -83,15 +94,16 @@
         </div>
 
         <div class="topnav" id="myTopnav">
-            <a asp-controller="Pharmacist" asp-action="Index">Alerts</a>
-            <a asp-controller="Pharmacist" asp-action="PharmacistViewPatientDetails">Patient Details</a>
-            <a asp-controller="Pharmacist" asp-action="StockManagement">Stock Levels</a>
-            <a asp-controller="Pharmacist" asp-action="AddMedication">Add Medication</a>
-            <a asp-controller="Pharmacist" asp-action="Restock">Restock</a>
-            <a asp-controller="Pharmacist" asp-action="ViewInfo">View Info</a>
-            <a asp-controller="Pharmacist" asp-action="FilterPrescription">Report</a>
+            <a asp-controller="Pharmacist" asp-action="Index" class="@(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">Alerts</a>
+            <a asp-controller="Pharmacist" asp-action="PharmacistViewPatientDetails" class="@(ViewContext.RouteData.Values["action"].ToString() == "PharmacistViewPatientDetails" ? "active" : "")">Patient Details</a>
+            <a asp-controller="Pharmacist" asp-action="StockManagement" class="@(ViewContext.RouteData.Values["action"].ToString() == "StockManagement" ? "active" : "")">Stock Levels</a>
+            <a asp-controller="Pharmacist" asp-action="AddMedication" class="@(ViewContext.RouteData.Values["action"].ToString() == "AddMedication" ? "active" : "")">Add Medication</a>
+            <a asp-controller="Pharmacist" asp-action="Restock" class="@(ViewContext.RouteData.Values["action"].ToString() == "Restock" ? "active" : "")">Restock</a>
+            <a asp-controller="Pharmacist" asp-action="ViewInfo" class="@(ViewContext.RouteData.Values["action"].ToString() == "ViewInfo" ? "active" : "")">View Info</a>
+            <a asp-controller="Pharmacist" asp-action="FilterPrescription" class="@(ViewContext.RouteData.Values["action"].ToString() == "FilterPrescription" ? "active" : "")">Report</a>
             <a href="javascript:void(0);" onclick="confirmLogout(event)">Logout</a>
         </div>
+
 
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">

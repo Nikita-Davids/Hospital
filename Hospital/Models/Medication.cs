@@ -35,7 +35,8 @@ namespace Hospital.Models
 
 
         [Required]
-
+        [Range(1, 10000, ErrorMessage = "ReOrder Level must be between 1 and 10,000.")]
+        [RegularExpression(@"^[1-9][0-9]{0,4}$", ErrorMessage = "ReOrder Level cannot be negative or contain symbols .")]
         [Display(Name = "Reorder Level")]
         public int ReOrderLevel { get; set; }
 
