@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "SurgeonViewBookedPatient";
-    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
 }
 
 <h1>View Booked Patients</h1>
@@ -26,8 +26,7 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PatientEmailAddress)
-            </th>
-            <th>
+            </th><th>
         </tr>
     </thead>
     <tbody>
@@ -47,6 +46,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+            </td>
+            <td>
+                    <a class="btn-link" asp-action="SurgeonEditBookedPatient" asp-route-id="@item.BookingSurgeryId">Edit</a>
             </td>
         </tr>
 }
