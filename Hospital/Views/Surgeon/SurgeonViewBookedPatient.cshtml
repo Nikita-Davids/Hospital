@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Hospital.Models.BookingSurgery>
 
 @{
-    ViewData["Title"] = "NurseViewBookedPatient";
+    ViewData["Title"] = "SurgeonViewBookedPatient";
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
@@ -9,7 +9,7 @@
 <!-- Search box -->
 <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Booked Patients..." class="form-control mb-3">
 
-<table class="table">
+<table class="table" id="bookedPatientsTable">
     <thead>
         <tr>
             <th>
@@ -57,7 +57,7 @@
         var input, filter, table, tr, td, i, j, txtValue;
         input = document.getElementById("searchInput");
         filter = input.value.toLowerCase();
-        table = document.getElementById("table");
+        table = document.getElementById("bookedPatientsTable");
         tr = table.getElementsByTagName("tr");
 
         for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
