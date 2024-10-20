@@ -80,17 +80,17 @@
         .table th, .table td {
             border: 1px solid #ddd;
             padding: 8px;
+            text-align: left;
         }
 
         .table th {
             background-color: #f2f2f2;
-            text-align: left;
         }
 
-        /* Remove alternating row colors to avoid confusion */
         .table tr:nth-child(even) {
-            background-color: #fff;
+            background-color: #f9f9f9;
         }
+
 
     .btn-back {
         background-color: red; /* Red color for the back button */
@@ -114,33 +114,33 @@
         margin-bottom: 20px;
     }
 </style>
+
 <h1>View Medications</h1>
 
 <!-- Container for the back button and header -->
 <div class="header-container">
-    <a href="@Url.Action("ViewInfo", "Pharmacist")" class="btn-back">Back</a>
+    <a href="@Url.Action("AdminAddChronicMedication", "Admin")" class="btn-back">Back</a>
     <a class="button" asp-action="AdminAddChronicMedication">Create New</a>
 </div>
-
 
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.CMedicationName)</th>
-            <th>@Html.DisplayNameFor(model => model.CDosageForm)</th>
-            <th>@Html.DisplayNameFor(model => model.CSchedule)</th>
-            <th>@Html.DisplayNameFor(model => model.CMedicationActiveIngredients)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CMedicationName)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CDosageForm)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CSchedule)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CMedicationActiveIngredients)</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
-
         {
-        <td>@Html.DisplayFor(modelItem => item.CMedicationName)</td>
-        <td>@Html.DisplayFor(modelItem => item.CDosageForm)</td>
-        <td>@Html.DisplayFor(modelItem => item.CSchedule)</td>
-        <td>@Html.DisplayFor(modelItem => item.CMedicationActiveIngredients)</td>
-
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.CMedicationName)</td>
+                <td>@Html.DisplayFor(modelItem => item.CDosageForm)</td>
+                <td>@Html.DisplayFor(modelItem => item.CSchedule)</td>
+                <td>@Html.DisplayFor(modelItem => item.CMedicationActiveIngredients)</td>
+            </tr>
         }
     </tbody>
 </table>

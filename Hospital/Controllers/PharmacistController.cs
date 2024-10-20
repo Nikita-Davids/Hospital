@@ -544,7 +544,7 @@ namespace Hospital.Controllers
 
                 // Define the email message
                 var fromAddress = new MailAddress("kitadavids@gmail.com", "Stock Management");
-                var toAddress = new MailAddress("kitadavids@gmail.com", "Admin");
+                var toAddress = new MailAddress("nicky.mostert@nmmu.ac.za", "Admin");
                 const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
 
                 var smtpClient = new System.Net.Mail.SmtpClient
@@ -560,7 +560,7 @@ namespace Hospital.Controllers
                 var mailMessage = new MailMessage
                 {
                     From = fromAddress,
-                    Subject = "Northside Hospital-(Group 6-4th year Project)_ ",
+                    Subject = "Northside Hospital-(Group 6-4th year Project) ",
                     Body = $@"
         <h3>Stock Order Update</h3>
         <p>The stock order has been successfully recorded in the system with the following details:</p>
