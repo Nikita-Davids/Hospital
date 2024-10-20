@@ -123,7 +123,8 @@ namespace Hospital.Migrations
 
                     b.Property<string>("PatientEmailAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PatientId")
                         .IsRequired()
@@ -152,6 +153,7 @@ namespace Hospital.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChronicConditionId"));
 
                     b.Property<string>("Diagnosis")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Icd10Code")
@@ -259,6 +261,7 @@ namespace Hospital.Migrations
                         .HasColumnType("time");
 
                     b.Property<string>("PatientId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DischargedPatients");
@@ -467,16 +470,23 @@ namespace Hospital.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientVitalId"));
 
+                    b.Property<decimal?>("BMI")
+                        .IsRequired()
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("BloodGlucoseLevel")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("BloodOxygen")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("BloodPressure")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Height")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PatientId")
@@ -484,18 +494,23 @@ namespace Hospital.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Pulse")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Respiratory")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("Tempreture")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<TimeSpan?>("VitalTime")
+                        .IsRequired()
                         .HasColumnType("time");
 
                     b.Property<decimal?>("Weight")
+                        .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("PatientVitalId");
@@ -518,6 +533,7 @@ namespace Hospital.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateDischarged")
+                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PatientId")

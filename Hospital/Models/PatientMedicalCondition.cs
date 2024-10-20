@@ -10,9 +10,11 @@ public partial class PatientMedicalCondition
     public int ConditionId { get; set; }
 
     [Display(Name = "Patient ID")]
+    [Required]
     public string PatientId { get; set; } = null!;
 
     [Display(Name = "Medical Condition")]
+    [Required]
     public string MedicalCondition { get; set; } = null!;
 
     //public virtual Patients Patient { get; set; } = null!;

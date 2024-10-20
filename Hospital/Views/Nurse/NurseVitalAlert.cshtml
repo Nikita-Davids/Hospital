@@ -55,14 +55,14 @@
                 <p><b>Blood Glucose Level:</b> @vital.BloodGlucoseLevel mg/dL</p>
                 <p><b>Vital Time:</b> @vital.VitalTime?.ToString(@"hh\:mm")</p>
             </div>
-            <div>
-                <!-- Button to send email alert for this specific patient -->
+            <div class="vital-actions">
                 <form asp-action="SendVitalEmail" method="post">
                     <input type="hidden" name="patientId" value="@vital.PatientId" />
                     <button type="submit" class="btn btn-primary">Email Surgeon</button>
                 </form>
+
+                <a class="btn btn-primary" asp-action="NurseAddPatientVital">Retake Patient Vital</a>
             </div>
-          
         </div>
     }
 
@@ -97,9 +97,22 @@
         font-size: 17px;
     }
 
-        .view-button:hover {
-            background-color: #FFDE59;
+    .view-button:hover {
+        background-color: #FFDE59;
+    }
+
+    .vital-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Adds space between the buttons */
+    }
+
+        .vital-actions button,
+        .vital-actions a {
+            width: 100%; /* Ensures the buttons take the full width */
+            text-align: center; /* Centers the button text */
         }
+
 
     .alert-success {
         background-color: #d4edda;
