@@ -20,13 +20,13 @@
             <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
                 <a asp-controller="Nurse" asp-action="NurseVitalAlert">Dashboard</a>
                 <a asp-controller="Nurse" asp-action="NurseDispensedAlert">Medication Alerts</a>
+                <a asp-controller="Nurse" asp-action="NurseAdmitPatient">Admit Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseViewBookedPatient">Booked Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatients">Add Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatientVital">Patient Vitals</a>
                 <a asp-controller="Nurse" asp-action="NurseAddCurrentMedication">Patient Current Medication</a>
                 <a asp-controller="Nurse" asp-action="NurseAddMedicalCondition">Patient Medical Condition</a>
                 <a asp-controller="Nurse" asp-action="NurseAddPatientAllergy">Patient Allergy</a>
-                <a asp-controller="Nurse" asp-action="NurseAdmitPatient">Admit Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseAddAdministerMedication">Administer Medication</a>
                 <a asp-controller="Nurse" asp-action="NurseDischargePatients">Discharge Patients</a>
                 <a asp-controller="Nurse" asp-action="NurseReports">Reports</a>

@@ -63,7 +63,7 @@
             <span asp-validation-for="Respiratory" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="BloodOxygen" class="control-label">Blood Oxygen</label>
+            <label asp-for="BloodOxygen" class="control-label">Oxygen Saturation</label>
             <input asp-for="BloodOxygen" class="form-control" id="BloodOxygenInput" />
             <span asp-validation-for="BloodOxygen" class="text-danger"></span>
         </div>
@@ -180,11 +180,19 @@
             if (!isNaN(bloodOxygen)) {
                 if (bloodOxygen < 95) {
                     bloodOxygenInput.classList.add("alert-danger");
-                    alert("Blood Oxygen level is below the normal range (95%). Please take action.");
+                    alert("Oxygen Saturation level is below the normal range (95%). Please take action.");
                 } else {
                     bloodOxygenInput.classList.remove("alert-danger");
                 }
             }
         });
+
+        var bloodPressureValues = model.GetBloodPressureValues();
+        if (bloodPressureValues.Systolic != null && bloodPressureValues.Diastolic != null) {
+            if (bloodPressureValues.Systolic > 120 || bloodPressureValues.Diastolic > 80) {
+                ModelState.AddModelError("BloodPressure", "Blood pressure is too high. Please check the values.");
+            }
+        }
+
     });
 </script>
