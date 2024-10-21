@@ -1078,7 +1078,18 @@ namespace Hospital.Controllers
                 })
                 .ToList();
 
-            ViewBag.TreatmentCodeId = new SelectList(treatmentCodes, "TreatmentCodeId", "Description");
+            ViewBag.TreatmentCodeId = new SelectList(treatmentCodes, "Description", "Description");
+
+            // Fetch the list of operating theatres
+            var operatingTheatres = _context.OperatingTheatre
+                .Select(ot => new
+                {
+                    ot.OperatingTheatreId,
+                    ot.OperatingTheatreName
+                })
+                .ToList();
+            ViewBag.OperatingTheatreId = new SelectList(operatingTheatres, "OperatingTheatreName", "OperatingTheatreName");
+
 
             return View(new BookingSurgery());
         }
@@ -1145,6 +1156,17 @@ namespace Hospital.Controllers
                 .ToList();
 
             ViewBag.TreatmentCodeId = new SelectList(treatmentCodes, "TreatmentCodeId", "Description");
+
+            // Fetch the list of operating theatres
+            var operatingTheatres = _context.OperatingTheatre
+                .Select(ot => new
+                {
+                    ot.OperatingTheatreId,
+                    ot.OperatingTheatreName
+                })
+                .ToList();
+            ViewBag.OperatingTheatreId = new SelectList(operatingTheatres, "OperatingTheatreName", "OperatingTheatreName");
+
 
             // Return the form with validation errors
             return View(bookingSurgery);

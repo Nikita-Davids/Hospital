@@ -1249,6 +1249,7 @@ namespace Hospital.Controllers
                     // Add the PatientsAdministration entity to the context
                     _context.PatientsAdministration.Add(patientsAdmin);
                     _context.SaveChanges(); // Save changes
+                    TempData["SuccessMessage"] = "Patient Admitted successfully.";
 
                     // Redirect to the success page after successful addition
                     return RedirectToAction("NurseAdmitPatient");

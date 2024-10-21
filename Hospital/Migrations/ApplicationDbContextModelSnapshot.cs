@@ -121,6 +121,10 @@ namespace Hospital.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingSurgeryId"));
 
+                    b.Property<string>("OperatingTheatreName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PatientEmailAddress")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -136,8 +140,9 @@ namespace Hospital.Migrations
                     b.Property<TimeSpan>("SurgeryTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("TreatmentCodeId")
-                        .HasColumnType("int");
+                    b.Property<string>("TreatmentCodeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("BookingSurgeryId");
 

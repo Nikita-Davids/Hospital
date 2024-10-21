@@ -14,18 +14,23 @@ namespace Hospital.Models
         public string PatientId { get; set; }
 
         [Required]
-        [Display(Name = "Date  of Suregry")]
+        [Display(Name = "Date  of Surgery")]
 
         public DateTime SurgeryDate { get; set; }
 
         [Required]
-        [Display(Name = "Time of Booking Suregry")]
+        [Display(Name = "Time of Booking Surgery")]
 
         public TimeSpan SurgeryTime { get; set; }
 
         [Required]
+        [Display(Name = "Operating Theatre Name")]
+
+        public string? OperatingTheatreName { get; set; }
+
+        [Required]
         [Display(Name = "Treatment Code(ICD10)")]
-        public int TreatmentCodeId { get; set; }
+        public string TreatmentCodeId { get; set; }
 
         [Required]
         [StringLength(100)]
