@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Hospital.Models.PatientsAdministration>
+
+@{
+    ViewData["Title"] = "View Admitted Patients";
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientWard)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PatientBed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateAssigned)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientWard)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PatientBed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateAssigned)
+            </td>
+            <td>
+                    <a class="btn-link"  asp-action="NurseEditAdmitPatient" asp-route-id="@item.PatientsAdministration1">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div class="button-container">
+    <a class="btn-link" asp-action="SurgeonAdmitPatient">Admit Patient</a>
+</div>
