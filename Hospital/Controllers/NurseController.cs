@@ -562,7 +562,7 @@ namespace Hospital.Controllers
                .ToList();
 
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
-            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "IngredientName");
+            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientName", "IngredientName");
             return View(new PatientAllergy());
         }
 
@@ -710,7 +710,7 @@ namespace Hospital.Controllers
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
 
             // Populate ViewBag.ChronicMedicationId with a list of chronic medications for the dropdown
-            ViewBag.ChronicMedicationId = new SelectList(_context.ChronicMedication, "ChronicMedicationId", "CMedicationName");
+            ViewBag.ChronicMedicationId = new SelectList(_context.ChronicMedication, "CMedicationName", "CMedicationName");
 
             return View(new PatientCurrentMedication());
         }
@@ -1251,7 +1251,7 @@ namespace Hospital.Controllers
                     _context.SaveChanges(); // Save changes
 
                     // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseAddPatientsAdministration");
+                    return RedirectToAction("NurseAdmitPatient");
                 }
                 else
                 {

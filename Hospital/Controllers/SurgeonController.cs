@@ -1123,7 +1123,7 @@ namespace Hospital.Controllers
                 TempData["SuccessMessage"] = "Surgery successfully booked!";
 
                 // Redirect to some page (e.g., back to the list)
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("SurgeonBookingSurgery","Surgeon");
             }
 
             // If model validation fails, reload the dropdown data and redisplay the form
