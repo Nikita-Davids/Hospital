@@ -1,0 +1,111 @@
+﻿@using Hospital.ModelViews
+@model IEnumerable<RejectedPrescriptionViewModel>
+@{
+    Layout = "~/Views/Shared/_LayoutSurgeon.cshtml";
+}
+
+<head>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .prescription-item {
+            border: 4px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #08075F;
+            text-decoration: underline;
+        }
+
+        .urgent {
+            border-color: red;
+        }
+
+        .prescription-details {
+            flex: 1;
+        }
+
+        .view-button {
+            background-color: #08075F;
+            color: white;
+            border: none;
+            padding: 20px 25px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 17px;
+        }
+
+            .view-button:hover {
+                background-color: #FFDE59;
+                color: #08075F;
+            }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+
+        .no-alerts {
+            text-align: center;
+            color: #888;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" id="successPopup">
+            <strong>@TempData["SuccessMessage"]</strong>
+        </div>
+
+        <script>
+            setTimeout(function () {
+                document.getElementById('successPopup').style.display = 'none';
+            }, 10000);
+        </script>
+    }
+
+    <h1><u><b>Surgeon Alerts</b></u></h1>
+    <br>
+
+    @if (!Model.Any())
+    {
+        <div class="no-alerts">No rejected prescriptions found.</div>
+    }
+    else
+    {
+        @foreach (var prescription in Model)
+        {
+            <div class="prescription-item @(prescription.Urgent == "Urgent" ? "urgent" : "")">
+                <div class="prescription-details">
+                    <p><b>Patient ID:</b> @prescription.PatientIDNumber</p>
+                    <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
+                    <p><b>Medication:</b> @prescription.MedicationName</p>
+                    <p><b>Dosage Form:</b> @prescription.PrescriptionDosageForm</p>
+                    <p><b>Quantity:</b> @prescription.Quantity</p>
+                    <p><b>Instructions:</b> @prescription.Instructions</p>
+                    <p><b>Pharmacist:</b> @prescription.PharmacistName @prescription.PharmacistSurname</p>
+                    <p><b>Rejection Reason:</b> @prescription.RejectionReason</p>
+                    <p><b>Rejection Date:</b> @prescription.RejectionDate.ToString("MM/dd/yyyy")</p>
+                </div>
+
+                <div>
+                    <a href="@Url.Action("AddSurgeonPrescription", "Surgeon", new { id = prescription.PrescribedID })" class="view-button">View Details</a>
+                </div>
+            </div>
+        }
+    }
+</body>
