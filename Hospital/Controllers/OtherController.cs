@@ -179,7 +179,7 @@ namespace Hospital.Controllers
                         if (surgeon != null)
                         {
                             emailFound = true;
-                            redirectAction = "Index";
+                            redirectAction = "SurgeonAlerts";
                             redirectController = "Surgeon";
                             DisplayNameAndSurname.getUserName(surgeon.Name);
                             DisplayNameAndSurname.getUserSurname(surgeon.Surname);
