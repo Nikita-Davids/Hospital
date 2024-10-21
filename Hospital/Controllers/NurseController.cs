@@ -1347,97 +1347,97 @@ namespace Hospital.Controllers
 
 
 
-        // Displaying PDF info
-        [HttpGet]
-        public IActionResult NurseReports(DateTime? startDate, DateTime? endDate)
-        {
-            // Default date range if not provided
-            if (!startDate.HasValue)
-            {
-                startDate = DateTime.Now.AddMonths(-1); // last month as default
-            }
+        //// Displaying PDF info
+        //[HttpGet]
+        //public IActionResult NurseReports(DateTime? startDate, DateTime? endDate)
+        //{
+        //    // Default date range if not provided
+        //    if (!startDate.HasValue)
+        //    {
+        //        startDate = DateTime.Now.AddMonths(-1); // last month as default
+        //    }
 
-            if (!endDate.HasValue)
-            {
-                endDate = DateTime.Now;
-            }
+        //    if (!endDate.HasValue)
+        //    {
+        //        endDate = DateTime.Now;
+        //    }
 
-            // Fetch data using LINQ
-            var filteredMedications = _context.AdministerMedication
-                .Where(am => am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate)
-                .ToList();
+        //    // Fetch data using LINQ
+        //    var filteredMedications = _context.AdministerMedication
+        //        .Where(am => am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate)
+        //        .ToList();
 
-            return View(filteredMedications); // Return the filtered results to a view
-        }
+        //    return View(filteredMedications); // Return the filtered results to a view
+        //}
 
-        [HttpPost]
-        public IActionResult ExportToPdf(DateTime? startDate, DateTime? endDate)
-        {
-            // Set default dates if not provided
-            startDate ??= DateTime.Now.AddMonths(-1);
-            endDate ??= DateTime.Now;
+        //[HttpPost]
+        //public IActionResult ExportToPdf(DateTime? startDate, DateTime? endDate)
+        //{
+        //    // Set default dates if not provided
+        //    startDate ??= DateTime.Now.AddMonths(-1);
+        //    endDate ??= DateTime.Now;
 
-            // Retrieve filtered administered medications based on the provided date range
-            var filteredMedications = _context.AdministerMedication
-                .Where(am => am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate)
-                .ToList();
+        //    // Retrieve filtered administered medications based on the provided date range
+        //    var filteredMedications = _context.AdministerMedication
+        //        .Where(am => am.AdministerMedicationTime >= startDate && am.AdministerMedicationTime <= endDate)
+        //        .ToList();
 
-            // Prepare the PDF document for export
-            var pdfDocument = new PdfDocument();
-            pdfDocument.Info.Title = "Filtered Administered Medications";
+        //    // Prepare the PDF document for export
+        //    var pdfDocument = new PdfDocument();
+        //    pdfDocument.Info.Title = "Filtered Administered Medications";
 
-            PdfPage page = pdfDocument.AddPage();
-            page.Size = PageSize.A4;
-            page.Orientation = PageOrientation.Portrait;
-            XGraphics gfx = XGraphics.FromPdfPage(page);
-            XFont font = new XFont("Arial", 11);
-            XFont headerFont = new XFont("Arial", 12);
+        //    PdfPage page = pdfDocument.AddPage();
+        //    page.Size = PageSize.A4;
+        //    page.Orientation = PageOrientation.Portrait;
+        //    XGraphics gfx = XGraphics.FromPdfPage(page);
+        //    XFont font = new XFont("Arial", 11);
+        //    XFont headerFont = new XFont("Arial", 12);
 
-            // Draw the report title at the top of the page
-            string reportTitle = "Administered Medications Report";
-            XFont titleFont = new XFont("Arial", 20);
-            gfx.DrawString(reportTitle, titleFont, XBrushes.Black, new XPoint(40, 50));
+        //    // Draw the report title at the top of the page
+        //    string reportTitle = "Administered Medications Report";
+        //    XFont titleFont = new XFont("Arial", 20);
+        //    gfx.DrawString(reportTitle, titleFont, XBrushes.Black, new XPoint(40, 50));
 
-            // Draw the date range for the report on the left side
-            gfx.DrawString($"Date Range: {startDate.Value.ToString("d MMMM yyyy")} - {endDate.Value.ToString("d MMMM yyyy")}", font, XBrushes.Black, new XPoint(40, 80));
+        //    // Draw the date range for the report on the left side
+        //    gfx.DrawString($"Date Range: {startDate.Value.ToString("d MMMM yyyy")} - {endDate.Value.ToString("d MMMM yyyy")}", font, XBrushes.Black, new XPoint(40, 80));
 
-            // Draw table headers
-            string[] headers = { "TIME OF ADMINISTRATION", "PATIENT ID", "SCRIPT DETAILS", "MEDICATION ID", "QUANTITY" };
-            DrawTableRow(gfx, headers, headerFont, 100, new float[] { 120, 100, 150, 100, 100 }, true);
+        //    // Draw table headers
+        //    string[] headers = { "TIME OF ADMINISTRATION", "PATIENT ID", "SCRIPT DETAILS", "MEDICATION ID", "QUANTITY" };
+        //    DrawTableRow(gfx, headers, headerFont, 100, new float[] { 120, 100, 150, 100, 100 }, true);
 
-            // Draw table rows for each administered medication
-            int yPoint = 120; // Start Y position for the first data row
-            foreach (var medication in filteredMedications)
-            {
-                string[] rowData = {
-                    medication.AdministerMedicationTime.ToString("g"),
-                    medication.Patient_Id,
-                    medication.ScriptDetails,
-                    medication.MedicationId.ToString(),
-                    medication.Quantity.ToString()
-                };
+        //    // Draw table rows for each administered medication
+        //    int yPoint = 120; // Start Y position for the first data row
+        //    foreach (var medication in filteredMedications)
+        //    {
+        //        string[] rowData = {
+        //            medication.AdministerMedicationTime.ToString("g"),
+        //            medication.Patient_Id,
+        //            medication.ScriptDetails,
+        //            medication.MedicationId.ToString(),
+        //            medication.Quantity.ToString()
+        //        };
 
-                DrawTableRow(gfx, rowData, font, yPoint, new float[] { 120, 100, 150, 100, 100 }, false);
-                yPoint += 20; // Move to the next row
-            }
+        //        DrawTableRow(gfx, rowData, font, yPoint, new float[] { 120, 100, 150, 100, 100 }, false);
+        //        yPoint += 20; // Move to the next row
+        //    }
 
-            var stream = new MemoryStream();
-            pdfDocument.Save(stream);
-            stream.Position = 0;
+        //    var stream = new MemoryStream();
+        //    pdfDocument.Save(stream);
+        //    stream.Position = 0;
 
-            return File(stream, "application/pdf", "AdministeredMedicationsReport.pdf");
-        }
+        //    return File(stream, "application/pdf", "AdministeredMedicationsReport.pdf");
+        //}
 
-        // Method to draw a table row in the PDF
-        private void DrawTableRow(XGraphics gfx, string[] rowData, XFont font, int yPoint, float[] columnWidths, bool isHeader)
-        {
-            for (int i = 0; i < rowData.Length; i++)
-            {
-                float xPoint = 40 + i * columnWidths[i];
-                gfx.DrawString(rowData[i], font, XBrushes.Black, new XPoint(xPoint, yPoint + 5));
-                gfx.DrawRectangle(XPens.Black, xPoint, yPoint - 12, columnWidths[i], 20);
-            }
-        }
+        //// Method to draw a table row in the PDF
+        //private void DrawTableRow(XGraphics gfx, string[] rowData, XFont font, int yPoint, float[] columnWidths, bool isHeader)
+        //{
+        //    for (int i = 0; i < rowData.Length; i++)
+        //    {
+        //        float xPoint = 40 + i * columnWidths[i];
+        //        gfx.DrawString(rowData[i], font, XBrushes.Black, new XPoint(xPoint, yPoint + 5));
+        //        gfx.DrawRectangle(XPens.Black, xPoint, yPoint - 12, columnWidths[i], 20);
+        //    }
+        //}
     
 
 

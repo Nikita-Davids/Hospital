@@ -1339,6 +1339,7 @@ namespace Hospital.Controllers
         [HttpGet]
         public IActionResult FilterPrescription(DateTime? startDate, DateTime? endDate)
         {
+
             // Default date range if not provided
             if (!startDate.HasValue)
             {
@@ -1348,6 +1349,10 @@ namespace Hospital.Controllers
             if (!endDate.HasValue)
             {
                 endDate = DateTime.Now;
+            }
+            else
+            {
+                endDate = endDate.Value.Date.AddDays(1).AddTicks(-1); // Set to 23:59:59 of the end date
             }
 
             // Fetch data using LINQ
@@ -1396,16 +1401,17 @@ namespace Hospital.Controllers
         public IActionResult ExportToPdf(DateTime? startDate, DateTime? endDate)
         {
             // Create a new instance of the database context to access data
-
             // Set default dates if not provided; defaults to the last month for startDate and now for endDate
             startDate ??= DateTime.Now.AddMonths(-1);
             endDate ??= DateTime.Now;
+
+            // Adjust the end date to include the entire day
+            endDate = endDate.Value.Date.AddDays(1).AddTicks(-1); // Set to 23:59:59 of the end date
 
             // Retrieve filtered prescriptions based on the provided date range
             var filteredPrescriptions = (from sp in _context.SurgeonPrescription
                                          join s in _context.Surgeons on sp.SurgeonId equals s.SurgeonId
                                          where sp.DispenseDateTime >= startDate && sp.DispenseDateTime <= endDate
-                                       
                                          select new PrescriptionViewModel
                                          {
                                              DispenseDateTime = sp.DispenseDateTime,

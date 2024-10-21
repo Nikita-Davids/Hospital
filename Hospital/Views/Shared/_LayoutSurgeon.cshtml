@@ -18,8 +18,9 @@
         <div class="text-center">
             <!-- Navigation bar with links to other pages -->
             <nav class="topnav @(ViewBag.HideNavBar ?? false ? "navbar-hidden" : "")" id="myTopnav">
-                <a asp-controller="Surgeon" asp-action="SurgeonBookingSurgery">Book Surgery</a>
-                <a asp-controller="Surgeon" asp-action="SurgeoneAddPatients">Add Patients</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAlerts">Alerts</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonBookinSurgery">Book Surgery</a>
+                <a asp-controller="Surgeon" asp-action="SurgeonAddPatients">Add Patients</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonAddPatientVital">Patient Vitals</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonAddCurrentMedication">Patient Current Medication</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonAddMedicalCondition">Patient Medical Condition</a>
@@ -28,9 +29,8 @@
                 <a asp-controller="Surgeon" asp-action="SurgeonAddAdministerMedication">Administer Medication</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonDischargePatients">Discharge Patients</a>
                 <a asp-controller="Surgeon" asp-action="SurgeonTreatmentCodes">Treatment Codes</a>
-                <a asp-controller="Surgeon" asp-action="SurgeonPrescroption">Prescription</a>
-                <a asp-controller="Surgeon" asp-action="SurgeonIndex">Alerts</a>
-                <a asp-controller="Other" asp-action="OtherLogin">Logout</a>
+                <a asp-controller="Surgeon" asp-action="AddSurgeonPrescroption">Prescription</a>
+               <a asp-controller="Other" asp-action="OtherLogin">Logout</a>
             </nav>
         </div>
 

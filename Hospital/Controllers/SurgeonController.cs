@@ -1259,5 +1259,6 @@ namespace Hospital.Controllers
             var patientMedications = await _context.BookingSurgery.ToListAsync();
             return View(patientMedications);
         }
+      
     }
 }

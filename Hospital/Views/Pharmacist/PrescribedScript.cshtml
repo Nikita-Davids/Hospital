@@ -229,12 +229,13 @@
         <form id="rejectForm" method="post" action="@Url.Action("Reject", "Pharmacist")">
             <input type="hidden" id="PrescribedID" name="PrescribedID" value="@Model.PrescribedID" />
             <input type="hidden" id="SurgeonId" name="SurgeonId" value="@Model.SurgeonId" />
-            <p><strong>Surgeon Name:</strong> <span id="SurgeonName"></span></p>
-            <p><strong>Surgeon Surname:</strong> <span id="SurgeonSurname"></span></p>
+            <p><strong>Surgeon Name:</strong> <span id="SurgeonName">@Model.SurgeonName</span></p>
+            <p><strong>Surgeon Surname:</strong> <span id="SurgeonSurname">@Model.SurgeonSurname</span></p>
             <div class="form-group">
                 <label for="rejectionReason">Rejection Reason:</label>
                 <textarea id="rejectionReason" name="RejectionReason" required rows="4" style="width: 100%;"></textarea>
             </div>
+     
             <div class="button-container">
                 <button type="submit" class="btn btn-danger">Submit</button>
                 <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
