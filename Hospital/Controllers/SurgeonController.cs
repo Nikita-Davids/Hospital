@@ -111,9 +111,9 @@ namespace Hospital.Controllers
             // Pass the prescription details to the view
             return View(rejectedPrescription);
         }
-    
 
-    public async Task<IActionResult> SurgeonViewBookedPatient()
+
+        public async Task<IActionResult> SurgeonViewBookedPatient()
         {
             var bookedpatient = await _context.BookingSurgery.ToListAsync();
             return View(bookedpatient);
@@ -1231,7 +1231,7 @@ namespace Hospital.Controllers
                 TempData["SuccessMessage"] = "Surgery successfully booked!";
 
                 // Redirect to some page (e.g., back to the list)
-                return RedirectToAction("SurgeonBookingSurgery","Surgeon");
+                return RedirectToAction("SurgeonBookingSurgery", "Surgeon");
             }
 
             // If model validation fails, reload the dropdown data and redisplay the form
@@ -1281,6 +1281,96 @@ namespace Hospital.Controllers
             var patientMedications = await _context.BookingSurgery.ToListAsync();
             return View(patientMedications);
         }
-      
+
+
+        // GET: Nurse/AddPatientsAdministration
+        [HttpGet]
+        public IActionResult SurgeonAdmitPatient()
+        {
+            // Populate ViewBag with dropdown list of wards
+            ViewBag.WardName = new SelectList(_context.Ward, "WardName", "WardName"); // Use WardName for both value and display
+
+            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            var patients = _context.Patients
+               .Select(p => new
+               {
+                   PatientIDNumber = p.PatientIDNumber,
+                   FullName = p.PatientName + " " + p.PatientSurname
+               })
+               .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+            return View(new PatientsAdministration());
+        }
+
+        // POST: Nurse/AddPatientsAdministration
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult NurseAdmitPatient(PatientsAdministration model)
+        {
+            if (ModelState.IsValid)
+            {
+                TempData["SuccessMessage"] = "Patient administration added successfully.";
+
+                // Check if a patient administration record with the same patient and bed already exists
+                var existingAdmin = _context.PatientsAdministration
+                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                          pa.PatientBed == model.PatientBed);
+
+                if (existingAdmin == null)
+                {
+                    // Create a new PatientsAdministration entity
+                    var patientsAdmin = new PatientsAdministration
+                    {
+                        PatientId = model.PatientId,
+                        PatientWard = model.PatientWard,
+                        PatientBed = model.PatientBed,
+                        DateAssigned = model.DateAssigned
+                    };
+
+                    // Add the PatientsAdministration entity to the context
+                    _context.PatientsAdministration.Add(patientsAdmin);
+                    _context.SaveChanges(); // Save changes
+                    TempData["SuccessMessage"] = "Patient Admitted successfully.";
+
+                    // Redirect to the success page after successful addition
+                    return RedirectToAction("SurgeonAdmitPatient");
+                }
+                else
+                {
+                    // If the administration record for this patient and bed already exists, return an error message
+                    ModelState.AddModelError("", "This patient is already assigned to the specified bed.");
+                }
+            }
+
+            // Repopulate dropdown list in case of validation failure
+            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            return View(model);
+        }
+        // GET: Nurse/ViewPatientsAdministration
+
+        public async Task<IActionResult> SurgeonViewAdmitPatients()
+        {
+            var patientsAdmin = await _context.PatientsAdministration.ToListAsync();
+            return View(patientsAdmin);
+        }
+        // GET: Nurse/EditPatientsAdministration/5
+        public async Task<IActionResult> NurseEditAdmitPatient(int id)
+        {
+            // Retrieve the patient administration record from the database using the provided ID
+            var patientsAdmin = await _context.PatientsAdministration.FirstOrDefaultAsync(m => m.PatientsAdministration1 == id);
+
+            // Check if the patient administration exists. If not, return a 404 Not Found response.
+            if (patientsAdmin == null)
+            {
+                return NotFound();
+            }
+
+            // Populate ViewBag with a list of patients for the dropdown
+            ViewBag.PatientId = new SelectList(await _context.Patients.ToListAsync(), "PatientIDNumber", "PatientName", patientsAdmin.PatientId);
+
+            // Return the view with the patient administration data to be edited
+            return View(patientsAdmin);
+        }
     }
 }
