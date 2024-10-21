@@ -22,7 +22,9 @@ namespace Hospital.ViewModels
         public decimal? Height { get; set; }
         public decimal? BMI { get; set; }
         public decimal? Temperature { get; set; }
-        public decimal? BloodPressure { get; set; }
+        //public decimal? BloodPressure { get; set; }
+        public string? BloodPressure { get; set; }
+
         public decimal? Pulse { get; set; }
         public decimal? Respiratory { get; set; }
         public decimal? BloodOxygen { get; set; }

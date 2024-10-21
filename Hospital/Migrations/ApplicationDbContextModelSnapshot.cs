@@ -482,8 +482,9 @@ namespace Hospital.Migrations
                         .IsRequired()
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("BloodPressure")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("BloodPressure")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Height")
                         .IsRequired()
