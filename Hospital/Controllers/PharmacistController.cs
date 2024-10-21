@@ -828,20 +828,22 @@ namespace Hospital.Controllers
                 // Save changes to the database
                 _context.SaveChanges();
 
-                // Return a successful response with redirect URL
-                return Json(new { success = true, message = "Prescription rejected successfully.", redirectUrl = Url.Action("ViewRejectScript", "Pharmacist") });
+                ViewData["SuccessMessage"] = "Prescription rejected successfully.";
+                return RedirectToAction("ViewRejectScript", "Pharmacist");
             }
             catch (Exception ex)
             {
+                // Prepare the error message
                 string errorMessage = $"An error occurred while rejecting the prescription: {ex.Message}";
                 if (ex.InnerException != null)
                 {
                     errorMessage += $" Inner exception: {ex.InnerException.Message}";
                 }
-                return Json(new { success = false, message = errorMessage });
+
+                ModelState.AddModelError("", errorMessage);
+                return View(); // Return the current view with an error message
             }
         }
-
 
         public IActionResult ViewMedicationDispensed()
         {
@@ -1596,6 +1598,7 @@ namespace Hospital.Controllers
             gfx.DrawString($"Page {pageNumber}", font, XBrushes.Black, new XPoint(page.Width - 50, page.Height - 30)); // Draw page number
         }
     }
+
 }
 
 

@@ -1,5 +1,6 @@
 ﻿using Hospital.Data;
 using Hospital.Models;
+using Hospital.ModelViews;
 using Hospital.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,7 +17,103 @@ namespace Hospital.Controllers
         {
             _context = context;
         }
-        public async Task<IActionResult> SurgeonViewBookedPatient()
+
+        // Displays a list of rejected prescriptions
+        public IActionResult SurgeonAlerts()
+        {
+            // Retrieve the user's full name from TempData
+            ViewBag.UserName = TempData["UserName"];
+
+            // Group rejected prescriptions by PrescribedID and map fields from both RejectedPrescription and SurgeonPrescription
+            var groupedRejectedPrescriptions = _context.RejectedPrescription
+                .GroupBy(rp => rp.PrescribedID)
+                .Select(g => new RejectedPrescriptionViewModel
+                {
+                    PrescribedID = g.Key,
+                    PatientIDNumber = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.PatientIdnumber)
+                        .FirstOrDefault(),
+                    PatientName = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.PatientName)
+                        .FirstOrDefault(),
+                    PatientSurname = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.PatientSurname)
+                        .FirstOrDefault(),
+                    MedicationName = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.MedicationName)
+                        .FirstOrDefault(),
+                    PrescriptionDosageForm = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.PrescriptionDosageForm)
+                        .FirstOrDefault(),
+                    Quantity = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.Quantity)
+                        .FirstOrDefault(),
+                    Instructions = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.Instructions)
+                        .FirstOrDefault(),
+                    Urgent = _context.SurgeonPrescription
+                        .Where(p => p.PrescribedID == g.Key)
+                        .Select(p => p.Urgent)
+                        .FirstOrDefault(),
+
+                    // Map Rejection fields from RejectedPrescription
+                    RejectionReason = g.FirstOrDefault().RejectionReason,
+                    RejectionDate = g.FirstOrDefault().RejectionDate,
+                    PharmacistName = g.FirstOrDefault().PharmacistName,
+                    PharmacistSurname = g.FirstOrDefault().PharmacistSurname,
+                    Status = g.FirstOrDefault().Status
+                })
+                .OrderByDescending(p => p.RejectionDate)
+                .ToList();
+
+            return View(groupedRejectedPrescriptions);
+        }
+
+        // Update the status from "Pending" to "Seen" and redirect to the details view
+        public IActionResult ViewRejectedPrescription(int id)
+        {
+            // Find the rejected prescription by ID
+            var rejectedPrescription = _context.RejectedPrescription
+                .FirstOrDefault(rp => rp.PrescribedID == id);
+
+            if (rejectedPrescription == null)
+            {
+                return NotFound();
+            }
+
+            // Update the status to "Seen"
+            rejectedPrescription.Status = "Seen";
+            _context.SaveChanges();
+
+            // Redirect to the details view
+            return RedirectToAction("RejectedPrescriptionDetails", new { id });
+        }
+
+        // Display detailed view of the rejected prescription
+        public IActionResult RejectedPrescriptionDetails(int id)
+        {
+            // Retrieve the rejected prescription details by ID
+            var rejectedPrescription = _context.RejectedPrescription
+                .FirstOrDefault(rp => rp.PrescribedID == id);
+
+            if (rejectedPrescription == null)
+            {
+                return NotFound();
+            }
+
+            // Pass the prescription details to the view
+            return View(rejectedPrescription);
+        }
+    
+
+    public async Task<IActionResult> SurgeonViewBookedPatient()
         {
             var bookedpatient = await _context.BookingSurgery.ToListAsync();
             return View(bookedpatient);
