@@ -88,20 +88,36 @@
     }
     else
     {
-        @foreach (var prescription in Model)
-        {
-            <div class="prescription-item @(prescription.Urgent == "Urgent" ? "urgent" : "")">
-                <div class="prescription-details">
-                    <p><b>Patient ID:</b> @prescription.PatientIDNumber</p>
-                    <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
-                    <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
-                    <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
-                </div>
+        // List of known rejected PrescribedIDs (you should fill this with actual values)
+        var rejectedIds = new List<int> { 16, 17, 18 }; // Add the actual IDs that are considered rejected
 
-                <div>
-                    <a href="@Url.Action("PrescribedScript", "Pharmacist", new { PrescribedID = prescription.PrescribedID })" class="view-button">View Script</a>
+        // Filter out rejected prescriptions and sort so urgent ones appear first
+        var filteredPrescriptions = Model
+        .Where(p => !rejectedIds.Contains(p.PrescribedID)) // Filter out rejected prescriptions
+        .OrderByDescending(p => p.Urgent == "Urgent")
+        .ToList();
+
+        if (!filteredPrescriptions.Any()) // Check if there are no valid alerts after filtering
+        {
+            <div class="no-alerts">No valid alerts found.</div>
+        }
+        else
+        {
+            foreach (var prescription in filteredPrescriptions)
+            {
+                <div class="prescription-item @(prescription.Urgent == "Urgent" ? "urgent" : "")">
+                    <div class="prescription-details">
+                        <p><b>Patient ID:</b> @prescription.PatientIDNumber</p>
+                        <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
+                        <p><b>Date:</b> @prescription.PrescriptionDate?.ToString("MM/dd/yyyy")</p>
+                        <p><b>Surgeon:</b> @prescription.SurgeonName @prescription.SurgeonSurname</p>
+                    </div>
+
+                    <div>
+                        <a href="@Url.Action("PrescribedScript", "Pharmacist", new { PrescribedID = prescription.PrescribedID })" class="view-button">View Script</a>
+                    </div>
                 </div>
-            </div>
+            }
         }
     }
 </body>
