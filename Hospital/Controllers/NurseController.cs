@@ -1046,7 +1046,7 @@ namespace Hospital.Controllers
             if (prescription != null)
             {
                 // Step 1: Update the Dispense field to "Received"
-                prescription.Dispense = "Received";
+                prescription.Dispense = "Dispense";
 
                 // Step 2: Administer the medication by creating a new record in AdministerMedication
                 var administerMedication = new AdministerMedication
