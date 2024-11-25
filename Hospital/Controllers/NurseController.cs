@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
-using MailKit.Net.Smtp;
 using MailKit.Security;
 using System.Text;
 using System.Net.Mail;
@@ -49,7 +48,13 @@ namespace Hospital.Controllers
             // Fetch medical conditions (empty list if not found)
             var medicalConditions = await _context.PatientMedicalCondition.Where(c => c.PatientId == patientId).ToListAsync();
 
-            // Construct the model with vitals and other details (using null-coalescing operator where necessary)
+            // Fetch administered medications for the patient (empty list if not found)
+            var administeredMedications = await _context.AdministerMedication
+                .Where(m => m.Patient_Id == patientId)
+                .OrderByDescending(m => m.AdministerMedicationTime) // Order by time, latest first
+                .ToListAsync();
+
+            // Construct the model with vitals and other details
             var model = new PatientOverviewViewModel
             {
                 PatientIDNumber = patient.PatientIDNumber,
@@ -60,7 +65,7 @@ namespace Hospital.Controllers
                 PatientEmailAddress = patient.PatientEmailAddress,
                 PatientDateOfBirth = patient.PatientDateOfBirth,
                 PatientGender = patient.PatientGender,
-                Weight = vitals?.Weight ?? null, // Allow null if vitals are not found
+                Weight = vitals?.Weight ?? null,
                 Height = vitals?.Height ?? null,
                 BMI = vitals?.BMI ?? null,
                 Temperature = vitals?.Tempreture ?? null,
@@ -70,13 +75,15 @@ namespace Hospital.Controllers
                 BloodOxygen = vitals?.BloodOxygen ?? null,
                 BloodGlucoseLevel = vitals?.BloodGlucoseLevel ?? null,
                 VitalTime = vitals?.VitalTime ?? null,
-                Allergies = allergies, // Will be an empty list if none are found
-                CurrentMedications = currentMedications, // Empty list if none found
-                MedicalConditions = medicalConditions // Empty list if none found
+                Allergies = allergies,
+                CurrentMedications = currentMedications,
+                MedicalConditions = medicalConditions,
+                AdministeredMedications = administeredMedications // New property for administered medications
             };
 
             return View(model);
         }
+
 
         public async Task<IActionResult> NurseVitalAlert()
         {
@@ -135,24 +142,30 @@ namespace Hospital.Controllers
         // GET: Nurse/ViewPatients
         public async Task<IActionResult> NurseViewBookedPatient()
         {
-            var bookedpatient = await _context.BookingSurgery.ToListAsync();
-            return View(bookedpatient);
+            var bookedPatients = await _context.BookingSurgery
+                .Include(b => b.Patient)
+                .ToListAsync();
+
+            return View(bookedPatients);
         }
+
 
         public IActionResult NurseDischargePatients()
         {
-            // Fetch the list of patients and create a concatenated display name
+            // Fetch the list of patients and create a concatenated display name, then order alphabetically by full name
             var patients = _context.Patients
                 .Select(p => new
                 {
                     PatientIDNumber = p.PatientIDNumber,
                     FullName = p.PatientName + " " + p.PatientSurname
                 })
+                .OrderBy(p => p.FullName)  // Sort patients by FullName alphabetically
                 .ToList();
 
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseDischargePatients(DischargedPatient model)
@@ -260,7 +273,8 @@ namespace Hospital.Controllers
         // GET: Nurse/AddPatient
         public IActionResult NurseAddPatients()
         {
-            var provinces = _context.Province.ToList();
+            // Fetch the provinces and sort them alphabetically
+            var provinces = _context.Province.OrderBy(p => p.ProvinceName).ToList();
 
             // Pass the provinces to the ViewBag
             ViewBag.Provinces = provinces;
@@ -274,26 +288,37 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Fetch the names from the database based on the selected IDs
-                var province = _context.Province.FirstOrDefault(p => p.ProvinceId == int.Parse(Request.Form["ProvinceId"]));
-                var town = _context.Town.FirstOrDefault(t => t.TownId == int.Parse(Request.Form["TownId"]));
-                var suburb = _context.Suburb.FirstOrDefault(s => s.SuburbId == int.Parse(Request.Form["SuburbId"]));
+                // Fetch the province, town, and suburb, and order them alphabetically
+                var province = _context.Province
+                    .FirstOrDefault(p => p.ProvinceId == int.Parse(Request.Form["ProvinceId"]));
+
+                var town = _context.Town
+                    .Where(t => t.ProvinceId == province.ProvinceId)
+                    .OrderBy(t => t.TownName)  // Sort towns alphabetically
+                    .FirstOrDefault(t => t.TownId == int.Parse(Request.Form["TownId"]));
+
+                var suburb = _context.Suburb
+                    .Where(s => s.TownId == town.TownId)
+                    .OrderBy(s => s.SuburbName)  // Sort suburbs alphabetically
+                    .FirstOrDefault(s => s.SuburbId == int.Parse(Request.Form["SuburbId"]));
+
                 var postalCode = Request.Form["PostalCode"];
 
                 // Concatenate the address components with commas as a delimiter
                 model.PatientAddress = $"{model.PatientAddress}, {province?.ProvinceName}, {town?.TownName}, {suburb?.SuburbName}, {postalCode}".Trim(',').Replace(",,", ",");
 
-
-
+                // Save the new patient
                 TempData["SuccessMessage"] = "Patient added successfully.";
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("NurseAddPatients");
+                return RedirectToAction("NurseViewPatients");
             }
-           
-            ViewBag.Provinces = _context.Province.ToList(); // Ensure provinces are loaded in case of an error
+
+            // Repopulate the provinces list in case of validation failure
+            ViewBag.Provinces = _context.Province.OrderBy(p => p.ProvinceName).ToList(); // Ensure provinces are sorted alphabetically
             return View(model);
         }
+
 
         // GET: Nurse/ViewPatients
         public async Task<IActionResult> NurseViewPatients()
@@ -350,58 +375,324 @@ namespace Hospital.Controllers
             return _context.Patients.Any(e => e.PatientIDNumber == id);
         }
 
-
-
-
         // GET: Nurse/AddPatientVital
-        public IActionResult NurseAddPatientVital()
+        public async Task<IActionResult> NurseAddPatientVital()
         {
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
-            var patients = _context.Patients
-               .Select(p => new
-               {
-                   PatientIDNumber = p.PatientIDNumber,
-                   FullName = p.PatientName + " " + p.PatientSurname
-               })
-               .ToList();
+            // Retrieve PatientId from TempData
+            var patientId = TempData["PatientId"]?.ToString();
 
-            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+            // Check if PatientId is missing
+            if (string.IsNullOrEmpty(patientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is required.";
+                return RedirectToAction("SearchPatient"); // Redirect to a search page or an appropriate view
+            }
+
+            // Retrieve patient details using the PatientId
+            var patient = await _context.Patients
+                .Where(p => p.PatientIDNumber == patientId)
+                .Select(p => new
+                {
+                    p.PatientName,
+                    p.PatientSurname,
+                    p.PatientEmailAddress
+                })
+                .FirstOrDefaultAsync();
+
+            // If no patient found, return an error
+            if (patient == null)
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("SearchPatient");
+            }
+
+            // Set patient full name and email in ViewBag
+            ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+            ViewBag.PatientEmail = patient.PatientEmailAddress;
+
+            // Pass PatientId using ViewBag to maintain the context
+            ViewBag.PatientId = patientId;
+
+            // Return the view
             return View();
         }
 
+
+        // POST: Nurse/AddPatientVital
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseAddPatientVital(PatientVital model)
         {
+            // If PatientId is missing in the submitted model, attempt to retrieve it from TempData
+            if (string.IsNullOrEmpty(model.PatientId) && TempData["PatientId"] != null)
+            {
+                model.PatientId = TempData["PatientId"].ToString();
+            }
+
+            // Store PatientId in TempData to persist it across requests, but don't overwrite it if already set.
+            if (string.IsNullOrEmpty(model.PatientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("NurseAddPatientVital");
+            }
+            else
+            {
+                TempData["PatientId"] = model.PatientId; // Store PatientId in TempData to use in subsequent requests
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    TempData["SuccessMessage"] = "Patient Vitals added successfully.";
+                    // Save the model to the database
                     _context.Add(model);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction("NurseAddPatientVital");
+
+                    // Check for concerning vitals and send an email if necessary
+                    if (IsConcerningVital(model, out string message))
+                    {
+                        await SendConcerningVitalsEmail(model, message);
+                    }
+
+                    TempData["SuccessMessage"] = "Patient Vitals added successfully.";
+
+                    // Redirect to the Add Current Medication form
+                    return RedirectToAction("NurseAddCurrentMedication");
                 }
                 catch (Exception ex)
                 {
-                    // Log the exception
+                    // Log exception
                     Console.WriteLine(ex.Message);
                     ModelState.AddModelError("", "An error occurred while saving the data.");
                 }
             }
 
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            // Retrieve Patient details for repopulating the ViewBag if ModelState is invalid
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+            }
+
+            // Repopulate the ViewBag with PatientId
+            ViewBag.PatientId = model.PatientId;
+
             return View(model);
         }
+
+
+        // Helper method to determine if vitals are concerning
+        private bool IsConcerningVital(PatientVital model, out string message)
+        {
+            message = string.Empty;
+            var (systolic, diastolic) = model.GetBloodPressureValues();
+
+            // Track individual vital messages
+            var concerningVitals = new List<string>();
+            if (systolic > 140 || diastolic > 90)
+            {
+                concerningVitals.Add($"<strong>Blood Pressure is high:</strong> {model.BloodPressure}.");
+            }
+
+            if (model.Pulse < 60 || model.Pulse > 100)
+            {
+                concerningVitals.Add($"<strong>Heart Rate is abnormal:</strong> {model.Pulse}.");
+            }
+
+            if (model.Tempreture < 36.1m || model.Tempreture > 37.2m)
+            {
+                concerningVitals.Add($"<strong>Body Temperature is abnormal:</strong> {model.Tempreture}.");
+            }
+
+
+            if (concerningVitals.Count == 0)
+            {
+                return false; // No concerning vitals
+            }
+
+            // Construct the message as a bulleted list
+            if (concerningVitals.Count > 1)
+            {
+                message = "Multiple concerning vitals detected:<ul style='padding-left: 20px;  font-weight: bold;'>";
+                foreach (var vital in concerningVitals)
+                {
+                    message += $"<li>{vital}</li>";
+                }
+                message += "</ul>";
+            }
+            else
+            {
+                message = concerningVitals[0]; // Only one vital is concerning
+            }
+
+            return true;
+        }
+
+
+        // Method to send an email for concerning vitals
+        private async Task SendConcerningVitalsEmail(PatientVital vital, string message)
+        {
+            try
+            {
+                var patient = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.PatientIDNumber == vital.PatientId);
+
+                if (patient == null)
+                {
+                    Console.WriteLine("Patient not found. Cannot send email.");
+                    return;
+                }
+
+                var fromAddress = new MailAddress("kitadavids@gmail.com", "Northside Hospital");
+                var toAddress = new MailAddress("nicky.mostert@nmmu.ac.za", "Admin");
+                const string fromPassword = "nhjj efnx mjpv okee"; // Secure this in production
+
+                var smtpClient = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = fromAddress,
+                    Subject = "Concerning Vital Alert",
+                    Body = $@"
+<h2 style=""color: red; text-align: center; text-decoration: underline;"">Concerning Vital Detected</h2>
+
+<p style=""text-align: left; margin-top: 20px; color: black;"">
+    Patient Information:
+</p>
+
+<p style=""text-align: left; margin-bottom: 10px;  font-weight: bold; color: black;"">
+    <strong>Patient Name:</strong> {patient.PatientName} {patient.PatientSurname}
+</p>
+<p style=""text-align: left; margin-bottom: 10px; font-weight: bold; color: black;"">
+    <strong>Patient ID:</strong> {vital.PatientId}
+</p>
+<p style=""text-align: left; margin-bottom: 10px; font-weight: bold; color: black;"">
+    <strong>Time:</strong> {vital.VitalTime}
+</p>
+
+<h3 style=""text-align: left; margin-bottom: 10px; font-weight: bold; color: red; text-align: center; text-decoration: underline;"">
+    <strong>Details:</strong>
+</h3>
+{message}
+
+<p style=""text-align: left; margin-top: 20px; font-weight: bold; color: red;"">
+    Please review the patient's condition immediately.
+</p>",
+                    IsBodyHtml = true
+
+                };
+
+                mailMessage.To.Add(toAddress);
+                await smtpClient.SendMailAsync(mailMessage);
+
+                Console.WriteLine("Email sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
+        }
+
+
+        // GET: Nurse/NurseAddPatientVital2
+        public IActionResult NurseAddPatientVital2(string id)
+        {
+            // Retrieve the patient details using the provided ID
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
+
+            if (patient != null)
+            {
+                // Pass the patient's full name and ID to the view
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = id;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("ViewNurseAdmitPatients");
+            }
+
+            return View();
+        }
+
+        // POST: Nurse/NurseAddPatientVital2
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddPatientVital2(PatientVital model)
+        {
+            // If PatientId is missing in the submitted model, attempt to retrieve it from TempData
+            if (string.IsNullOrEmpty(model.PatientId) && TempData["PatientId"] != null)
+            {
+                model.PatientId = TempData["PatientId"].ToString();
+            }
+
+            // Store PatientId in TempData to persist it across requests, but don't overwrite it if already set.
+            if (string.IsNullOrEmpty(model.PatientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("NurseAddPatientVital2");
+            }
+            else
+            {
+                TempData["PatientId"] = model.PatientId; // Store PatientId in TempData to use in subsequent requests
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Save the model to the database
+                    _context.Add(model);
+                    await _context.SaveChangesAsync();
+
+                    // Check for concerning vitals and send an email if necessary
+                    if (IsConcerningVital(model, out string message))
+                    {
+                        await SendConcerningVitalsEmail(model, message);
+                    }
+
+                    TempData["SuccessMessage"] = "Patient Vitals added successfully.";
+                    return RedirectToAction("NurseViewAdmitPatients");
+                }
+                catch (Exception ex)
+                {
+                    // Log exception
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
+                }
+            }
+
+            // Retrieve Patient details for repopulating the ViewBag if ModelState is invalid
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+            }
+
+            // Repopulate the ViewBag with PatientId
+            ViewBag.PatientId = model.PatientId;
+
+            return View(model);
+        }
+
+
 
         // GET: Nurse/ViewPatients
         public async Task<IActionResult> NurseViewPatientVital()
         {
-            var patientvitals = await _context.PatientVital.ToListAsync();
-            return View(patientvitals);
+            var patientVitals = await _context.PatientVital
+            .Include(v => v.Patient) // Include Patient data
+            .ToListAsync();
+
+            return View(patientVitals);
         }
-       
+
         public async Task<IActionResult> NurseEditPatientVital(int id)
         {
             // Fetch the patient vital record from the database
@@ -456,8 +747,6 @@ namespace Hospital.Controllers
         {
             return _context.PatientVital.Any(e => e.PatientVitalId == id);
         }
-
-
 
         private async Task SendPatientVitalEmail(List<PatientVital> selectedVitals)
         {
@@ -547,73 +836,243 @@ namespace Hospital.Controllers
             }
         }
 
-
         // GET: Nurse/AddPatientAllergy
         [HttpGet]
         public IActionResult NurseAddPatientAllergy()
         {
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
-            var patients = _context.Patients
-               .Select(p => new
-               {
-                   PatientIDNumber = p.PatientIDNumber,
-                   FullName = p.PatientName + " " + p.PatientSurname
-               })
-               .ToList();
+            // Retrieve PatientId from TempData
+            var patientId = TempData["PatientId"]?.ToString();
 
-            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
-            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientName", "IngredientName");
-            return View(new PatientAllergy());
-        }
+            // Retrieve patient details using the PatientId
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == patientId);
 
-        // POST: Nurse/AddPatientAllergy
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult NurseAddPatientAllergy(PatientAllergy model)
-        {
-            if (ModelState.IsValid)
+            if (patient != null)
             {
-                TempData["SuccessMessage"] = "Patient Allergy added successfully.";
-                // Check if an allergy entry with the same patient and allergy already exists
-                var existingAllergy = _context.PatientAllergies
-                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
-                                          pa.Allergy.Trim().ToLower() == model.Allergy.Trim().ToLower());
-
-                if (existingAllergy == null)
-                {
-                    // Create a new PatientAllergy entity
-                    var patientAllergy = new PatientAllergy
-                    {
-                        PatientId = model.PatientId,
-                        Allergy = model.Allergy
-                    };
-
-                    // Add the PatientAllergy entity to the context
-                    _context.PatientAllergies.Add(patientAllergy);
-                    _context.SaveChanges(); // Save changes
-
-                    // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseAddPatientAllergy"); // Change this to your actual action method
-                }
-                else
-                {
-                    // If the allergy entry with the same patient and allergy already exists, return an error message
-                    ModelState.AddModelError("", "this allergy entry for this patient already exists.");
-                }
+                // If the patient is found, set the full name to ViewBag
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = patientId;
+            }
+            else
+            {
+                // If the patient is not found, use a fallback name
+                ViewBag.SelectedPatientName = "Unknown Patient";
             }
 
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
-            ViewBag.ActiveId = new SelectList(_context.ActiveIngredient, "IngredientId", "IngredientName", model.PatientId);
+            // Populate Active Ingredient dropdown in alphabetical order
+            ViewBag.ActiveId = new SelectList(
+                _context.ActiveIngredient.OrderBy(a => a.IngredientName),
+                "IngredientName",
+                "IngredientName"
+            );
+
+            // Pass the PatientId to the view model
+            return View(new PatientAllergy { PatientId = patientId });
+        }
+
+        // POST: Nurse/AddPatientAllergy/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddPatientAllergy(PatientAllergy model)
+        {
+            // If PatientId is missing in the submitted model, attempt to retrieve it from TempData
+            if (string.IsNullOrEmpty(model.PatientId) && TempData["PatientId"] != null)
+            {
+                model.PatientId = TempData["PatientId"].ToString();
+            }
+
+            // Store PatientId in TempData to persist it across requests
+            if (string.IsNullOrEmpty(model.PatientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("NurseAddPatientAllergy");
+            }
+            else
+            {
+                TempData["PatientId"] = model.PatientId; // Store PatientId in TempData to use in subsequent requests
+            }
+
+            if (ModelState.IsValid)
+            {
+                TempData["SuccessMessage"] = "Patient allergies added successfully.";
+
+                var patientId = model.PatientId;
+
+                // Get the allergies from the posted data (split by newline)
+                var allergies = model.Allergy?.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+                if (allergies != null)
+                {
+                    foreach (var allergy in allergies)
+                    {
+                        var existingAllergy = await _context.PatientAllergies
+                            .FirstOrDefaultAsync(pa => pa.PatientId == model.PatientId &&
+                                                       pa.Allergy.Trim().ToLower() == allergy.Trim().ToLower());
+
+                        if (existingAllergy != null)
+                        {
+                            ModelState.AddModelError("", $"The allergy '{allergy.Trim()}' is already added for the patient.");
+                        }
+                        else
+                        {
+                            // Add the new allergy
+                            var patientAllergy = new PatientAllergy
+                            {
+                                PatientId = model.PatientId,
+                                Allergy = allergy.Trim()
+                            };
+
+                            _context.PatientAllergies.Add(patientAllergy);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Allergies saved successfully!";
+                }
+
+                // Store the PatientId in TempData for the next request
+                TempData["PatientId"] = patientId;
+
+                // Redirect to the Next Page (e.g., Add Vital Information)
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Repopulate the dropdown list in case of validation failure
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+            }
+
+            // Repopulate Active Ingredient dropdown in alphabetical order in case of validation failure
+            ViewBag.ActiveId = new SelectList(
+                _context.ActiveIngredient.OrderBy(a => a.IngredientName),  // Sort active ingredients alphabetically
+                "IngredientName",
+                "IngredientName", model.Allergy
+            );
+
             return View(model);
         }
 
+        // GET: Nurse/NurseAddPatientAllergy2
+        [HttpGet]
+        public IActionResult NurseAddPatientAllergy2(string id)
+        {
+            // Retrieve the patient details using the provided ID
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
 
-        // GET: 
+            if (patient != null)
+            {
+                // Pass the patient's full name and ID to the view
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = id;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Populate Active Ingredient dropdown in alphabetical order
+            ViewBag.ActiveId = new SelectList(
+                _context.ActiveIngredient.OrderBy(a => a.IngredientName),
+                "IngredientName",
+                "IngredientName"
+            );
+
+
+            // Initialize the model with the PatientId
+            return View(new PatientAllergy { PatientId = id });
+        }
+
+
+        // POST: Nurse/NurseAddPatientAllergy2/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddPatientAllergy2(PatientAllergy model)
+        {
+            // Repopulate patient data and dropdown in case of errors
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = model.PatientId;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Populate Active Ingredient dropdown in alphabetical order
+            ViewBag.ActiveId = new SelectList(
+                _context.ActiveIngredient.OrderBy(a => a.IngredientName),
+                "IngredientName",
+                "IngredientName"
+            );
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Get the allergies from the submitted model
+                    var allergies = model.Allergy?.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (allergies != null)
+                    {
+                        foreach (var allergy in allergies)
+                        {
+                            var existingAllergy = await _context.PatientAllergies
+                                .FirstOrDefaultAsync(pa => pa.PatientId == model.PatientId &&
+                                                           pa.Allergy.Trim().ToLower() == allergy.Trim().ToLower());
+
+                            if (existingAllergy != null)
+                            {
+                                ModelState.AddModelError("", $"The allergy '{allergy.Trim()}' is already added for the patient.");
+                            }
+                            else
+                            {
+                                // Add the new allergy
+                                var patientAllergy = new PatientAllergy
+                                {
+                                    PatientId = model.PatientId,
+                                    Allergy = allergy.Trim()
+                                };
+
+                                _context.PatientAllergies.Add(patientAllergy);
+                            }
+                        }
+
+                        if (ModelState.IsValid)
+                        {
+                            await _context.SaveChangesAsync();
+                            TempData["SuccessMessage"] = "Allergies added successfully!";
+                            return RedirectToAction("NurseViewAdmitPatients");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Please provide at least one allergy.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
+                }
+            }
+
+            // Return the view with the repopulated data
+            return View(model);
+        }
+
+        // GET: PatientAllergy
         public async Task<IActionResult> NurseViewPatientAllergy()
         {
-            var patientalllergy = await _context.PatientAllergies.ToListAsync();
-            return View(patientalllergy);
+             var patientAllergies = await _context.PatientAllergies
+            .Include(pa => pa.Patient)
+            .ToListAsync();
+            return View(patientAllergies);
         }
         // GET: PatientAllergy/NurseEditPatientAllergy/5
         public async Task<IActionResult> NurseEditPatientAllergy(int id)
@@ -690,76 +1149,234 @@ namespace Hospital.Controllers
             return _context.PatientAllergies.Any(e => e.AllergyId == id);
         }
 
-
-
-
-
         // GET: Nurse/AddPatientCurrentMedication
         [HttpGet]
         public IActionResult NurseAddCurrentMedication()
         {
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
-            var patients = _context.Patients
-               .Select(p => new
-               {
-                   PatientIDNumber = p.PatientIDNumber,
-                   FullName = p.PatientName + " " + p.PatientSurname
-               })
-               .ToList();
+            // Retrieve PatientId from TempData
+            var patientId = TempData["PatientId"]?.ToString();
 
-            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+            // Retrieve patient details using the PatientId
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == patientId);
 
-            // Populate ViewBag.ChronicMedicationId with a list of chronic medications for the dropdown
-            ViewBag.ChronicMedicationId = new SelectList(_context.ChronicMedication, "CMedicationName", "CMedicationName");
+            if (patient != null)
+            {
+                // If the patient is found, set the full name to ViewBag
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = patientId;
+            }
+            else
+            {
+                // If the patient is not found, use a fallback name
+                ViewBag.SelectedPatientName = "Unknown Patient";
+            }
 
-            return View(new PatientCurrentMedication());
+            // Populate ChronicMedication dropdown in alphabetical order
+            ViewBag.ChronicMedicationId = new SelectList(
+                _context.ChronicMedication.OrderBy(m => m.CMedicationName),
+                "CMedicationName",
+                "CMedicationName"
+            );
+
+
+            return View(new PatientCurrentMedication { PatientId = patientId });
         }
 
-        // POST: Nurse/AddPatientCurrentMedication
+        // POST: Nurse/NurseAddCurrentMedication/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseAddCurrentMedication(PatientCurrentMedication model)
         {
+            // If PatientId is missing in the submitted model, attempt to retrieve it from TempData
+            if (string.IsNullOrEmpty(model.PatientId) && TempData["PatientId"] != null)
+            {
+                model.PatientId = TempData["PatientId"].ToString();
+            }
+
+            // Store PatientId in TempData to persist it across requests, but don't overwrite it if already set.
+            if (string.IsNullOrEmpty(model.PatientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("NurseAddCurrentMedication");
+            }
+            else
+            {
+                TempData["PatientId"] = model.PatientId; // Store PatientId in TempData to use in subsequent requests
+            }
+
             if (ModelState.IsValid)
             {
-                TempData["SuccessMessage"] = "Patient Medication added successfully.";
-                // Check if a current medication entry with the same patient and medication already exists
-                var existingMedication = await _context.PatientCurrentMedication
-                    .FirstOrDefaultAsync(pm => pm.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
-                                               pm.CurrentMedication.Trim().ToLower() == model.CurrentMedication.Trim().ToLower());
+                TempData["SuccessMessage"] = "Medications added successfully.";
+                var patientId = model.PatientId;
 
-                if (existingMedication == null)
+                // Get the medications from the posted data
+                var medications = model.CurrentMedication?.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+                if (medications != null && medications.Any())
                 {
-                    // Create a new PatientCurrentMedication entity
-                    var patientMedication = new PatientCurrentMedication
+                    var medicationsAlreadyAdded = new List<string>();
+
+                    foreach (var medication in medications)
                     {
-                        PatientId = model.PatientId,
-                        CurrentMedication = model.CurrentMedication
-                    };
+                        var existingMedication = await _context.PatientCurrentMedication
+                            .FirstOrDefaultAsync(pm => pm.PatientId.Trim().ToLower() == patientId.Trim().ToLower() &&
+                                                       pm.CurrentMedication.Trim().ToLower() == medication.Trim().ToLower());
 
-                    // Add the PatientCurrentMedication entity to the context
-                    _context.PatientCurrentMedication.Add(patientMedication);
-                    await _context.SaveChangesAsync(); // Save changes
+                        if (existingMedication == null)
+                        {
+                            var patientMedication = new PatientCurrentMedication
+                            {
+                                PatientId = patientId,
+                                CurrentMedication = medication.Trim()
+                            };
 
-                    // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseAddCurrentMedication");
+                            _context.PatientCurrentMedication.Add(patientMedication);
+                        }
+                        else
+                        {
+                            medicationsAlreadyAdded.Add(medication);
+                        }
+                    }
+
+                    if (medicationsAlreadyAdded.Any())
+                    {
+                        ViewBag.Error = "The following medications already exist for this patient: " + string.Join(", ", medicationsAlreadyAdded);
+                        return View(model);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Medications saved successfully!";
+                    return RedirectToAction("NurseAddMedicalCondition");
                 }
                 else
                 {
-                    // If the medication entry with the same patient and medication already exists, return an error message
-                    ModelState.AddModelError("", "A medication entry for this patient already exists.");
+                    // If no medication is provided, show an error message but don't clear PatientId
+                    ViewBag.Error = "Please select at least one medication before submitting.";
+                    return View(model);
+                }
+            }
+            else
+            {
+                // Repopulate the PatientId if ModelState is invalid
+                TempData["PatientId"] = model.PatientId;
+
+                var patientForError = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+                if (patientForError != null)
+                {
+                    ViewBag.SelectedPatientName = $"{patientForError.PatientName} {patientForError.PatientSurname}";
+                }
+
+                // Repopulate PatientId dropdown with FullName for patient selection in case of validation failure
+                ViewBag.PatientId = new SelectList(_context.Patients
+                    .OrderBy(p => p.PatientName + " " + p.PatientSurname),  // Sort patients alphabetically
+                    "PatientIDNumber", "PatientName", model.PatientId);
+
+                // Repopulate ChronicMedication dropdown in alphabetical order
+                ViewBag.ChronicMedicationId = new SelectList(
+                    _context.ChronicMedication.OrderBy(m => m.CMedicationName),  // Sort medications alphabetically
+                    "CMedicationName", "CMedicationName", model.CurrentMedication
+                );
+
+                return View(model);
+            }
+        }
+
+        // GET: NurseAddCurrentMedication2
+        [HttpGet]
+        public IActionResult NurseAddCurrentMedication2(string id)
+        {
+            // Retrieve the patient details using the provided ID
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
+
+            if (patient != null)
+            {
+                // Pass the patient's full name and ID to the view
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = id;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Populate ChronicMedication dropdown in alphabetical order
+            ViewBag.ChronicMedicationId = new SelectList(
+                _context.ChronicMedication.OrderBy(m => m.CMedicationName),
+                "CMedicationName",
+                "CMedicationName"
+            );
+
+            // Initialize the model with the PatientId
+            return View(new PatientCurrentMedication { PatientId = id });
+        }
+
+        // POST: Nurse/NurseAddCurrentMedication2/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddCurrentMedication2(PatientCurrentMedication model)
+        {
+            // Repopulate patient data and dropdown in case of errors
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = model.PatientId;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Populate ChronicMedication dropdown in alphabetical order
+            ViewBag.ChronicMedicationId = new SelectList(
+                _context.ChronicMedication.OrderBy(m => m.CMedicationName),
+                "CMedicationName",
+                "CMedicationName"
+            );
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Check if the medication already exists for the patient
+                    var existingMedication = await _context.PatientCurrentMedication
+                        .FirstOrDefaultAsync(pm => pm.PatientId == model.PatientId &&
+                                                   pm.CurrentMedication.Trim().ToLower() == model.CurrentMedication.Trim().ToLower());
+
+                    if (existingMedication != null)
+                    {
+                        ModelState.AddModelError("", "This medication is already added for the patient.");
+                    }
+                    else
+                    {
+                        // Add the new medication
+                        _context.Add(model);
+                        await _context.SaveChangesAsync();
+                        TempData["SuccessMessage"] = "Medication added successfully.";
+                        return RedirectToAction("NurseViewAdmitPatients");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
                 }
             }
 
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            // Return the view with proper data repopulated
             return View(model);
         }
 
         // GET: Nurse/ViewPatientCurrentMedication
         public async Task<IActionResult> NurseViewPatientCurrentMedication()
         {
-            var patientMedications = await _context.PatientCurrentMedication.ToListAsync();
+            var patientMedications = await _context.PatientCurrentMedication
+                .Include(pcm => pcm.Patient) // Include patient data
+                .ToListAsync();
+
             return View(patientMedications);
         }
 
@@ -770,7 +1387,7 @@ namespace Hospital.Controllers
             var patientMedication = await _context.PatientCurrentMedication
                 .FirstOrDefaultAsync(pm => pm.MedicationId == id);
 
-          
+
             // Check if the patient medication exists. If not, return a 404 Not Found response.
             if (patientMedication == null)
             {
@@ -841,84 +1458,246 @@ namespace Hospital.Controllers
         {
             return _context.PatientCurrentMedication.Any(e => e.MedicationId == id);
         }
-
-
-
-
-
-        // GET: Nurse/AddPatientMedicalCondition
         [HttpGet]
         public IActionResult NurseAddMedicalCondition()
         {
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
-            var patients = _context.Patients
-               .Select(p => new
-               {
-                   PatientIDNumber = p.PatientIDNumber,
-                   FullName = p.PatientName + " " + p.PatientSurname
-               })
-               .ToList();
+            // Retrieve PatientId from TempData
+            var patientId = TempData["PatientId"]?.ToString();
 
-            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
+            if (string.IsNullOrEmpty(patientId))
+            {
+                // If PatientId is not found in TempData, display "Unknown Patient"
+                ViewBag.SelectedPatientName = "Unknown Patient";
+                ViewBag.PatientId = null;
+            }
+            else
+            {
+                var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == patientId);
 
-            // Populate ViewBag.Diagnosis with a list of diagnoses for the dropdown
-            var diagnoses = _context.ChronicCondition
-                .Select(c => new
+                if (patient != null)
                 {
-                    c.Diagnosis
+                    // If the patient is found, set the full name to ViewBag
+                    ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                    ViewBag.PatientId = patientId;
+                }
+                else
+                {
+                    ViewBag.SelectedPatientName = "Unknown Patient";
+                    ViewBag.PatientId = null; // In case the patient is not found in the database
+                }
+            }
+
+            // Populate Medical Conditions dropdown in alphabetical order
+            var medicalConditions = _context.ChronicCondition
+                .OrderBy(c => c.Diagnosis)  // Sort the conditions alphabetically
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Diagnosis,
+                    Value = c.Diagnosis
                 })
-                .Distinct()
                 .ToList();
 
-            ViewBag.Diagnosis = new SelectList(diagnoses, "Diagnosis", "Diagnosis");
+            ViewBag.MedicalConditions = medicalConditions;
 
-            return View(new PatientMedicalCondition());
+
+            return View(new PatientMedicalCondition { PatientId = patientId });
         }
+
         // POST: Nurse/AddPatientMedicalCondition
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NurseAddMedicalCondition(PatientMedicalCondition model)
         {
+            // If PatientId is missing in the submitted model, attempt to retrieve it from TempData
+            if (string.IsNullOrEmpty(model.PatientId) && TempData["PatientId"] != null)
+            {
+                model.PatientId = TempData["PatientId"].ToString();
+            }
+
+            // Store PatientId in TempData to persist it across requests, but don't overwrite it if already set.
+            if (string.IsNullOrEmpty(model.PatientId))
+            {
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("NurseAddMedicalCondition");
+            }
+            else
+            {
+                TempData["PatientId"] = model.PatientId; // Store PatientId in TempData to use in subsequent requests
+            }
+
             if (ModelState.IsValid)
             {
-                TempData["SuccessMessage"] = "Patient Medical Condition added successfully.";
-                // Check if a medical condition entry with the same patient and condition already exists
-                var existingCondition = await _context.PatientMedicalCondition
-                    .FirstOrDefaultAsync(pc => pc.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
-                                               pc.MedicalCondition.Trim().ToLower() == model.MedicalCondition.Trim().ToLower());
+                TempData["SuccessMessage"] = "Medical conditions added successfully.";
 
-                if (existingCondition == null)
+                var patientId = model.PatientId;
+
+                // Get the medical conditions from the posted data (split by newline)
+                var conditions = model.MedicalCondition?.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+                if (conditions != null)
                 {
-                    // Create a new PatientMedicalCondition entity
-                    var patientCondition = new PatientMedicalCondition
+                    foreach (var condition in conditions)
                     {
-                        PatientId = model.PatientId,
-                        MedicalCondition = model.MedicalCondition
-                    };
+                        var existingCondition = await _context.PatientMedicalCondition
+                            .FirstOrDefaultAsync(pm => pm.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                                       pm.MedicalCondition.Trim().ToLower() == condition.Trim().ToLower());
 
-                    // Add the PatientMedicalCondition entity to the context
-                    _context.PatientMedicalCondition.Add(patientCondition);
-                    await _context.SaveChangesAsync(); // Save changes
+                        if (existingCondition != null)
+                        {
+                            // Add an error message for the duplicate condition
+                            ModelState.AddModelError("", $"The medical condition '{condition.Trim()}' is already added for the patient.");
+                        }
+                        else
+                        {
+                            // Add the new medical condition
+                            var patientCondition = new PatientMedicalCondition
+                            {
+                                PatientId = model.PatientId,
+                                MedicalCondition = condition.Trim()
+                            };
 
-                    // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseAddMedicalCondition");
+                            _context.PatientMedicalCondition.Add(patientCondition);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Medical conditions saved successfully!";
                 }
-                else
+
+                // Store the PatientId in TempData for the next request
+                TempData["PatientId"] = patientId;
+
+                // Redirect to the next page (e.g., add allergies)
+                return RedirectToAction("NurseAddPatientAllergy");
+            }
+
+            // Repopulate the ViewBag if the model state is invalid
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+            }
+
+            // Populate Medical Conditions dropdown in alphabetical order
+            ViewBag.MedicalConditions = _context.ChronicCondition
+                .OrderBy(c => c.Diagnosis)  // Sort the conditions alphabetically
+                .Select(c => new SelectListItem
                 {
-                    // If the condition entry with the same patient and condition already exists, return an error message
-                    ModelState.AddModelError("", "A medical condition entry for this patient already exists.");
+                    Text = c.Diagnosis,
+                    Value = c.Diagnosis
+                })
+                .ToList();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult NurseAddMedicalCondition2(string id)
+        {
+            // Retrieve the patient details using the provided ID
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == id);
+
+            if (patient != null)
+            {
+                // Pass the patient's full name and ID to the view
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = id;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+            // Populate Medical Conditions dropdown in alphabetical order
+            var medicalConditions = _context.ChronicCondition
+                .OrderBy(c => c.Diagnosis)  // Sort the conditions alphabetically
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Diagnosis,
+                    Value = c.Diagnosis
+                })
+                .ToList();
+
+            ViewBag.MedicalConditions = medicalConditions;
+
+
+            // Ensure the model initializes with the patient ID
+            return View(new PatientMedicalCondition { PatientId = id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NurseAddMedicalCondition2(PatientMedicalCondition model)
+        {
+            // Repopulate the dropdown and patient details in all cases
+            var patient = _context.Patients.FirstOrDefault(p => p.PatientIDNumber == model.PatientId);
+
+            if (patient != null)
+            {
+                ViewBag.SelectedPatientName = $"{patient.PatientName} {patient.PatientSurname}";
+                ViewBag.PatientId = model.PatientId;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToAction("NurseViewAdmitPatients");
+            }
+
+            // Populate Medical Conditions dropdown in alphabetical order
+            var medicalConditions = _context.ChronicCondition
+                .OrderBy(c => c.Diagnosis)  // Sort the conditions alphabetically
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Diagnosis,
+                    Value = c.Diagnosis
+                })
+                .ToList();
+
+            ViewBag.MedicalConditions = medicalConditions;
+
+            // Proceed with saving if the model is valid
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingCondition = await _context.PatientMedicalCondition
+                        .FirstOrDefaultAsync(pm => pm.PatientId == model.PatientId &&
+                                                   pm.MedicalCondition.Trim().ToLower() == model.MedicalCondition.Trim().ToLower());
+
+                    if (existingCondition != null)
+                    {
+                        ModelState.AddModelError("", "This medical condition is already added for the patient.");
+                    }
+                    else
+                    {
+                        // Add the new medical condition
+                        _context.Add(model);
+                        await _context.SaveChangesAsync();
+                        TempData["SuccessMessage"] = "Medical condition added successfully.";
+                        return RedirectToAction("NurseViewAdmitPatients");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    ModelState.AddModelError("", "An error occurred while saving the data.");
                 }
             }
 
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            // Return the view with proper repopulated data
             return View(model);
         }
+
+
+
         // GET: 
         public async Task<IActionResult> NurseViewPatientMedicalCondition()
         {
-            var patientcurrentmedicalcondition = await _context.PatientMedicalCondition.ToListAsync();
-            return View(patientcurrentmedicalcondition);
+            var patientMedicalConditions = await _context.PatientMedicalCondition
+            .Include(pmc => pmc.Patient)
+            .ToListAsync();
+
+            return View(patientMedicalConditions);
         }
         // GET: Nurse/EditPatientMedicalCondition/5
         public async Task<IActionResult> NurseEditMedicalCondition(int id)
@@ -996,92 +1775,139 @@ namespace Hospital.Controllers
             return _context.PatientMedicalCondition.Any(e => e.ConditionId == id);
         }
 
-     
         public IActionResult NurseDispensedAlert()
         {
-
             ViewBag.UserName = TempData["UserName"];
 
-            // Retrieve all surgeon prescriptions where Dispense is set to 'Dispense'
+            // Group prescriptions by PrescribedID
             var dispensedMedications = _context.SurgeonPrescription
                 .Where(sp => sp.Dispense == "Dispense")
+                .GroupBy(sp => sp.PrescribedID)  // Group by PrescriptionId
+                .Select(g => new NurseDispensedAlertViewModel
+                {
+                    Prescriptions = g.ToList(),  // Collect all prescriptions in the group
+                    AdministeredMedications = _context.AdministerMedication
+                        .Where(am => am.Patient_Id == g.FirstOrDefault().PatientIdnumber)  // Match on Patient_Id
+                        .ToList()
+                })
                 .ToList();
 
-            // Pass the list of dispensed medications to the view for display
             return View(dispensedMedications);
         }
 
+
+
+        [HttpGet]
         public IActionResult NurseDispensedDetails(string patientId)
         {
-            // Retrieve the prescription details for the specific patient
-            var prescriptionDetails = _context.SurgeonPrescription
-                .Where(sp => sp.PatientIdnumber == patientId && sp.Dispense == "Dispense")
-                .Select(sp => new
-                {
-                    sp.PrescriptionId,
-                    sp.PatientIdnumber,
-                    sp.PatientName,
-                    sp.PatientSurname,
-                    sp.MedicationName,
-                    sp.MedicationId,
-                    sp.PrescriptionDosageForm,
-                    sp.Quantity
-                })
-                .FirstOrDefault();
-
-            if (prescriptionDetails == null)
+            if (string.IsNullOrEmpty(patientId))
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Patient ID is missing.";
+                return RedirectToAction("ErrorPage"); // Or another appropriate action
             }
 
-            return View(prescriptionDetails);
+            var model = new NurseDispensedDetailsViewModel
+            {
+                PatientId = patientId,
+                Prescriptions = _context.SurgeonPrescription
+                                        .Where(p => p.PatientIdnumber == patientId)
+                                        .ToList(),
+                AdministeredMedications = _context.AdministerMedication
+                                                 .Where(a => a.Patient_Id == patientId)
+                                                 .ToList()
+            };
+
+            return View(model);
         }
+
 
         [HttpPost]
-        public async Task<IActionResult> ReceiveMedication(int prescriptionId, string patientId, string patientName, string medicationName, int medicationId, string dosageForm, int quantity)
+        public async Task<IActionResult> ReceiveMedication(
+            int[] selectedMedications, // Indices of selected medications
+            int[] prescriptionIds,
+            string patientId,
+            int[] medicationIds,
+            string[] medicationNames,
+            string[] dosageForms,
+            int[] quantitiesToAdminister)
         {
-            // Find the prescription by the ID
-            var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
-
-            if (prescription != null)
+            if (selectedMedications == null || selectedMedications.Length == 0 || string.IsNullOrEmpty(patientId))
             {
-                // Step 1: Update the Dispense field to "Received"
-                prescription.Dispense = "Dispense";
-
-                // Step 2: Administer the medication by creating a new record in AdministerMedication
-                var administerMedication = new AdministerMedication
-                {
-                    Patient_Id = patientId,
-                    ScriptDetails = medicationName,
-                    MedicationId = medicationId,
-                    DosageFormName = dosageForm,
-                    Quantity = quantity,
-                    AdministerMedicationTime = DateTime.Now // Record the current time of administration
-                };
-
-                // Save the new medication administration record
-                _context.Add(administerMedication);
-                await _context.SaveChangesAsync();
-
-                // Set success message in TempData
-                TempData["SuccessMessage"] = "Medication successfully received and administered!";
-
+                TempData["ErrorMessage"] = "No medications were selected. Please select medications to administer.";
+                return RedirectToAction("NurseDispensedDetails", new { patientId });
             }
 
-            // Redirect back to the NurseDispensedAlert page after updating
-            return RedirectToAction("NurseDispensedAlert");
+            var successMessages = new List<string>();
+            var errorMessages = new List<string>();
+            var medicationNamesList = new List<string>(); // To store the medication names
+
+            foreach (var index in selectedMedications)
+            {
+                var prescriptionId = prescriptionIds[index];
+                var medicationId = medicationIds[index];
+                var medicationName = medicationNames[index];
+                var dosageForm = dosageForms[index];
+                var quantityToAdminister = quantitiesToAdminister[index];
+
+                // Retrieve the prescription
+                var prescription = _context.SurgeonPrescription.FirstOrDefault(sp => sp.PrescriptionId == prescriptionId);
+
+                if (prescription != null)
+                {
+                    var totalAdministered = _context.AdministerMedication
+                        .Where(am => am.MedicationId == medicationId && am.Patient_Id == patientId)
+                        .Sum(am => am.Quantity);
+
+                    var remainingQuantity = prescription.Quantity - totalAdministered;
+
+                    if (quantityToAdminister > remainingQuantity)
+                    {
+                        errorMessages.Add($"Cannot administer {quantityToAdminister} of {medicationName}. Only {remainingQuantity} remaining to administer.");
+                        continue; // Skip and process the next one
+                    }
+
+                    // Create a new AdministerMedication entry
+                    var administerMedication = new AdministerMedication
+                    {
+                        Patient_Id = patientId,
+                        ScriptDetails = $"Administered: {medicationName}",
+                        MedicationId = medicationId,
+                        DosageFormName = dosageForm,
+                        Quantity = quantityToAdminister,
+                        AdministerMedicationTime = DateTime.Now
+                    };
+
+                    _context.Add(administerMedication);
+                    medicationNamesList.Add($"{quantityToAdminister} of {medicationName}"); // Add medication details to the list
+                }
+                else
+                {
+                    errorMessages.Add($"Prescription with ID {prescriptionId} for {medicationName} not found.");
+                }
+            }
+
+            if (medicationNamesList.Any())
+            {
+                // Construct the success message by joining the list of medications with commas
+                var successMessage = "Successfully administered " + string.Join(", ", medicationNamesList) + ".";
+
+                TempData["SuccessMessage"] = successMessage;
+            }
+
+            if (errorMessages.Any())
+            {
+                // Handle the error messages similarly
+                var errorMessage = string.Join("<br />", errorMessages.Where(m => !string.IsNullOrWhiteSpace(m)));
+                TempData["ErrorMessage"] = errorMessage;
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("NurseDispensedDetails", new { patientId });
         }
-
-
-
-
-
-
-
 
 
         // GET: Nurse/NurseAddAdministerMedication
-        public IActionResult NurseAddAdministerMedication(string patientId, string patientName, string medicationName,int medicationId, string dosageForm, int quantity)
+        public IActionResult NurseAddAdministerMedication(string patientId, string patientName, string medicationName, int medicationId, string dosageForm, int quantity)
         {
             // If patient data is provided, populate the form fields using ViewBag
             if (!string.IsNullOrEmpty(patientId))
@@ -1208,17 +2034,25 @@ namespace Hospital.Controllers
             // Populate ViewBag with dropdown list of wards
             ViewBag.WardName = new SelectList(_context.Ward, "WardName", "WardName"); // Use WardName for both value and display
 
-            // Populate ViewBag.PatientId with a list of patients for the dropdown
+            // Populate ViewBag.PatientId with a list of patients sorted by FullName
             var patients = _context.Patients
-               .Select(p => new
-               {
-                   PatientIDNumber = p.PatientIDNumber,
-                   FullName = p.PatientName + " " + p.PatientSurname
-               })
-               .ToList();
+                .Select(p => new
+                {
+                    PatientIDNumber = p.PatientIDNumber,
+                    FullName = p.PatientName + " " + p.PatientSurname
+                })
+                .OrderBy(p => p.FullName)  // Sort patients alphabetically by FullName
+                .ToList();
 
             ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName");
-            return View(new PatientsAdministration());
+
+            // Set today's date as the default for DateAssigned
+            var model = new PatientsAdministration
+            {
+                DateAssigned = DateTime.Now // This will set the DateAssigned to today's date
+            };
+
+            return View(model);
         }
 
         // POST: Nurse/AddPatientsAdministration
@@ -1228,49 +2062,80 @@ namespace Hospital.Controllers
         {
             if (ModelState.IsValid)
             {
-                TempData["SuccessMessage"] = "Patient administration added successfully.";
+                // Check if the patient is already admitted based on their PatientId
+                var existingPatient = _context.PatientsAdministration
+                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower());
 
-                // Check if a patient administration record with the same patient and bed already exists
-                var existingAdmin = _context.PatientsAdministration
-                    .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
-                                          pa.PatientBed == model.PatientBed);
-
-                if (existingAdmin == null)
+                if (existingPatient != null)
                 {
-                    // Create a new PatientsAdministration entity
-                    var patientsAdmin = new PatientsAdministration
-                    {
-                        PatientId = model.PatientId,
-                        PatientWard = model.PatientWard,
-                        PatientBed = model.PatientBed,
-                       DateAssigned = model.DateAssigned
-                    };
-
-                    // Add the PatientsAdministration entity to the context
-                    _context.PatientsAdministration.Add(patientsAdmin);
-                    _context.SaveChanges(); // Save changes
-                    TempData["SuccessMessage"] = "Patient Admitted successfully.";
-
-                    // Redirect to the success page after successful addition
-                    return RedirectToAction("NurseAdmitPatient");
+                    // If the patient is already admitted, return an error message
+                    ModelState.AddModelError("", "This patient is already admitted.");
+                    TempData["SuccessMessage"] = null; // Do not show success message when patient is already admitted.
                 }
                 else
                 {
-                    // If the administration record for this patient and bed already exists, return an error message
-                    ModelState.AddModelError("", "This patient is already assigned to the specified bed.");
+                    // Check if a patient administration record with the same patient and bed already exists
+                    var existingAdmin = _context.PatientsAdministration
+                        .FirstOrDefault(pa => pa.PatientId.Trim().ToLower() == model.PatientId.Trim().ToLower() &&
+                                              pa.PatientBed == model.PatientBed);
+
+                    if (existingAdmin == null)
+                    {
+                        // Create a new PatientsAdministration entity
+                        var patientsAdmin = new PatientsAdministration
+                        {
+                            PatientId = model.PatientId,
+                            PatientWard = model.PatientWard,
+                            PatientBed = model.PatientBed,
+                            DateAssigned = model.DateAssigned
+                        };
+
+                        // Add the PatientsAdministration entity to the context
+                        _context.PatientsAdministration.Add(patientsAdmin);
+                        _context.SaveChanges(); // Save changes
+                        TempData["SuccessMessage"] = "Patient Admitted successfully.";
+
+                        // Store PatientId in TempData to be used later in the Patient Vital form
+                        TempData["PatientId"] = model.PatientId;
+
+                        // Redirect to the Patient Vital form after successful addition
+                        return RedirectToAction("NurseAddPatientVital");
+                    }
+                    else
+                    {
+                        // If the administration record for this patient and bed already exists, return an error message
+                        ModelState.AddModelError("", "This patient is already assigned to the specified bed.");
+                        TempData["SuccessMessage"] = null; // Do not show success message when patient is already admitted.
+                    }
                 }
             }
 
-            // Repopulate dropdown list in case of validation failure
-            ViewBag.PatientId = new SelectList(_context.Patients, "PatientIDNumber", "PatientName", model.PatientId);
+            // Repopulate dropdown list in case of validation failure or patient already admitted
+            var patients = _context.Patients
+                .Select(p => new
+                {
+                    PatientIDNumber = p.PatientIDNumber,
+                    FullName = p.PatientName + " " + p.PatientSurname
+                })
+                .OrderBy(p => p.FullName)  // Sort patients alphabetically by FullName
+                .ToList();
+
+            ViewBag.PatientId = new SelectList(patients, "PatientIDNumber", "FullName", model.PatientId);
+            ViewBag.WardName = new SelectList(_context.Ward, "WardName", "WardName", model.PatientWard);
+
             return View(model);
         }
+
+
         // GET: Nurse/ViewPatientsAdministration
         public async Task<IActionResult> NurseViewAdmitPatients()
         {
-            var patientsAdmin = await _context.PatientsAdministration.ToListAsync();
+            var patientsAdmin = await _context.PatientsAdministration
+                                              .Include(pa => pa.Patient)
+                                              .ToListAsync();
             return View(patientsAdmin);
         }
+
         // GET: Nurse/EditPatientsAdministration/5
         public async Task<IActionResult> NurseEditAdmitPatient(int id)
         {
@@ -1529,7 +2394,7 @@ namespace Hospital.Controllers
             // Draw the totals at the bottom of the report
             gfx.DrawString($"TOTAL Patients: {totalDispensed}", font, XBrushes.Black, new XPoint(40, yPoint));
             yPoint += 20; // Move down for the next total
-           
+
 
             // Increase the space to create a break after the heading
             yPoint += 30; // Adjust this value to create more space after the heading
@@ -1601,9 +2466,13 @@ namespace Hospital.Controllers
         {
             gfx.DrawString($"Page {pageNumber}", font, XBrushes.Black, new XPoint(page.Width - 50, page.Height - 30)); // Draw page number
         }
+
+        public IActionResult PatientInformation()
+        {
+            return View();
+        }
     }
-
-
 }
     
+
 

@@ -39,5 +39,8 @@ namespace Hospital.ViewModels
 
         // Medical Conditions
         public List<PatientMedicalCondition> MedicalConditions { get; set; } = new List<PatientMedicalCondition>();
+
+        //Medication administered
+        public List<AdministerMedication> AdministeredMedications { get; set; }
     }
 }

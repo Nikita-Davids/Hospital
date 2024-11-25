@@ -1,82 +1,247 @@
-﻿@model dynamic
+﻿@model Hospital.ModelViews.NurseDispensedDetailsViewModel
 
 @{
-    ViewData["Title"] = "Medication Dispensed Details";
+    ViewData["Title"] = "Dispensed Medication Details";
+
+
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-<br>
+<style>
+    .page-title {
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .message-box {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        padding: 15px;
+    }
+
+    .prescription-item {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1.2rem;
+    }
+
+    .btn-primary, .btn-secondary {
+        border-radius: 5px;
+    }
+
+    .mx-2 {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .btn:hover {
+        cursor: pointer;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .alert {
+        border-radius: 8px;
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .view-button {
+        font-size: 16px;
+        padding: 8px 12px;
+        color: white;
+        background-color: #08075F;
+        text-decoration: none;
+        border: none;
+        outline: none;
+    }
+
+        .view-button:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .btn-link {
+        font-size: 16px;
+        padding: 8px 12px;
+        color: white;
+        background-color: #08075F;
+        text-decoration: none;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+</style>
+
+<h1 class="page-title">@ViewData["Title"]</h1>
 
 <!-- Success message -->
 @if (TempData["SuccessMessage"] != null)
+
 {
-    <div id="successMessage" class="alert alert-success">
-        @TempData["SuccessMessage"]
+    <div class="alert alert-success message-box" style="white-space: pre-wrap;">
+        @Html.Raw(TempData["SuccessMessage"])
     </div>
 }
 
-<div class="prescription-item">
-    <div class="prescription-details">
-        <p><b>Patient ID:</b> @Model.PatientIdnumber</p>
-        <p><b>Patient Name:</b> @Model.PatientName @Model.PatientSurname</p>
-        <p><b>Medication:</b> @Model.MedicationName</p>
-        <p><b>Dosage Form:</b> @Model.PrescriptionDosageForm</p>
-        <p><b>Quantity:</b> @Model.Quantity</p>
+<!-- Error message -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger message-box" style="white-space: pre-wrap;">
+        @Html.Raw(TempData["ErrorMessage"])
+    </div>
+}
+
+<!-- Option buttons displayed below the heading, initially hidden -->
+<div id="optionButtons" style="display: none; text-align: center; margin-top: 20px;">
+    <button class="view-button" onclick="location.href='@Url.Action("NurseDispensedAlert", "Nurse")'">Go to Nurse Alerts</button>
+    <button class="view-button" onclick="location.href='@Url.Action("NurseViewAdministerMedication", "Nurse")'">View Administered Medications</button>
+</div>
+
+<div class="prescription-item mt-4">
+    <div class="patient-details mb-4">
+        <p><b>Patient ID:</b> @Model.PatientId</p>
     </div>
 
-    <!-- Form for receiving and administering medication -->
+    <h5>Administer Multiple Medications</h5>
     <form asp-action="ReceiveMedication" method="post">
-        <input type="hidden" name="prescriptionId" value="@Model.PrescriptionId" />
-        <input type="hidden" name="patientId" value="@Model.PatientIdnumber" />
-        <input type="hidden" name="patientName" value="@Model.PatientName" />
-        <input type="hidden" name="medicationName" value="@Model.MedicationName" />
-        <input type="hidden" name="medicationId" value="@Model.MedicationId" />
-        <input type="hidden" name="dosageForm" value="@Model.PrescriptionDosageForm" />
-        <input type="hidden" name="quantity" value="@Model.Quantity" />
-        <button type="submit" class="receive-button">Receive & Administer</button>
+        <input type="hidden" name="patientId" value="@Model.PatientId" />
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Medication</th>
+                    <th>Dosage Form</th>
+                    <th>Available Quantity</th>
+                    <th>Quantity to Administer</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Prescriptions.Count; i++)
+                {
+                    var medPrescription = Model.Prescriptions[i];
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selectedMedications" value="@i" />
+                        </td>
+                        <td>
+                            <input type="hidden" name="prescriptionIds[@i]" value="@medPrescription.PrescriptionId" />
+                            <input type="hidden" name="medicationIds[@i]" value="@medPrescription.MedicationId" />
+                            <input type="hidden" name="medicationNames[@i]" value="@medPrescription.MedicationName" />
+                            @medPrescription.MedicationName
+                        </td>
+                        <td>
+                            <input type="hidden" name="dosageForms[@i]" value="@medPrescription.PrescriptionDosageForm" />
+                            @medPrescription.PrescriptionDosageForm
+                        </td>
+                        <td>@medPrescription.Quantity</td>
+                        <td>
+                            <input type="number" name="quantitiesToAdminister[@i]"
+                                   min="1"
+                                   max="@medPrescription.Quantity"
+                                   value="1" class="form-control" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn-link">Administer Selected Medications</button>
     </form>
 </div>
 
-<a href="@Url.Action("NurseDispensedAlert", "Nurse")" class="view-button">Back to Alerts</a>
-
-<style>
-    .prescription-item {
-        border: 2px solid #ccc;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-    }
-
-    .view-button, .receive-button {
-        background-color: #08075F;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-        .view-button:hover, .receive-button:hover {
-            background-color: #FFDE59;
+<h5>Administered Medications</h5>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Administered Time</th>
+            <th>Quantity</th>
+            <th>Dosage Form</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.AdministeredMedications != null && Model.AdministeredMedications.Any())
+        {
+            foreach (var administered in Model.AdministeredMedications)
+            {
+                <tr>
+                    <td>@administered.AdministerMedicationTime</td>
+                    <td>@administered.Quantity</td>
+                    <td>@administered.DosageFormName</td>
+                </tr>
+            }
         }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center">No medication administered yet.</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-    .alert {
-        padding: 15px;
-        background-color: green;
-        color: white;
-        margin-bottom: 15px;
-    }
-</style>
+<!-- Option buttons displayed below the heading, initially hidden -->
+<div id="optionButtons" class="text-center" style="display: none; margin-top: 20px;">
+    <button class="view-button" onclick="location.href='@Url.Action("NurseDispensedAlert", "Nurse")'">Go to Nurse Alerts</button>
+    <button class="view-button" onclick="location.href='@Url.Action("NurseViewAdministerMedication", "Nurse")'">View Administered Medications</button>
+</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var successMessage = document.getElementById('successMessage');
+    window.onload = function () {
+        var successMessage = document.querySelector('.alert-success');
+        var optionButtons = document.getElementById('optionButtons');
+
         if (successMessage) {
             setTimeout(function () {
                 successMessage.style.display = 'none';
-            }, 3000); // Hide after 3 seconds
+                optionButtons.style.display = 'block';
+            }, 3000);
         }
-    });
+    }
 </script>

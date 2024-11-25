@@ -25,5 +25,5 @@ public partial class PatientsAdministration
     [Required]
     public DateTime DateAssigned { get; set; }
 
-    //public virtual Patients Patient { get; set; } = null!;
+    public virtual Patients Patient { get; set; } = null!;
 }

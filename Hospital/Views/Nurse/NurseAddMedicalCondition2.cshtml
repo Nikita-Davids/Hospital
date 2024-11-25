@@ -62,14 +62,16 @@
 <h1>@ViewData["Title"]</h1>
 
 <div class="form-container">
-    <form id="conditionForm" asp-action="NurseAddMedicalCondition" method="post">
+    <form id="conditionForm" asp-action="NurseAddMedicalCondition2" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
             <label class="control-label">Patient Name</label>
             <input type="text" value="@ViewBag.SelectedPatientName" class="form-control" readonly />
-            <input type="hidden" name="PatientId" value="@Model.PatientId" />
         </div>
 
+        <div class="form-group">
+            <input type="hidden" asp-for="PatientId" value="@ViewBag.PatientId" />
+        </div>
         <div class="form-group">
             <label class="control-label">Select Medical Condition</label>
             <select id="conditionDropdown" class="form-control">
@@ -98,6 +100,10 @@
             <input type="submit" value="Save All Conditions" class="button" />
         </div>
     </form>
+</div>
+
+<div class="button-container">
+    <a class="btn-link" asp-action="NurseViewPatientMedicalCondition">View Medical Conditions</a>
 </div>
 
 <script>

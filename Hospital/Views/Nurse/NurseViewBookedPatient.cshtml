@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "NurseViewBookedPatient";
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
@@ -13,7 +14,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.PatientId)
+                Patient Name
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SurgeryDate)
@@ -30,34 +31,35 @@
             <th>
                 @Html.DisplayNameFor(model => model.PatientEmailAddress)
             </th>
-            <th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PatientId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SurgeryDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SurgeryTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OperatingTheatreName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TreatmentCodeId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PatientEmailAddress)
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Patient.PatientName @item.Patient.PatientSurname  <!-- Display patient's name and surname -->
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SurgeryDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SurgeryTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OperatingTheatreName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TreatmentCodeId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PatientEmailAddress)
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;

@@ -4,8 +4,8 @@ namespace Hospital.Models
 {
     public class BookingSurgery
     {
-            [Key]
-            public int BookingSurgeryId { get; set; }
+        [Key]
+        public int BookingSurgeryId { get; set; }
 
 
         [Required]
@@ -37,7 +37,10 @@ namespace Hospital.Models
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         [Display(Name = "Patient Email Address")]
         public string PatientEmailAddress { get; set; }
-        
+
+        // Navigation Property to Patient entity
+        public virtual Patients Patient { get; set; }
+
     }
 }
 

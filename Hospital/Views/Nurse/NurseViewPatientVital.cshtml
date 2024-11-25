@@ -2,102 +2,62 @@
 
 @{
     ViewData["Title"] = "View Patient Vitals";
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1 class="text-center mb-4">@ViewData["Title"]</h1>
 
 <!-- Search box -->
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search patient vitals..." class="form-control mb-3">
+<div class="mb-3">
+    <input type="text"
+           id="searchInput"
+           onkeyup="searchTable()"
+           placeholder="Search patient vitals..."
+           class="form-control" />
+</div>
 
-<table class="table" id="patientVitalTable">
-    <thead>
-        <tr>
-            <th class="col-weight">
-                @Html.DisplayNameFor(model => model.PatientId)
-            </th>
-            <th class="col-weight">
-                @Html.DisplayNameFor(model => model.Weight)
-            </th>
-            <th class="col-height">
-                @Html.DisplayNameFor(model => model.Height)
-            </th>
-            <th class="col-height">
-                @Html.DisplayNameFor(model => model.BMI)
-            </th>
-            <th class="col-tempreture">
-                @Html.DisplayNameFor(model => model.Tempreture)
-            </th>
-            <th class="col-blood-pressure">
-                @Html.DisplayNameFor(model => model.BloodPressure)
-            </th>
-            <th class="col-pulse">
-                @Html.DisplayNameFor(model => model.Pulse)
-            </th>
-            <th class="col-respiratory">
-                @Html.DisplayNameFor(model => model.Respiratory)
-            </th>
-            <th class="col-blood-oxygen">
-                @Html.DisplayNameFor(model => model.BloodOxygen)
-            </th>
-            <th class="col-blood-glucose">
-                @Html.DisplayNameFor(model => model.BloodGlucoseLevel)
-            </th>
-            <th class="col-vital-time">
-                @Html.DisplayNameFor(model => model.VitalTime)
-            </th>
-            <th class="col-action">
-                Action
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-bordered" id="patientVitalTable">
+        <thead class="thead-dark">
             <tr>
-                <td class="col-weight">
-                    @Html.DisplayFor(modelItem => item.PatientId)
-                </td>
-                <td class="col-weight">
-                    @Html.DisplayFor(modelItem => item.Weight)
-                </td>
-                <td class="col-height">
-                    @Html.DisplayFor(modelItem => item.Height)
-                </td>
-                <td class="col-height">
-                    @Html.DisplayFor(modelItem => item.BMI)
-                </td>
-                <td class="col-tempreture">
-                    @Html.DisplayFor(modelItem => item.Tempreture)
-                </td>
-                <td class="col-blood-pressure">
-                    @Html.DisplayFor(modelItem => item.BloodPressure)
-                </td>
-                <td class="col-pulse">
-                    @Html.DisplayFor(modelItem => item.Pulse)
-                </td>
-                <td class="col-respiratory">
-                    @Html.DisplayFor(modelItem => item.Respiratory)
-                </td>
-                <td class="col-blood-oxygen">
-                    @Html.DisplayFor(modelItem => item.BloodOxygen)
-                </td>
-                <td class="col-blood-glucose">
-                    @Html.DisplayFor(modelItem => item.BloodGlucoseLevel)
-                </td>
-                <td class="col-vital-time">
-                    @Html.DisplayFor(modelItem => item.VitalTime)
-                </td>
-                <td class="col-action">
-                    <a class="btn-link" asp-action="NurseEditPatientVital" asp-route-id="@item.PatientVitalId">Edit</a>
-                </td>
+                <th>Patient Name</th>
+                <th>@Html.DisplayNameFor(model => model.Weight)</th>
+                <th>@Html.DisplayNameFor(model => model.Height)</th>
+                <th>@Html.DisplayNameFor(model => model.BMI)</th>
+                <th>@Html.DisplayNameFor(model => model.Tempreture)</th>
+                <th>@Html.DisplayNameFor(model => model.BloodPressure)</th>
+                <th>@Html.DisplayNameFor(model => model.Pulse)</th>
+                <th>@Html.DisplayNameFor(model => model.Respiratory)</th>
+                <th>@Html.DisplayNameFor(model => model.BloodOxygen)</th>
+                <th>@Html.DisplayNameFor(model => model.BloodGlucoseLevel)</th>
+                <th>@Html.DisplayNameFor(model => model.VitalTime)</th>
+                <th>Action</th>
             </tr>
-        }
-    </tbody>
-</table>
-<p>
-    <a class="btn-link" asp-action="NurseAddPatientVital">Add Patient Vital</a>
-</p>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Patient.PatientName @item.Patient.PatientSurname</td>
+                    <td>@Html.DisplayFor(modelItem => item.Weight)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Height)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BMI)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Tempreture)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BloodPressure)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Pulse)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Respiratory)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BloodOxygen)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BloodGlucoseLevel)</td>
+                    <td>@Html.DisplayFor(modelItem => item.VitalTime)</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-action="NurseEditPatientVital" asp-route-id="@item.PatientVitalId">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <script>
     function searchTable() {

@@ -1,61 +1,149 @@
-﻿@model IEnumerable<Hospital.Models.SurgeonPrescription>
+﻿@model IEnumerable<Hospital.ModelViews.NurseDispensedAlertViewModel>
 
 @{
     ViewData["Title"] = "Dispensed Alert";
-    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 
+    Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
-<head>
-    <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
 
-<body>
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success" id="successPopup">
-            <strong>@TempData["SuccessMessage"]</strong>
-        </div>
-
-        <script>
-            // Automatically hide the success message after 3 seconds
-            setTimeout(function () {
-                document.getElementById('successPopup').style.display = 'none';
-            }, 10000);
-        </script>
-    }
-
-    <h1>Nurse Dispensed Alerts</h1>
-    <br>
-
-    @foreach (var prescription in Model)
-    {
-        <div class="prescription-item">
-            <div class="prescription-details">
-                <p><b>Patient ID:</b> @prescription.PatientIdnumber</p>
-                <p><b>Patient Name:</b> @prescription.PatientName @prescription.PatientSurname</p>
-            </div>
-            <div>
-                <a href="@Url.Action("NurseDispensedDetails", "Nurse", new { patientId = prescription.PatientIdnumber })" class="view-button">View Script</a>
-            </div>
-        </div>
-    }
-</body>
 <style>
+    /* General Modal Styling */
+    .modal-content {
+        border-radius: 8px;
+        background-color: #f8f9fa; /* Light gray for a soft look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add depth */
+    }
+
+    .modal-header {
+        background-color: #08075F; /* Dark blue header */
+        color: white;
+        border-bottom: none;
+        padding: 15px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+        .modal-header h5 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-header .close {
+            color: white;
+            opacity: 0.8;
+        }
+
+            .modal-header .close:hover {
+                opacity: 1;
+            }
+
+    .modal-body {
+        padding: 20px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+    }
+
+        .modal-body ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+            .modal-body ul li {
+                margin-bottom: 10px;
+            }
+
+    .modal-footer {
+        background-color: #f4f4f4; /* Light gray footer */
+        border-top: none;
+        padding: 15px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    /* Modal Table Styling */
+    .modal-body .table-container {
+        overflow-x: auto; /* Ensure responsiveness */
+        margin-top: 10px;
+    }
+
+    .modal-body table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .modal-body th, .modal-body td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+        word-wrap: break-word; /* Prevent long text from breaking the layout */
+    }
+
+    .modal-body th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .modal-body td {
+        background-color: #fff;
+    }
+
+    .btn-secondary {
+        background-color: #08075F;
+        color: white;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #FFDE59;
+            color: black;
+        }
+
     .prescription-item {
-        border: 2px solid #ccc; /* Removed red border for urgent items */
+        border: 2px solid #ccc;
         padding: 15px;
         margin-bottom: 15px;
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
         border-radius: 8px;
+        flex-wrap: wrap;
     }
 
     .prescription-details {
-        display: inline-block;
+        width: 60%;
+        margin-right: 15px;
     }
+
+    .prescription-summary {
+        width: 35%;
+        padding-left: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .medication-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .view-script-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+
+    .view-script {
+        margin-left: auto;
+    }
+
 
     .view-button {
         background-color: #08075F;
@@ -69,7 +157,11 @@
 
         .view-button:hover {
             background-color: #FFDE59;
+            color: black;
         }
+
+
+
 
     .alert-success {
         background-color: #d4edda;
@@ -79,5 +171,245 @@
         border: 1px solid #c3e6cb;
         border-radius: 4px;
     }
+
+    .alert-warning, .alert-info {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+        word-wrap: break-word;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .administered-time {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+
+        .administered-time span {
+            font-weight: normal;
+        }
 </style>
 
+<h1>Nurse Dispensed Alerts</h1>
+<br>
+
+@if (TempData["SuccessMessage"] != null)
+
+
+
+{
+    <div class="alert alert-success" id="successPopup">
+        <strong>@TempData["SuccessMessage"]</strong>
+    </div>
+    <script>
+        setTimeout(function () {
+            document.getElementById('successPopup').style.display = 'none';
+        }, 10000);
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+
+
+
+{
+    <div class="alert alert-danger" id="errorPopup">
+        <strong>@TempData["ErrorMessage"]</strong>
+    </div>
+    <script>
+        setTimeout(function () {
+            document.getElementById('errorPopup').style.display = 'none';
+        }, 10000);
+    </script>
+}
+@foreach (var item in Model)
+
+{
+    var prescriptions = item.Prescriptions; // List of prescriptions in this group
+
+    var administeredMedications = item.AdministeredMedications;
+
+    var isFullyAdministered = true;
+
+    var remainingQuantity = 0;
+
+    var totalQuantityAdministered = 0;
+
+    var totalMedications = prescriptions.Count();
+
+    DateTime? lastAdministeredTime = null;
+
+    foreach (var prescription in prescriptions)
+    {
+        // Calculate the total administered for the current prescription
+
+        var totalAdministeredForPrescription = administeredMedications
+            .Where(am => am.MedicationId == prescription.MedicationId)
+
+            .Sum(am => am.Quantity);
+
+        // Calculate remaining quantity for this prescription
+        var remainingForPrescription = prescription.Quantity - totalAdministeredForPrescription;
+
+        // Accumulate the remaining quantities and total administered
+
+        remainingQuantity += remainingForPrescription;
+
+        totalQuantityAdministered += totalAdministeredForPrescription;
+
+        // If any prescription has remaining medication, set `isFullyAdministered` to false
+        if (remainingForPrescription > 0)
+
+        {
+
+            isFullyAdministered = false;
+        }
+
+        // Get the last administered time for this prescription
+        var lastAdministered = administeredMedications
+            .Where(am => am.MedicationId == prescription.MedicationId)
+            .OrderByDescending(am => am.AdministerMedicationTime)
+            .FirstOrDefault();
+
+        // Update the last administered time if it's more recent
+        if (lastAdministered?.AdministerMedicationTime > lastAdministeredTime)
+
+        {
+            lastAdministeredTime = lastAdministered.AdministerMedicationTime;
+        }
+
+    }
+
+    <div class="prescription-item">
+        <div class="prescription-details">
+            @if (isFullyAdministered)
+            {
+                <div class="alert alert-info">
+                    <strong>All Medication Administered</strong>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <strong>Remaining Medication to Administer: @remainingQuantity</strong>
+                </div>
+            }
+
+            <p><b>Patient ID:</b> @prescriptions.FirstOrDefault()?.PatientIdnumber</p>
+            <p><b>Patient Name:</b> @prescriptions.FirstOrDefault()?.PatientName @prescriptions.FirstOrDefault()?.PatientSurname</p>
+
+            <!-- Summarized Medication Info -->
+            <p>
+                <b>Medication Summary:</b>
+                @if (totalMedications > 1)
+                {
+                    <span>@totalMedications medications administered, @totalQuantityAdministered out of @prescriptions.Sum(p => p.Quantity) units administered, @remainingQuantity remaining.</span>
+                }
+
+                else
+                {
+                    <span>@totalMedications medication administered, @totalQuantityAdministered out of @prescriptions.Sum(p => p.Quantity) unit administered, @remainingQuantity remaining.</span>
+                }
+            </p>
+
+            <!-- Medication View Button -->
+            <div class="medication-buttons">
+                <button class="view-button" data-toggle="modal" data-target="#medicationModal_@item.Prescriptions.FirstOrDefault()?.PrescribedID">
+                    View Medications
+                </button>
+            </div>
+        </div>
+
+        <!-- View Script Button aligned right -->
+        <div class="view-script-container">
+            <a href="@Url.Action("NurseDispensedDetails", "Nurse", new { patientId = prescriptions.FirstOrDefault()?.PatientIdnumber })" class="view-button view-script">
+                View Script
+            </a>
+        </div>
+
+        <div class="modal fade" id="medicationModal_@item.Prescriptions.FirstOrDefault()?.PrescribedID" tabindex="-1" role="dialog" aria-labelledby="medicationModalLabel_@item.Prescriptions.FirstOrDefault()?.PrescribedID" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="justify-content: center;">
+                        <h5 class="modal-title" id="medicationModalLabel_@item.Prescriptions.FirstOrDefault()?.PrescribedID">
+                            Medications for Prescribed ID @item.Prescriptions.FirstOrDefault()?.PrescribedID
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Medication Name</th>
+                                        <th>Dosage Form</th>
+                                        <th>Quantity</th>
+                                        <th>Instructions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var prescription in prescriptions)
+
+
+
+                                    {
+                                        <tr>
+                                            <td>@prescription.MedicationName</td>
+                                            <td>@prescription.PrescriptionDosageForm</td>
+                                            <td>@prescription.Quantity</td>
+                                            <td>@prescription.Instructions</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

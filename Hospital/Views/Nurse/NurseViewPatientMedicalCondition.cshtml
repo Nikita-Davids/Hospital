@@ -2,13 +2,14 @@
 
 @{
     ViewData["Title"] = "View Patient Medical Condition";
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <!-- Search box -->
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search medical conditions..." class="form-control mb-3">
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search medical conditions or patients..." class="form-control mb-3">
 
 <table class="table" id="medicalConditionTable">
     <thead>
@@ -17,20 +18,21 @@
                 @Html.DisplayNameFor(model => model.MedicalCondition)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PatientId)
+                Patient Name
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
+
         {
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.MedicalCondition)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PatientId)
+                    @item.Patient.PatientName @item.Patient.PatientSurname
                 </td>
                 <td>
                     <a class="btn-link" asp-action="NurseEditMedicalCondition" asp-route-id="@item.ConditionId">Edit</a>
@@ -40,9 +42,6 @@
     </tbody>
 </table>
 
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseAddMedicalCondition">Add Patient Medical Condition</a>
-</div>
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;

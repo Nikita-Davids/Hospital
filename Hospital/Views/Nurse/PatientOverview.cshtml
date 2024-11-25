@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Patient Overview";
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
@@ -93,9 +94,11 @@
 <div>
     <h2>Allergies</h2>
     @if (Model.Allergies?.Any() == true)
+
     {
         <table class="table table-bordered">
             @foreach (var allergy in Model.Allergies)
+
             {
                 <tr>
                     <td>@allergy.Allergy</td>
@@ -103,7 +106,9 @@
             }
         </table>
     }
+
     else
+
     {
         <p>None reported</p>
     }
@@ -113,9 +118,11 @@
 <div>
     <h2>Current Medications</h2>
     @if (Model.CurrentMedications?.Any() == true)
+
     {
         <table class="table table-bordered">
             @foreach (var medication in Model.CurrentMedications)
+
             {
                 <tr>
                     <td>@medication.CurrentMedication</td>
@@ -123,7 +130,9 @@
             }
         </table>
     }
+
     else
+
     {
         <p>None reported</p>
     }
@@ -133,9 +142,11 @@
 <div>
     <h2>Medical Conditions</h2>
     @if (Model.MedicalConditions?.Any() == true)
+
     {
         <table class="table table-bordered">
             @foreach (var condition in Model.MedicalConditions)
+
             {
                 <tr>
                     <td>@condition.MedicalCondition</td>
@@ -143,11 +154,53 @@
             }
         </table>
     }
+
     else
+
     {
         <p>None reported</p>
     }
 </div>
+
+<!-- Administered Medications Section -->
+<div>
+    <h2>Administered Medications</h2>
+    @if (Model.AdministeredMedications?.Any() == true)
+
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Medication</th>
+                    <th>Time of Administration</th>
+                    <th>Quantity</th>
+                    <th>Dosage Form</th>
+                    <th>Script Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var medication in Model.AdministeredMedications)
+
+                {
+                    <tr>
+                        <td>@medication.MedicationId</td>
+                        <td>@medication.AdministerMedicationTime.ToString("g")</td>
+                        <td>@medication.Quantity</td>
+                        <td>@medication.DosageFormName</td>
+                        <td>@medication.ScriptDetails</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    else
+
+    {
+        <p>No medications administered.</p>
+    }
+</div>
+
 <div class="button-container">
     <a class="btn-link" asp-action="NurseViewPatients">View All Patients</a>
 </div>

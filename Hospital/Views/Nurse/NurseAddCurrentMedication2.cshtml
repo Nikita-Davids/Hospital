@@ -82,32 +82,19 @@
 
 </style>
 
-@if (TempData["SuccessMessage"] != null)
-
-{
-    <div id="successMessage" class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["AlertMessage"] != null)
-
-{
-    <div class="alert alert-danger">
-        @TempData["AlertMessage"]
-    </div>
-}
-
 <h1>@ViewData["Title"]</h1>
 
 <hr />
 <div class="form-container">
-    <form id="medicationForm" asp-action="NurseAddCurrentMedication" method="post">
+    <form id="medicationForm" asp-action="NurseAddCurrentMedication2" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="form-group">
             <label class="control-label">Patient Name</label>
             <input type="text" value="@ViewBag.SelectedPatientName" class="form-control" readonly />
-            <input type="hidden" name="PatientId" value="@Model.PatientId" />
+        </div>
+        <div class="form-group">
+            <input type="hidden" asp-for="PatientId" value="@ViewBag.PatientId" />
         </div>
 
         <div class="form-group">

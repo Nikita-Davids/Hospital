@@ -5,7 +5,45 @@
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
+<style>
+    .btn-link {
+        font-size: 16px;
+        padding: 8px 12px;
+        color: white;
+        background-color: #08075F;
+        text-decoration: none;
+    }
+
+        .btn-link:hover {
+            background-color: #FFDE59;
+            color: #08075F;
+        }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+        .button-container .btn-link {
+            margin-right: 10px;
+        }
+
+    .right-align {
+        margin-left: auto;
+    }
+</style>
+
 <h1>@ViewData["Title"]</h1>
+
+<div class="button-container">
+    <!-- Add Patients button aligned to the left -->
+    <a class="btn-link" asp-action="NurseAddPatients">Add Patients</a>
+    <!-- View Booked Patients button aligned to the right -->
+    <a class="btn-link right-align" asp-action="NurseViewBookedPatient">View Booked Patients</a>
+</div>
+
+<br />
 
 <!-- Search box -->
 <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for patients.." class="form-control mb-3">
@@ -78,9 +116,6 @@
     </tbody>
 </table>
 
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseAddPatients">Add Patients</a>
-</div>
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;

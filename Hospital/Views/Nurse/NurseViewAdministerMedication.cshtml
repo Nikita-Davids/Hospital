@@ -35,31 +35,32 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Patient_Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AdministerMedicationTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ScriptDetails)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MedicationId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DosageFormName)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Patient_Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AdministerMedicationTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScriptDetails)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MedicationId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DosageFormName)
+                </td>
+                <td>
                     <a class="btn-link" asp-action="NurseEditAdministerMedication" asp-route-id="@item.AdministerMedication_Id">Edit</a>
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 

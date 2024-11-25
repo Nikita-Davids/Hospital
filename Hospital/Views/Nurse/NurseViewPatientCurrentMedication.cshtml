@@ -2,35 +2,37 @@
 
 @{
     ViewData["Title"] = "View Patient Current Medication";
+
     Layout = "~/Views/Shared/_LayoutNurse.cshtml";
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <!-- Search box -->
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search medications..." class="form-control mb-3">
+<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search medications or patients..." class="form-control mb-3">
 
-<table class="table" id="currentMedicationTable">
+<table class="table" id="medicationTable">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CurrentMedication)
+                Patient Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PatientId)
+                @Html.DisplayNameFor(model => model.CurrentMedication)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
+
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.CurrentMedication)
+                    @item.Patient.PatientName @item.Patient.PatientSurname
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PatientId)
+                    @Html.DisplayFor(modelItem => item.CurrentMedication)
                 </td>
                 <td>
                     <a class="btn-link" asp-action="NurseEditCurrentMedication" asp-route-id="@item.MedicationId">Edit</a>
@@ -39,15 +41,13 @@
         }
     </tbody>
 </table>
-<div class="button-container">
-    <a class="btn-link" asp-action="NurseAddCurrentMedication">Add Patient Current Medication</a>
-</div>
+
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue;
         input = document.getElementById("searchInput");
         filter = input.value.toLowerCase();
-        table = document.getElementById("currentMedicationTable");
+        table = document.getElementById("medicationTable");
         tr = table.getElementsByTagName("tr");
 
         for (i = 1; i < tr.length; i++) { // Start at 1 to skip table header
