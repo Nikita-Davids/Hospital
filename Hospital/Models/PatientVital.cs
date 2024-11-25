@@ -66,6 +66,6 @@ namespace Hospital.Models
             return (null, null);
         }
 
-        public virtual Patients Patient { get; set; } = null!;
+        public virtual Patients? Patient { get; set; } = null!;
     }
 }

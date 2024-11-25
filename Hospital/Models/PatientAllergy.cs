@@ -12,5 +12,5 @@ public partial class PatientAllergy
     public string PatientId { get; set; }
     [Required]
     public string Allergy { get; set; }
-    public virtual Patients Patient { get; set; }
+    public virtual Patients? Patient { get; set; }
 }

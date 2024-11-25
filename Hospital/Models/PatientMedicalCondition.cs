@@ -17,5 +17,5 @@ public partial class PatientMedicalCondition
     [Required]
     public string MedicalCondition { get; set; } = null!;
 
-    public virtual Patients Patient { get; set; }
+    public virtual Patients? Patient { get; set; }
 }

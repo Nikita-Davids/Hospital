@@ -39,7 +39,7 @@ namespace Hospital.Models
         public string PatientEmailAddress { get; set; }
 
         // Navigation Property to Patient entity
-        public virtual Patients Patient { get; set; }
+        public virtual Patients? Patient { get; set; }
 
     }
 }
