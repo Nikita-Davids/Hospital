@@ -28,6 +28,7 @@ namespace Hospital.Models
         [Range(15, 70, ErrorMessage = "Temperature must be between 15°C and 70°C.")]
         public decimal? Tempreture { get; set; }
 
+        [Display(Name = "Blood Pressure")]
         [Required(ErrorMessage = "Blood Pressure is required.")]
         [RegularExpression(@"^\d{1,4}/\d{1,4}$", ErrorMessage = "Blood pressure must be in the format '120/80'.")]
         public string? BloodPressure { get; set; }
@@ -41,14 +42,17 @@ namespace Hospital.Models
         [Range(1, 100, ErrorMessage = "Respiratory rate must be between 1 and 100 breaths per minute.")]
         public decimal? Respiratory { get; set; }
 
+        [Display(Name = "Blood Oxygen")]
         [Required(ErrorMessage = "Oxygen Saturation is required.")]
         [Range(0, 100, ErrorMessage = "Oxygen saturation must be between 0% and 100%.")]
         public decimal? BloodOxygen { get; set; }
 
+        [Display(Name = "Blood Glucose Level")]
         [Required(ErrorMessage = "Blood glucose level is required.")]
         [Range(0, 50, ErrorMessage = "Blood glucose level must be between 0 and 50 mmol/L.")]
         public decimal? BloodGlucoseLevel { get; set; }
 
+        [Display(Name = "Vital Time")]
         [Required(ErrorMessage = "Vital time is required.")]
         public TimeSpan? VitalTime { get; set; }
 
