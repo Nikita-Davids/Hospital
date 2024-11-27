@@ -39,6 +39,10 @@
                 <p><b>Weight:</b> @vital.Weight kg</p>
                 <p><b>Height:</b> @vital.Height cm</p>
                 <p>
+                    <b>BMI:</b> @vital.BMI 
+                    @(vital.BMI > 25 || vital.BMI < 19 ? @Html.Raw("<span style='color:red;'>(Out of range)</span>") : "")
+                </p>
+                <p>
                     <b>Temperature:</b> @vital.Tempreture °C
                     @(vital.Tempreture > 37 || vital.Tempreture < 34 ? @Html.Raw("<span style='color:red;'>(Out of range)</span>") : "")
                 </p>
@@ -61,8 +65,8 @@
                     <button type="submit" class="btn btn-primary">Email Surgeon</button>
                 </form>
 
-                <a class="btn btn-primary" asp-action="NurseAddPatientVital">Retake Patient Vital</a>
-            </div>
+@*                 <a class="btn btn-primary" asp-action="NurseAddPatientVital">Retake Patient Vital</a>
+ *@            </div>
         </div>
     }
 

@@ -101,6 +101,7 @@ namespace Hospital.Controllers
                     PatientId = v.PatientId,
                     Weight = v.Weight,
                     Height = v.Height,
+                    BMI = v.BMI,
                     Tempreture = v.Tempreture,
                     BloodPressure = v.BloodPressure,
                     Pulse = v.Pulse,
@@ -776,25 +777,39 @@ namespace Hospital.Controllers
                     // Ensure patient is found
                     var patientName = patient?.FullName ?? "Unknown Patient";
 
-                    // Add patient vital details to the email body
-                    vitalDetailsBuilder.Append($"<li><strong>Patient: {patientName}</strong><br />" +
-                                                $"Patient ID: {vital.PatientId}<br />" +
-                                                $"Weight: {vital.Weight} kg<br />" +
-                                                $"Height: {vital.Height} cm<br />" +
-                                                $"Temperature: {vital.Tempreture} °C<br />" +
-                                                $"Blood Pressure: {vital.BloodPressure} mmHg<br />" +
-                                                $"Pulse: {vital.Pulse} bpm<br />" +
-                                                $"Respiratory Rate: {vital.Respiratory} breaths/min<br />" +
-                                                $"Blood Oxygen: {vital.BloodOxygen} %<br />" +
-                                                $"Blood Glucose Level: {vital.BloodGlucoseLevel} mg/dL<br />" +
-                                                $"Vital Time: {vital.VitalTime?.ToString(@"hh\:mm")}<br /></li>");
-                }
+
+                    // Define colors for BMI, Temperature, Blood Pressure, Blood Glucose, and Oxygen saturation
+                    string bmiColor = (vital.BMI < 18 || vital.BMI > 25) ? "color:#FF0000;" : "color:#808080;";
+                    string temperatureColor = (vital.Tempreture > 37 || vital.Tempreture < 34) ? "color:#FF0000;" : "color:#808080;";
+                    string bloodPressureColor = (IsHighBloodPressure(vital.BloodPressure) || IsLowBloodPressure(vital.BloodPressure)) ? "color:#FF0000;" : "color:#808080;";
+                    string glucoseColor = (vital.BloodGlucoseLevel > 120) ? "color:#FF0000;" : "color:#808080;";
+                    string oxygenColor = (vital.BloodOxygen < 90) ? "color:#FF0000;" : "color:#808080;";
+
+                    // Append the vital details with color checks
+                    vitalDetailsBuilder.Append($"<li><strong>Patient Name:</strong> {patientName}<br />" +
+                                               $"<strong>Patient ID:</strong> {vital.PatientId}<br />" +
+                                               $"<strong>Weight:</strong> {vital.Weight} kg<br />" +
+                                               $"<strong>Height:</strong> {vital.Height} cm<br />" +
+                                               $"<strong style=\"{bmiColor}\">BMI:</strong> {vital.BMI} <br />" +
+                                               $"<strong style=\"{temperatureColor}\">Temperature:</strong> {vital.Tempreture} °C<br />" +
+                                               $"<strong style=\"{bloodPressureColor}\">Blood Pressure:</strong> {vital.BloodPressure} mmHg<br />" +
+                                               $"<strong>Pulse:</strong> {vital.Pulse} bpm<br />" +
+                                               $"<strong>Respiratory Rate:</strong> {vital.Respiratory} breaths/min<br />" +
+                                               $"<strong style=\"{oxygenColor}\">Blood Oxygen:</strong> {vital.BloodOxygen} %<br />" +
+                                               $"<strong style=\"{glucoseColor}\">Blood Glucose Level:</strong> {vital.BloodGlucoseLevel} mg/dL<br />" +
+                                               $"<strong>Vital Time:</strong> {vital.VitalTime?.ToString(@"hh\:mm")}<br />" +
+                                               $"<br />");
+
+
+    }
 
                 vitalDetailsBuilder.Append("</ul>");
 
                 // Define the email message
                 var fromAddress = new MailAddress("kitadavids@gmail.com", "Nurse");
-                var toAddress = new MailAddress("nicky.mostert@mandela.ac.za", "Surgeon");
+                //var toAddress = new MailAddress("nicky.mostert@mandela.ac.za", "Surgeon");
+                var toAddress = new MailAddress("gabrielkojo77@gmail.com", "Surgeon");
+
                 const string fromPassword = "nhjj efnx mjpv okee"; // Use environment variables or secure storage in production
 
                 var smtpClient = new System.Net.Mail.SmtpClient
@@ -810,14 +825,48 @@ namespace Hospital.Controllers
                 var mailMessage = new MailMessage
                 {
                     From = fromAddress,
-                    Subject = "Northside Hospital - Patient Vital Alert",
+                    Subject = "Northside Hospital - Critical Patient Vital Alert",
                     Body = $@"
-                    <h3>Patient Vitals Alert</h3>
-                    <p>The following patient vitals require your IMMEDIATE ATTENTION:</p>
-                    {vitalDetailsBuilder}
-                    <p>Please attend to the matter ASAP</p>",
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+            }}
+            h3 {{
+                color: #d9534f; /* Red color to highlight urgency */
+            }}
+            p {{
+                font-size: 14px;
+                color: #333;
+            }}
+            ul {{
+                padding: 0;
+                list-style-type: none;
+            }}
+            li {{
+                margin-bottom: 15px;
+                font-size: 14px;
+            }}
+            strong {{
+                color: #5a5a5a;
+            }}
+        </style>
+    </head>
+    <body>
+        <h3>Patient Vitals Alert</h3>
+        <p>Attention required: The following patient vitals are outside normal ranges and require your <strong>IMMEDIATE ATTENTION</strong>:</p>
+        <ul>
+            {vitalDetailsBuilder}
+        </ul>
+        <p>Please prioritize this matter and address it as soon as possible.</p>
+        <p>Best regards,<br />Northside Hospital Alert System</p>
+    </body>
+    </html>",
                     IsBodyHtml = true
                 };
+
                 mailMessage.To.Add(toAddress);
 
                 // Send the email
@@ -835,7 +884,30 @@ namespace Hospital.Controllers
                 }
             }
         }
+        // Helper functions for Blood Pressure Checks
+        private bool IsHighBloodPressure(string bloodPressure)
+        {
+            if (string.IsNullOrEmpty(bloodPressure)) return false;
+            var parts = bloodPressure.Split('/');
+            if (parts.Length == 2)
+            {
+                int systolic = int.Parse(parts[0]);
+                return systolic > 140;
+            }
+            return false;
+        }
 
+        private bool IsLowBloodPressure(string bloodPressure)
+        {
+            if (string.IsNullOrEmpty(bloodPressure)) return false;
+            var parts = bloodPressure.Split('/');
+            if (parts.Length == 2)
+            {
+                int diastolic = int.Parse(parts[1]);
+                return diastolic < 60;
+            }
+            return false;
+        }
         // GET: Nurse/AddPatientAllergy
         [HttpGet]
         public IActionResult NurseAddPatientAllergy()
